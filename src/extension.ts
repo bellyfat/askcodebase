@@ -1,10 +1,13 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
+import { WebViewProvider} from './WebViewProvider';
 
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
+	const provider = new WebViewProvider();
+	context.subscriptions.push(vscode.window.registerWebviewViewProvider(WebViewProvider.viewType, provider));
 
 	// Use the console to output diagnostic information (console.log) and errors (console.error)
 	// This line of code will only be executed once when your extension is activated
@@ -16,7 +19,7 @@ export function activate(context: vscode.ExtensionContext) {
 	let disposable = vscode.commands.registerCommand('ask-codebase.helloWorld', () => {
 		// The code you place here will be executed every time your command is executed
 		// Display a message box to the user
-		vscode.window.showInformationMessage('Hello World from Ask Codebase!');
+		vscode.window.showInformationMessage('Hello World from Ask Codebase.');
 	});
 
 	context.subscriptions.push(disposable);

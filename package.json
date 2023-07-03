@@ -17,7 +17,26 @@
         "command": "ask-codebase.helloWorld",
         "title": "Hello World"
       }
-    ]
+    ],
+    "viewsContainers": {
+      "panel": [
+        {
+          "icon": "media/dep.svg",
+          "id": "ask-codebase",
+          "title": "Ask Codebase"
+        }
+      ]
+    },
+    "views": {
+      "ask-codebase": [
+        {
+          "type": "webview",
+          "id": "ask-codebase",
+          "name": "Ask Codebase",
+          "icon": "media/dep.svg"
+        }
+      ]
+    }
   },
   "scripts": {
     "vscode:prepublish": "pnpm run package",
