@@ -1,23 +1,24 @@
 import { join } from 'path'
 import * as vscode from 'vscode'
 import { ExtensionMode, Uri } from 'vscode'
+import fetch from 'node-fetch'
 
 export class WebViewProvider implements vscode.WebviewViewProvider {
   public static readonly viewType = 'ask-codebase'
 
   constructor(private readonly _context: vscode.ExtensionContext) {}
 
-  resolveWebviewView(
+  public async resolveWebviewView(
     webviewView: vscode.WebviewView,
     context: vscode.WebviewViewResolveContext<unknown>,
     token: vscode.CancellationToken
-  ): void | Thenable<void> {
+  ) {
     webviewView.webview.options = {
       enableScripts: true,
       localResourceRoots: []
     }
 
-    webviewView.webview.html = this._getHtmlForWebview(webviewView.webview)
+    webviewView.webview.html = await this._getHtmlForWebview(webviewView.webview)
 
     webviewView.webview.onDidReceiveMessage(data => {
       switch (data.type) {
@@ -29,7 +30,7 @@ export class WebViewProvider implements vscode.WebviewViewProvider {
     })
   }
 
-  private _getHtmlForWebview(webView: vscode.Webview) {
+  private async _getHtmlForWebview(webView: vscode.Webview) {
     const jsFile = 'vscode.js'
     const cssFile = 'vscode.css'
     const localServerUrl = 'http://localhost:3000'
@@ -48,8 +49,10 @@ export class WebViewProvider implements vscode.WebviewViewProvider {
     } else {
       scriptUrl = `${localServerUrl}/${jsFile}`
     }
+    const devServerHtml = await fetch(`${localServerUrl}/index.html`).then(res => res.text())
 
-    return `<!DOCTYPE html>
+    if (isProduction) {
+      return `<!DOCTYPE html>
       <html lang="en">
       <head>
         <meta charset="UTF-8">
@@ -61,5 +64,11 @@ export class WebViewProvider implements vscode.WebviewViewProvider {
         <script src="${scriptUrl}" />
       </body>
       </html>`
+    } else {
+      const html = devServerHtml.replace(/(href|src)="(.+)"/g, (_, p1, p2) => {
+        return `${p1}="${localServerUrl}/${p2}"`
+      })
+      return html
+    }
   }
 }
