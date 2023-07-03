@@ -1,60 +1,65 @@
-import * as vscode from 'vscode';
+import { join } from 'path'
+import * as vscode from 'vscode'
+import { ExtensionMode, Uri } from 'vscode'
 
 export class WebViewProvider implements vscode.WebviewViewProvider {
-    public static readonly viewType = 'ask-codebase';
+  public static readonly viewType = 'ask-codebase'
 
-    resolveWebviewView(webviewView: vscode.WebviewView, context: vscode.WebviewViewResolveContext<unknown>, token: vscode.CancellationToken): void | Thenable<void> {
-		webviewView.webview.options = {
-			enableScripts: true,
-			localResourceRoots: [ ]
-		};
+  constructor(private readonly _context: vscode.ExtensionContext) {}
 
-		webviewView.webview.html = this._getHtmlForWebview(webviewView.webview);
-
-		webviewView.webview.onDidReceiveMessage(data => {
-			switch (data.type) {
-				case 'colorSelected':
-					{
-						vscode.window.activeTextEditor?.insertSnippet(new vscode.SnippetString(`#${data.value}`));
-						break;
-					}
-			}
-		});
+  resolveWebviewView(
+    webviewView: vscode.WebviewView,
+    context: vscode.WebviewViewResolveContext<unknown>,
+    token: vscode.CancellationToken
+  ): void | Thenable<void> {
+    webviewView.webview.options = {
+      enableScripts: true,
+      localResourceRoots: []
     }
 
-	private _getHtmlForWebview(webview: vscode.Webview) {
-		// Get the local path to main script run in the webview, then convert it to a uri we can use in the webview.
-		// const scriptUri = webview.asWebviewUri(vscode.Uri.joinPath(this._extensionUri, 'media', 'main.js'));
+    webviewView.webview.html = this._getHtmlForWebview(webviewView.webview)
 
-		// Do the same for the stylesheet.
-		// const styleResetUri = webview.asWebviewUri(vscode.Uri.joinPath(this._extensionUri, 'media', 'reset.css'));
-		// const styleVSCodeUri = webview.asWebviewUri(vscode.Uri.joinPath(this._extensionUri, 'media', 'vscode.css'));
-		// const styleMainUri = webview.asWebviewUri(vscode.Uri.joinPath(this._extensionUri, 'media', 'main.css'));
+    webviewView.webview.onDidReceiveMessage(data => {
+      switch (data.type) {
+        case 'colorSelected': {
+          vscode.window.activeTextEditor?.insertSnippet(new vscode.SnippetString(`#${data.value}`))
+          break
+        }
+      }
+    })
+  }
 
-		// Use a nonce to only allow a specific script to be run.
-		// const nonce = getNonce();
+  private _getHtmlForWebview(webView: vscode.Webview) {
+    const jsFile = 'vscode.js'
+    const cssFile = 'vscode.css'
+    const localServerUrl = 'http://localhost:3000'
 
-		return `<!DOCTYPE html>
-			<html lang="en">
-			<head>
-				<meta charset="UTF-8">
+    let scriptUrl = null
+    let cssUrl = null
 
-				<!--
-					Use a content security policy to only allow loading styles from our extension directory,
-					and only allow scripts that have a specific nonce.
-					(See the 'webview-sample' extension sample for img-src content security policy examples)
-				-->
+    const isProduction = this._context.extensionMode === ExtensionMode.Production
+    if (isProduction) {
+      scriptUrl = webView
+        .asWebviewUri(Uri.file(join(this._context.extensionPath, 'dist', jsFile)))
+        .toString()
+      cssUrl = webView
+        .asWebviewUri(Uri.file(join(this._context.extensionPath, 'dist', cssFile)))
+        .toString()
+    } else {
+      scriptUrl = `${localServerUrl}/${jsFile}`
+    }
 
-				<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-				<title>Cat Colors</title>
-			</head>
-			<body>
-				<ul class="color-list">
-				</ul>
-
-				<button class="add-color-button">Add Color</button>
-			</body>
-			</html>`;
-	}
+    return `<!DOCTYPE html>
+      <html lang="en">
+      <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        ${isProduction ? `<link href="${cssUrl}" rel="stylesheet">` : ''}
+      </head>
+      <body>
+        <div id="root"></div>
+        <script src="${scriptUrl}" />
+      </body>
+      </html>`
+  }
 }
