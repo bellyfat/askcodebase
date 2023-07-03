@@ -1,13 +1,13 @@
-import { VSCodeTextField } from '@vscode/webview-ui-toolkit/react'
+import styles from './AskCodebasePanel.module.scss'
+import * as cx from 'classnames'
 
 export function AskCodebasePanel() {
   return (
-    <div className='ask-codebase-panel'>
-      <div className='repl-input-chevron codicon codicon-debug-console-evaluation-prompt'></div>
-      <div className='icon'>
-        <i className='codicon codicon-debug-console'></i> debug-console
+    <div className={styles.AskCodebasePanel}>
+      <div className={styles.inputBox}>
+        <div className={cx('codicon codicon-debug-console-evaluation-prompt', styles.prompt)}></div>
+        <input className={styles.input} />
       </div>
-      <input />
     </div>
   )
 }

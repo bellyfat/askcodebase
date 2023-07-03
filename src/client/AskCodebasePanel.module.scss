@@ -1,0 +1,27 @@
+.AskCodebasePanel {
+  display: flex;
+  flex-direction: column-reverse;
+  height: 100vh;
+  .inputBox {
+    height: 17px;
+    display: flex;
+    align-items: center;
+    .prompt {
+      padding: 0 6px 0 8px;
+      font-size: 16px;
+      height: 100%;
+      display: flex;
+      flex-shrink: 0;
+      justify-content: center;
+      font-weight: 600;
+      line-height: 17px;
+      color: var(--vscode-icon-foreground);
+    }
+    .input {
+      background: transparent;
+      outline: none;
+      color: white;
+      border: none;
+    }
+  }
+}
