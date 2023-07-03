@@ -1,0 +1,40 @@
+import styles from './WelcomeScreen.module.scss'
+import IconLogo from '~/icons/logo.svg'
+
+export function WelcomeScreen() {
+  return (
+    <div className={styles.WelcomeScreen}>
+      <div className={styles.title}>
+        <span>AskCodebase Terminal</span>
+      </div>
+      <div className={styles.description}>
+        Start building Your Next Big Thing with the Next-Generation Terminal.
+      </div>
+      <div className={styles.examples}>
+        <div className={styles.block}>
+          <div className={styles.subTitle}>Examples:</div>
+        </div>
+        <div className={styles.block}>
+          <div className={styles.head}>Shell Commands:</div>
+          <div className={styles.example}>ls -la</div>
+          <div className={styles.example}>npm install</div>
+          <div className={styles.example}>npm run dev</div>
+          <div className={styles.example}>git log</div>
+          <div className={styles.example}>pwd</div>
+        </div>
+        <div className={styles.block}>
+          <div className={styles.head}>Codebase Commands:</div>
+          <div className={styles.example}>install npm dependencies for me</div>
+          <div className={styles.example}>start this project</div>
+          <div className={styles.example}>fix all errors</div>
+          <div className={styles.example}>help me push my changes to the remote repository</div>
+        </div>
+        <div className={styles.block}>
+          <div className={styles.head}>Common Questions:</div>
+          <div className={styles.example}>How use use react 18?</div>
+          <div className={styles.example}>explain this project for me</div>
+        </div>
+      </div>
+    </div>
+  )
+}

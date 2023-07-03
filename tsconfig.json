@@ -1,28 +1,21 @@
 {
-	"paths": {
-		"~/*": [
-			"src/client/*"
-		],
-		"@/*": [
-			"node_modules/*"
-		]
-	},
-	"compilerOptions": {
-		"module": "commonjs",
-		"target": "ES2020",
-		"jsx": "react-jsx",
-		"strict": true,
-		"strictNullChecks": true,
-		"lib": [
-			"dom",
-			"dom.iterable",
-			"esnext"
-		],
-		"sourceMap": true,
-		"rootDir": "src",
-		/* Additional Checks */
-		// "noImplicitReturns": true, /* Report error when not all code paths in function return a value. */
-		// "noFallthroughCasesInSwitch": true, /* Report errors for fallthrough cases in switch statement. */
-		// "noUnusedParameters": true,  /* Report errors on unused parameters. */
-	}
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "~/*": ["src/client/*"],
+      "@/*": ["node_modules/*"]
+    },
+    "module": "commonjs",
+    "target": "ES2020",
+    "jsx": "react-jsx",
+    "strict": true,
+    "strictNullChecks": true,
+    "lib": ["dom", "dom.iterable", "esnext"],
+    "sourceMap": true,
+    "rootDir": "src"
+    /* Additional Checks */
+    // "noImplicitReturns": true, /* Report error when not all code paths in function return a value. */
+    // "noFallthroughCasesInSwitch": true, /* Report errors for fallthrough cases in switch statement. */
+    // "noUnusedParameters": true,  /* Report errors on unused parameters. */
+  }
 }

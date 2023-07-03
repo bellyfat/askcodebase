@@ -6,9 +6,10 @@
     height: 17px;
     display: flex;
     align-items: center;
+    margin-bottom: 10px;
     .prompt {
       padding: 0 6px 0 8px;
-      font-size: 16px;
+      font-size: 20px;
       height: 100%;
       display: flex;
       flex-shrink: 0;
@@ -20,8 +21,14 @@
     .input {
       background: transparent;
       outline: none;
-      color: white;
+      color: var(--vscode-foreground);
       border: none;
+      font-size: 16px;
+      width: 100%;
+      &::placeholder {
+        color: var(--vscode-input-placeholderForeground);
+        opacity: 0.75;
+      }
     }
   }
 }

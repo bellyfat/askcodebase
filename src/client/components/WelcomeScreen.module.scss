@@ -1,0 +1,78 @@
+.WelcomeScreen {
+  display: flex;
+  position: fixed;
+  top: 10vh;
+  width: 100vw;
+  justify-content: center;
+  flex-direction: column;
+  text-align: center;
+  color: var(--vscode-panel-background);
+  filter: brightness(500%);
+  user-select: none;
+  .title {
+    justify-content: center;
+    align-items: center;
+    svg {
+      width: 25px;
+      height: 25px;
+      position: relative;
+      top: -15px;
+      right: -15px;
+    }
+    font-size: 30px;
+    font-weight: 600;
+  }
+  .description {
+    margin-top: 10px;
+    font-size: 16px;
+    filter: brightness(95%);
+  }
+  .examples {
+    margin: 20px auto;
+    width: 80vw;
+    display: flex;
+    flex-direction: column;
+    .block {
+      display: flex;
+      margin-top: 10px;
+      align-items: center;
+      flex-wrap: wrap;
+      .head {
+        font-size: 14px;
+        margin-right: 10px;
+        display: flex;
+        align-items: center;
+        &::before {
+          content: '#';
+          background: var(--vscode-textBlockQuote-background);
+          border-radius: 50%;
+          height: 4px;
+          width: 4px;
+          display: inline-flex;
+          overflow: hidden;
+          margin-right: 8px;
+          margin-left: 8px;
+          filter: brightness(50%);
+        }
+      }
+      .tail {
+        margin-left: 10px;
+      }
+      .subTitle {
+        font-size: 16px;
+        font-weight: bold;
+      }
+      .example {
+        display: flex;
+        margin: 1px 5px;
+        color: var(--vscode-foreground);
+        background: var(--vscode-textBlockQuote-background);
+        filter: brightness(20%);
+        font-size: 14px;
+        padding: 3px 5px;
+        border-radius: 3px;
+        opacity: 0.9;
+      }
+    }
+  }
+}
