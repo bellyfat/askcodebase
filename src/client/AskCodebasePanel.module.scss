@@ -2,4 +2,57 @@
   display: flex;
   flex-direction: column-reverse;
   height: 100vh;
+  .logs {
+    margin: 5px 30px 5px 15px;
+    .log {
+      border-radius: 3px;
+      padding: 5px 10px 5px 0;
+      margin-top: 5px;
+      color: var(--vscode-foreground);
+      white-space: pre-wrap;
+      line-height: 1.5;
+      display: flex;
+      @mixin colorize($color) {
+        content: '-';
+        color: transparent;
+        user-select: none;
+        position: relative;
+        border-left: 3px solid $color;
+        padding-left: 10px;
+        border-radius: 1px;
+        opacity: 0.8;
+        display: flex;
+      }
+      &.error {
+        background-color: rgba(255, 0, 0, 0.02);
+        &::before {
+          @include colorize(var(--vscode-terminal-ansiBrightRed));
+        }
+      }
+      &.success {
+        background-color: rgba(0, 255, 0, 0.02);
+        &::before {
+          @include colorize(var(--vscode-terminal-ansiBrightGreen));
+        }
+      }
+      &.warn {
+        background-color: rgba(255, 255, 0, 0.02);
+        &::before {
+          @include colorize(var(--vscode-terminal-ansiBrightYellow));
+        }
+      }
+      &.normal {
+        background-color: rgba(255, 255, 255, 0.02);
+        &::before {
+          @include colorize(var(--vscode-terminal-ansiBrightBlack));
+        }
+      }
+      &.info {
+        background-color: rgba(0, 0, 255, 0.02);
+        &::before {
+          @include colorize(var(--vscode-terminal-ansiBrightBlue));
+        }
+      }
+    }
+  }
 }
