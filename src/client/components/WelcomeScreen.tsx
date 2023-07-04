@@ -8,7 +8,7 @@ export function WelcomeScreen() {
         <span>AskCodebase Terminal</span>
       </div>
       <div className={styles.description}>
-        Start building Your Next Big Thing with the Next-Generation Terminal.
+        Start building Your Next Big Thing with the Next-Generation Terminal <IconLogo />
       </div>
       <div className={styles.examples}>
         <div className={styles.block}>

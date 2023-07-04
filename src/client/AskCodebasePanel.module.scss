@@ -1,15 +1,19 @@
 .AskCodebasePanel {
+  --ask-padding-vertical: 10px;
+  --ask-padding-right: 10px;
   display: flex;
   flex-direction: column-reverse;
   height: 100vh;
   .inputBox {
-    height: 17px;
     display: flex;
     align-items: center;
-    margin-bottom: 10px;
+    border-top: 1px solid var(--vscode-input-border);
+    position: relative;
+    overflow: hidden;
+    padding: var(--ask-padding-vertical) var(--ask-padding-right) var(--ask-padding-vertical) 0;
     .prompt {
       padding: 0 6px 0 8px;
-      font-size: 20px;
+      font-size: 16px;
       height: 100%;
       display: flex;
       flex-shrink: 0;
@@ -19,16 +23,23 @@
       color: var(--vscode-icon-foreground);
     }
     .input {
-      background: transparent;
+      background: var(--vscode-panel-background);
       outline: none;
       color: var(--vscode-foreground);
       border: none;
-      font-size: 16px;
-      width: 100%;
-      &::placeholder {
-        color: var(--vscode-input-placeholderForeground);
-        opacity: 0.75;
-      }
+      font-size: 14px;
+    }
+    .placeholder {
+      position: absolute;
+      display: none;
+      white-space: pre-wrap;
+      top: var(--ask-padding-vertical);
+      left: 36px;
+      color: var(--vscode-input-placeholderForeground);
+      opacity: 0.75;
+      pointer-events: none;
+      user-select: none;
+      z-index: 10;
     }
   }
 }
