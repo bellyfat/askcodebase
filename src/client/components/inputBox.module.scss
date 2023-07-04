@@ -1,0 +1,39 @@
+.inputBox {
+  --ask-padding-vertical: 10px;
+  --ask-padding-right: 10px;
+  display: flex;
+  align-items: center;
+  border-top: 1px solid var(--vscode-input-border);
+  position: relative;
+  padding: var(--ask-padding-vertical) var(--ask-padding-right) var(--ask-padding-vertical) 0;
+  background: var(--vscode-panel-background);
+  .prompt {
+    padding: 0 6px 0 8px;
+    font-size: 16px;
+    height: 100%;
+    display: flex;
+    flex-shrink: 0;
+    justify-content: center;
+    font-weight: 600;
+    line-height: 17px;
+    color: var(--vscode-icon-foreground);
+  }
+  .input {
+    outline: none;
+    color: var(--vscode-foreground);
+    border: none;
+    font-size: 14px;
+  }
+  .placeholder {
+    position: absolute;
+    display: none;
+    white-space: pre-wrap;
+    top: var(--ask-padding-vertical);
+    left: 36px;
+    color: var(--vscode-input-placeholderForeground);
+    opacity: 0.75;
+    pointer-events: none;
+    user-select: none;
+    z-index: 10;
+  }
+}
