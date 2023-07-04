@@ -9,8 +9,8 @@
     align-items: center;
     border-top: 1px solid var(--vscode-input-border);
     position: relative;
-    overflow: hidden;
     padding: var(--ask-padding-vertical) var(--ask-padding-right) var(--ask-padding-vertical) 0;
+    background: var(--vscode-panel-background);
     .prompt {
       padding: 0 6px 0 8px;
       font-size: 16px;
@@ -23,7 +23,6 @@
       color: var(--vscode-icon-foreground);
     }
     .input {
-      background: var(--vscode-panel-background);
       outline: none;
       color: var(--vscode-foreground);
       border: none;

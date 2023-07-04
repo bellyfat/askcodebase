@@ -15,6 +15,11 @@ export function WelcomeScreen() {
           <div className={styles.subTitle}>Examples:</div>
         </div>
         <div className={styles.block}>
+          <div className={styles.head}>Built-in Commands:</div>
+          <div className={styles.example}>revert</div>
+          <div className={styles.example}>help</div>
+        </div>
+        <div className={styles.block}>
           <div className={styles.head}>Shell Commands:</div>
           <div className={styles.example}>ls -la</div>
           <div className={styles.example}>npm install</div>
@@ -30,7 +35,7 @@ export function WelcomeScreen() {
           <div className={styles.example}>help me push my changes to the remote repository</div>
         </div>
         <div className={styles.block}>
-          <div className={styles.head}>Common Questions:</div>
+          <div className={styles.head}>Ask Questions:</div>
           <div className={styles.example}>How use use react 18?</div>
           <div className={styles.example}>explain this project for me</div>
         </div>

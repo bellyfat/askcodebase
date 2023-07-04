@@ -25,7 +25,7 @@
     svg {
       width: 25px;
       height: 25px;
-      margin-left: 5px;
+      margin-left: 8px;
     }
   }
   .examples {
@@ -43,18 +43,7 @@
         margin-right: 10px;
         display: flex;
         align-items: center;
-        &::before {
-          content: '#';
-          background: var(--vscode-textBlockQuote-background);
-          border-radius: 50%;
-          height: 4px;
-          width: 4px;
-          display: inline-flex;
-          overflow: hidden;
-          margin-right: 8px;
-          margin-left: 8px;
-          filter: brightness(50%);
-        }
+        padding-left: 10px;
       }
       .tail {
         margin-left: 10px;
@@ -67,8 +56,8 @@
         display: flex;
         margin: 1px 5px;
         color: var(--vscode-foreground);
-        background: var(--vscode-textBlockQuote-background);
-        filter: brightness(20%);
+        background: transparent;
+        filter: brightness(15%);
         font-size: 14px;
         padding: 3px 5px;
         border-radius: 3px;
