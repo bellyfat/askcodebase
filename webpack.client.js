@@ -17,7 +17,7 @@ module.exports = {
   resolve: {
     alias: {
       '@': path.resolve(__dirname, 'node_modules'),
-      '~': path.resolve(__dirname, 'src/client')
+      '~': path.resolve(__dirname, 'src')
     },
     fallback: {
       crypto: false

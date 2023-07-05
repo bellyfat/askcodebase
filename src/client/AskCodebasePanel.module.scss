@@ -3,56 +3,84 @@
   flex-direction: column-reverse;
   height: 100vh;
   .logs {
-    margin: 5px 30px 5px 15px;
+    margin: 5px 30px 5px 10px;
     .log {
+      display: flex;
+      align-items: center;
       border-radius: 3px;
-      padding: 5px 10px 5px 0;
-      margin-top: 5px;
+      padding: 15px 10px 15px 0;
+      margin-top: 10px;
       color: var(--vscode-foreground);
       white-space: pre-wrap;
       line-height: 1.5;
       display: flex;
+      position: relative;
+      padding-left: 25px;
       @mixin colorize($color) {
-        content: '-';
-        color: transparent;
-        user-select: none;
-        position: relative;
-        border-left: 3px solid $color;
-        padding-left: 10px;
-        border-radius: 1px;
-        opacity: 0.8;
-        display: flex;
+        color: var($color);
+        background-color: rgba(var($color + 'RGB'), 0.01);
+        border: 1px solid rgba(var($color + 'RGB'), 0.1);
+        .gripper {
+          user-select: none;
+          position: absolute;
+          left: 3px;
+          margin-right: 10px;
+          opacity: 0.5;
+          display: flex;
+          width: 3px;
+          cursor: grab;
+          &:hover {
+            opacity: 1;
+          }
+          &:active {
+            cursor: grabbing;
+          }
+        }
+        .copy,
+        .stop {
+          user-select: none;
+          position: absolute;
+          right: 10px;
+          margin-right: 10px;
+          opacity: 0.4;
+          display: flex;
+          width: 3px;
+          cursor: pointer;
+          &:active {
+            opacity: 1;
+          }
+        }
+        .stop {
+          color: var(--vscode-terminal-ansiBrightRed);
+          opacity: 1;
+        }
       }
       &.error {
-        background-color: rgba(255, 0, 0, 0.02);
-        &::before {
-          @include colorize(var(--vscode-terminal-ansiBrightRed));
-        }
+        @include colorize(--vscode-terminal-ansiBrightRed);
       }
       &.success {
-        background-color: rgba(0, 255, 0, 0.02);
-        &::before {
-          @include colorize(var(--vscode-terminal-ansiBrightGreen));
-        }
+        @include colorize(--vscode-terminal-ansiBrightGreen);
       }
       &.warn {
-        background-color: rgba(255, 255, 0, 0.02);
-        &::before {
-          @include colorize(var(--vscode-terminal-ansiBrightYellow));
-        }
+        @include colorize(--vscode-terminal-ansiBrightYellow);
       }
       &.normal {
-        background-color: rgba(255, 255, 255, 0.02);
-        &::before {
-          @include colorize(var(--vscode-terminal-ansiBrightBlack));
-        }
+        @include colorize(--vscode-terminal-ansiBrightWhite);
       }
       &.info {
-        background-color: rgba(0, 0, 255, 0.02);
-        &::before {
-          @include colorize(var(--vscode-terminal-ansiBrightBlue));
-        }
+        @include colorize(--vscode-terminal-ansiBrightBlue);
+      }
+      &.running > .gripper {
+        animation: flash 300ms linear infinite;
       }
     }
+  }
+}
+@keyframes flash {
+  from {
+    opacity: 0.5;
+  }
+  to {
+    opacity: 1;
   }
 }

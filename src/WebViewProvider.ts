@@ -13,21 +13,45 @@ export class WebViewProvider implements vscode.WebviewViewProvider {
     context: vscode.WebviewViewResolveContext<unknown>,
     token: vscode.CancellationToken
   ) {
-    webviewView.webview.options = {
+    const { webview } = webviewView
+    webview.options = {
       enableScripts: true,
       localResourceRoots: []
     }
+    webview.html = await this._getHtmlForWebview(webviewView.webview)
 
-    webviewView.webview.html = await this._getHtmlForWebview(webviewView.webview)
-
-    webviewView.webview.onDidReceiveMessage(data => {
-      switch (data.type) {
-        case 'colorSelected': {
-          vscode.window.activeTextEditor?.insertSnippet(new vscode.SnippetString(`#${data.value}`))
-          break
-        }
-      }
+    // monit VSCode theme color change
+    vscode.window.onDidChangeActiveColorTheme(e => {
+      webview.postMessage({ event: 'onDidChangeActiveColorTheme', data: e })
     })
+
+    webviewView.webview.onDidReceiveMessage(
+      async message => {
+        let data
+        let error
+        try {
+          // Execute command based on `message.command` and `message.data`
+          // and set the result to `data`.
+          // data = await executeCommand(message.command, message.data)
+          switch (message.command) {
+            case 'getThemeColor': {
+              const [color] = message.data
+              const themeColor = new vscode.ThemeColor(color)
+              themeColor
+              data = await vscode.workspace.getConfiguration('workbench').get('colorTheme')
+              console.log('ask color', color, data)
+              break
+            }
+          }
+        } catch (e) {
+          error = e
+          console.error('onDidReceiveMessage', e)
+        }
+        webviewView.webview.postMessage({ responseId: message.id, data, error })
+      },
+      undefined,
+      this._context.subscriptions
+    )
   }
 
   private async _getHtmlForWebview(webView: vscode.Webview) {
@@ -35,8 +59,8 @@ export class WebViewProvider implements vscode.WebviewViewProvider {
     const cssFile = 'vscode.css'
     const localServerUrl = 'http://localhost:3000'
 
-    let scriptUrl = null
-    let cssUrl = null
+    let scriptUrl: string | null = null
+    let cssUrl: string | null = null
 
     const isProduction = this._context.extensionMode === ExtensionMode.Production
     if (isProduction) {

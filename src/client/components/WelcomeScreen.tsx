@@ -1,5 +1,5 @@
 import styles from './WelcomeScreen.module.scss'
-import IconLogo from '~/icons/logo.svg'
+import IconLogo from '~/client/icons/logo.svg'
 
 export function WelcomeScreen() {
   return (

@@ -6,6 +6,11 @@ export enum LogLevel {
   Success = 'success'
 }
 
+export enum ProgramStatus {
+  Running = 'running',
+  Exit = 'exit'
+}
+
 export enum LogType {
   UserReq = 'UserReq',
   ShellResp = 'ShellResp',
@@ -24,4 +29,5 @@ export interface ILog {
   ts: number
   message: string
   user: IUser
+  status: ProgramStatus
 }
