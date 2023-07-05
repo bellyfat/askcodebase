@@ -35,6 +35,23 @@ module.exports = {
         exclude: /node_modules/
       },
       {
+        test: /\.css$/i,
+        use: [
+          'style-loader',
+          {
+            loader: 'css-loader',
+            options: {
+              url: false,
+              modules: {
+                auto: true,
+                localIdentName: '[local]_[hash:base64:5]'
+              }
+            }
+          },
+          'postcss-loader'
+        ]
+      },
+      {
         test: /\.s[ac]ss$/i,
         use: [
           'style-loader',
