@@ -22,7 +22,7 @@ export interface IUser {
   username: string
 }
 
-export interface ILog {
+export interface ICommandBlock {
   type: LogType
   level: LogLevel
   id: string

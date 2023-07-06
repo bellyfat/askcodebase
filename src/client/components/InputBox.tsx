@@ -1,4 +1,4 @@
-import styles from './inputBox.module.scss'
+import styles from './InputBox.module.scss'
 import * as cx from 'classnames'
 import Editor, { Monaco, useMonaco } from '@monaco-editor/react'
 import { useRef } from 'react'
