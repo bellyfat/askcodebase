@@ -1,6 +1,6 @@
 import { FC, useState } from 'react'
 import { Tooltip } from 'react-tooltip'
-import { ICommandBlock, ProgramStatus } from '../types'
+import { ICommandBlock, BlockType, ProgramStatus } from '../types'
 import styles from './CommandBlock.module.scss'
 import * as cx from 'classnames'
 
@@ -16,6 +16,26 @@ export const CommandBlock: FC<{ block: ICommandBlock }> = ({ block }) => {
     }, 2000)
   }
 
+  const renderHead = (block: ICommandBlock) => {
+    switch (block.type) {
+      case BlockType.UserReq: {
+        return (
+          <div
+            className={styles.userAvatar}
+            style={
+              {
+                '--avatar-url': `url(${block.user.avatarUrl})`
+              } as React.CSSProperties
+            }
+          ></div>
+        )
+      }
+      case BlockType.ShellResp: {
+        return <div className={cx('codicon codicon-gripper', styles.gripper)}></div>
+      }
+    }
+  }
+
   return (
     <div
       className={cx(
@@ -25,8 +45,8 @@ export const CommandBlock: FC<{ block: ICommandBlock }> = ({ block }) => {
       )}
       key={block.id}
     >
-      <div className={cx('codicon codicon-gripper', styles.gripper)}></div>
-      <div>{block.message}</div>
+      {renderHead(block)}
+      <div className={styles.message}>{block.message}</div>
       {block.status === ProgramStatus.Exit ? (
         <div
           data-tooltip-id='copy-command'

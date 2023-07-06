@@ -1,10 +1,12 @@
 import styles from './AskCodebasePanel.module.scss'
 import { InputBox, WelcomeScreen } from '~/client/components'
-import { ICommandBlock, LogType, LogLevel, ProgramStatus } from './types'
 import { useEffect, useState } from 'react'
 import { VSCodeApi } from './VSCodeApi'
 import { colorToRGBString } from '~/client/utils'
 import { CommandBlocks } from './components/CommandBlocks'
+import { useAtomValue } from 'jotai'
+import { commandBlocksAtom } from './store'
+import { useCommandBlocks } from './hooks'
 
 function getThemeColors() {
   const element = document.getElementsByTagName('html')[0]
@@ -19,59 +21,13 @@ function getThemeColors() {
 
 export function AskCodebasePanel() {
   const [themeColors, setThemeColors] = useState<Record<string, string>>(() => getThemeColors())
+  const blocks = useAtomValue(commandBlocksAtom)
+
+  useCommandBlocks()
 
   useEffect(() => {
     VSCodeApi.onColorThemeChanged(() => setThemeColors(getThemeColors()))
   }, [])
-
-  const blocks: ICommandBlock[] = [
-    {
-      id: '1',
-      user: { userid: 'test', username: 'test' },
-      type: LogType.UserReq,
-      level: LogLevel.Error,
-      message: 'test',
-      ts: Date.now(),
-      status: ProgramStatus.Exit
-    },
-    {
-      id: '2',
-      user: { userid: 'test', username: 'test' },
-      type: LogType.UserReq,
-      level: LogLevel.Success,
-      message: 'The command is executed successfully.',
-      ts: Date.now(),
-      status: ProgramStatus.Exit
-    },
-    {
-      id: '3',
-      user: { userid: 'test', username: 'test' },
-      type: LogType.UserReq,
-      level: LogLevel.Warn,
-      message: 'Warning!!! The command is executed successfully.',
-      ts: Date.now(),
-      status: ProgramStatus.Exit
-    },
-    {
-      id: '4',
-      user: { userid: 'test', username: 'test' },
-      type: LogType.UserReq,
-      level: LogLevel.Info,
-      message:
-        'Note!!! The command is executed successfully.\nNote!!! The resource is downloading...',
-      ts: Date.now(),
-      status: ProgramStatus.Running
-    },
-    {
-      id: '5',
-      user: { userid: 'test', username: 'test' },
-      type: LogType.UserReq,
-      level: LogLevel.Log,
-      message: 'Log. The command is executed successfully.',
-      ts: Date.now(),
-      status: ProgramStatus.Exit
-    }
-  ]
 
   const colors = {
     '--vscode-terminal-ansiRedRGB': colorToRGBString(themeColors['--vscode-terminal-ansiRed']),

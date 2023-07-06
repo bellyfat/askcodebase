@@ -10,6 +10,16 @@
     display: flex;
     position: relative;
     padding-left: 25px;
+    .userAvatar {
+        height: 1rem;
+        width: 1rem;
+        background-image: var(--avatar-url);
+        border-radius: 2px;
+        background-size: 100% 100%;
+        user-select: none;
+        margin-left: -10px;
+        margin-right: 10px;
+    }
     @mixin colorize($color) {
         color: var($color);
         background-color: rgba(var($color + "RGB"), 0.01);

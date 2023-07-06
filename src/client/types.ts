@@ -11,7 +11,7 @@ export enum ProgramStatus {
   Exit = 'exit'
 }
 
-export enum LogType {
+export enum BlockType {
   UserReq = 'UserReq',
   ShellResp = 'ShellResp',
   ChatGPTResp = 'ChatGPTResp'
@@ -20,10 +20,11 @@ export enum LogType {
 export interface IUser {
   userid: string
   username: string
+  avatarUrl: string
 }
 
 export interface ICommandBlock {
-  type: LogType
+  type: BlockType
   level: LogLevel
   id: string
   ts: number

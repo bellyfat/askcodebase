@@ -2,6 +2,7 @@ import styles from './InputBox.module.scss'
 import * as cx from 'classnames'
 import Editor, { Monaco, useMonaco } from '@monaco-editor/react'
 import { useRef } from 'react'
+import { Log } from '~/client/Log'
 
 const placeholder = 'Send a command or a message'
 
@@ -40,7 +41,7 @@ export function InputBox() {
     // Enter to send message
     editor.addCommand(monaco.KeyCode.Enter, () => {
       const currentValue = editor.getValue()
-      console.log(`Sending message: ${currentValue}`)
+      Log.userSend(currentValue)
       editor.setValue('')
     })
 
