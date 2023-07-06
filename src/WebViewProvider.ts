@@ -1,5 +1,6 @@
 import { join } from 'path'
 import * as vscode from 'vscode'
+import * as cp from 'child_process'
 import { ExtensionMode, Uri } from 'vscode'
 import fetch from 'node-fetch'
 
@@ -25,29 +26,53 @@ export class WebViewProvider implements vscode.WebviewViewProvider {
       webview.postMessage({ event: 'onDidChangeActiveColorTheme', data: e })
     })
 
-    webviewView.webview.onDidReceiveMessage(
+    webview.onDidReceiveMessage(
       async message => {
         let data
         let error
         try {
-          // Execute command based on `message.command` and `message.data`
-          // and set the result to `data`.
-          // data = await executeCommand(message.command, message.data)
           switch (message.command) {
             case 'getThemeColor': {
               const [color] = message.data
               const themeColor = new vscode.ThemeColor(color)
               themeColor
               data = await vscode.workspace.getConfiguration('workbench').get('colorTheme')
-              console.log('ask color', color, data)
+              break
+            }
+            case 'spawn': {
+              const { command } = message.data
+              const process = cp.spawn('bash', ['-c', command], { shell: true })
+
+              process.stdout.on('data', chunk => {
+                webview.postMessage({
+                  event: 'onProcessEvent',
+                  data: [process.pid, 'stdout.data', chunk.toString()]
+                })
+              })
+
+              process.stderr.on('data', chunk => {
+                webview.postMessage({
+                  event: 'onProcessEvent',
+                  data: [process.pid, 'stderr.data', chunk.toString()]
+                })
+              })
+
+              process.on('error', err => {
+                webview.postMessage({ event: 'onProcessEvent', data: [process.pid, 'error', err] })
+              })
+
+              process.on('exit', code => {
+                webview.postMessage({ event: 'onProcessEvent', data: [process.pid, 'exit', code] })
+              })
+
+              data = { pid: process.pid }
               break
             }
           }
         } catch (e) {
           error = e
-          console.error('onDidReceiveMessage', e)
         }
-        webviewView.webview.postMessage({ responseId: message.id, data, error })
+        webview.postMessage({ responseId: message.id, data, error })
       },
       undefined,
       this._context.subscriptions

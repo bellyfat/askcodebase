@@ -1,4 +1,5 @@
 import { Deferred, deferred } from '~/common/Deferred'
+import { Process } from './Process'
 
 interface MessagePromise {
   resolve: (value: unknown) => void
@@ -11,35 +12,38 @@ declare global {
     postMessage(message: any): void
   }
 }
-
 class VSCodeApiClass {
-  private vscode: any
-  private messageId: number
-  private messagePromises: Record<number, MessagePromise>
+  private _vscode = acquireVsCodeApi()
+  private _messageId: number = 0
+  private _messagePromises: Record<number, MessagePromise> = {}
+  private _pendingProcesses: Record<number, Process> = {}
 
   private _onDidChangeActiveColorThemeCallback = () => {}
-
-  constructor() {
-    this.vscode = acquireVsCodeApi()
-    this.messageId = 0
-    this.messagePromises = {}
-  }
 
   public setup() {
     window.addEventListener('message', event => {
       const message = event.data
 
-      // Events
+      // Process events
       if (message && typeof message.event === 'string') {
         switch (message.event) {
-          case 'onDidChangeActiveColorTheme':
+          case 'onDidChangeActiveColorTheme': {
             this._onDidChangeActiveColorThemeCallback()
             break
+          }
+          case 'onProcessEvent': {
+            const [pid, event, data] = message.data
+            const process = this._pendingProcesses[pid]
+            if (process != null) {
+              process.dispatchEvent(event, data)
+            }
+            break
+          }
         }
       }
 
       if (message && typeof message.responseId === 'number') {
-        const promise = this.messagePromises[message.responseId]
+        const promise = this._messagePromises[message.responseId]
 
         if (promise) {
           if (message.error) {
@@ -49,10 +53,24 @@ class VSCodeApiClass {
           }
 
           clearTimeout(promise.timeoutId)
-          delete this.messagePromises[message.responseId]
+          delete this._messagePromises[message.responseId]
         }
       }
     })
+  }
+
+  public async spawn(command: string): Promise<Process> {
+    const resp = await this._postMessage('spawn', { command })
+    const { pid } = resp
+
+    if (typeof pid === 'number') {
+      const process = new Process(pid)
+      this._pendingProcesses[pid] = process
+
+      return process
+    } else {
+      throw new Error(`Run command ${command} failed}.`)
+    }
   }
 
   public onColorThemeChanged(callback: () => void) {
@@ -60,21 +78,21 @@ class VSCodeApiClass {
   }
 
   public getThemeColor(color: string) {
-    return this.postMessage('getThemeColor', [color])
+    return this._postMessage('getThemeColor', [color])
   }
 
-  private postMessage(command: string, data: unknown, timeout: number = 3000): Promise<unknown> {
-    const id = this.messageId++
+  private _postMessage(command: string, data: unknown, timeout: number = 3000): Promise<any> {
+    const id = this._messageId++
     const deferredValue: Deferred<unknown> = deferred()
 
     const timeoutId = setTimeout(() => {
       deferredValue.reject(new Error(`Message ${id} timeout`))
-      delete this.messagePromises[id]
+      delete this._messagePromises[id]
     }, timeout)
 
-    this.messagePromises[id] = { ...deferredValue, timeoutId }
+    this._messagePromises[id] = { ...deferredValue, timeoutId }
 
-    this.vscode.postMessage({ id, command, data })
+    this._vscode.postMessage({ id, command, data })
     return deferredValue
   }
 }
