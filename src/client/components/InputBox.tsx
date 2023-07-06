@@ -5,8 +5,8 @@ import { useRef } from 'react'
 
 const placeholder = 'Send a command or a message'
 
-
 export function InputBox() {
+  const inputBox$ = useRef<HTMLDivElement | null>()
   const editor$ = useRef<any | null>(null)
   const monaco = useMonaco()
 
@@ -22,13 +22,17 @@ export function InputBox() {
   const handleEditorOnMount = (editor: any, monaco: Monaco) => {
     editor$.current = editor
 
-    editor.onDidChangeModelContent(() => {
+    const inputBoxElement = inputBox$.current as HTMLDivElement
+    inputBoxElement.style.height = 'unset'
+    const layout = () => {
       const container = editor$.current.getContainerDomNode()
       const halfWindowHeight = Math.floor(document.body.clientHeight / 2)
       const contentHeight = Math.min(halfWindowHeight, editor.getContentHeight())
       container.style.height = `${contentHeight}px`
       editor.layout({ width: editor.getLayoutInfo().width, height: contentHeight })
-    })
+    }
+    layout()
+    editor.onDidChangeModelContent(layout)
 
     // Disable Find Command
     editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyF, function () {})
@@ -61,7 +65,7 @@ export function InputBox() {
   }
 
   return (
-    <div className={styles.inputBox}>
+    <div className={styles.inputBox} ref={ref => (inputBox$.current = ref)}>
       <div className={cx('codicon codicon-debug-console-evaluation-prompt', styles.prompt)}></div>
       <Editor
         className={styles.input}
