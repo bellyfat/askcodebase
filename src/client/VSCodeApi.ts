@@ -42,9 +42,11 @@ class VSCodeApiClass {
         }
       }
 
+      // The API responses
       if (message && typeof message.responseId === 'number') {
         const promise = this._messagePromises[message.responseId]
 
+        console.log('resp message: ', message)
         if (promise) {
           if (message.error) {
             promise.reject(message.error)
@@ -75,10 +77,6 @@ class VSCodeApiClass {
 
   public onColorThemeChanged(callback: () => void) {
     this._onDidChangeActiveColorThemeCallback = callback
-  }
-
-  public getThemeColor(color: string) {
-    return this._postMessage('getThemeColor', [color])
   }
 
   private _postMessage(command: string, data: unknown, timeout: number = 3000): Promise<any> {

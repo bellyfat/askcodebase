@@ -39,6 +39,7 @@
     }
   },
   "scripts": {
+    "rebuild": "electron-rebuild -v 22.3.14",
     "vscode:prepublish": "pnpm run package",
     "compile": "webpack",
     "watch": "webpack --watch",
@@ -52,8 +53,11 @@
     "build": "NODE_ENV=production webpack --config webpack.client.js"
   },
   "devDependencies": {
+    "node-pty": "^1.0.0",
+    "@electron/rebuild": "^3.2.13",
     "@pmmmwh/react-refresh-webpack-plugin": "^0.5.10",
     "@svgr/webpack": "^8.0.1",
+    "@types/fs-extra": "^11.0.1",
     "@types/glob": "^8.1.0",
     "@types/mocha": "^10.0.1",
     "@types/node": "20.2.5",
@@ -64,7 +68,9 @@
     "css-loader": "^6.8.1",
     "eslint": "^8.41.0",
     "glob": "^8.1.0",
+    "grapheme-splitter": "^1.0.4",
     "mocha": "^10.2.0",
+    "node-loader": "^2.0.0",
     "postcss-loader": "^7.3.3",
     "prettier": "^2.8.8",
     "react-refresh": "^0.14.0",
@@ -95,6 +101,7 @@
     "node-fetch": "^3.3.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "react-tooltip": "^5.18.0"
+    "react-tooltip": "^5.18.0",
+    "xterm": "^5.2.1"
   }
 }

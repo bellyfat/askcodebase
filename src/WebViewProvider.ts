@@ -1,11 +1,16 @@
 import { join } from 'path'
 import * as vscode from 'vscode'
-import * as cp from 'child_process'
 import { ExtensionMode, Uri } from 'vscode'
+import type { IPty } from 'node-pty'
 import fetch from 'node-fetch'
+import { requireVSCodeModule } from '~/extensions'
+
+const { spawn } = requireVSCodeModule<typeof import('node-pty')>('node-pty')
+const shell = process.platform === 'win32' ? 'powershell.exe' : 'bash'
 
 export class WebViewProvider implements vscode.WebviewViewProvider {
   public static readonly viewType = 'ask-codebase'
+  private _ptyProcesses = new Map<number, IPty>()
 
   constructor(private readonly _context: vscode.ExtensionContext) {}
 
@@ -21,7 +26,7 @@ export class WebViewProvider implements vscode.WebviewViewProvider {
     }
     webview.html = await this._getHtmlForWebview(webviewView.webview)
 
-    // monit VSCode theme color change
+    // VSCode theme color change
     vscode.window.onDidChangeActiveColorTheme(e => {
       webview.postMessage({ event: 'onDidChangeActiveColorTheme', data: e })
     })
@@ -32,40 +37,36 @@ export class WebViewProvider implements vscode.WebviewViewProvider {
         let error
         try {
           switch (message.command) {
-            case 'getThemeColor': {
-              const [color] = message.data
-              const themeColor = new vscode.ThemeColor(color)
-              themeColor
-              data = await vscode.workspace.getConfiguration('workbench').get('colorTheme')
-              break
-            }
             case 'spawn': {
-              const { command } = message.data
-              const process = cp.spawn('bash', ['-c', command], { shell: true })
+              const { pid, command } = message.data
 
-              process.stdout.on('data', chunk => {
-                webview.postMessage({
-                  event: 'onProcessEvent',
-                  data: [process.pid, 'stdout.data', chunk.toString()]
+              if (this._ptyProcesses.has(pid)) {
+                const ptyProcess = this._ptyProcesses.get(pid)!
+                ptyProcess.write(command)
+                data = { pid }
+              } else {
+                const ptyProcess = spawn(shell, [], {
+                  name: 'xterm-color',
+                  cwd: process.env.HOME,
+                  env: process.env
                 })
-              })
+                this._ptyProcesses.set(pid, ptyProcess)
 
-              process.stderr.on('data', chunk => {
-                webview.postMessage({
-                  event: 'onProcessEvent',
-                  data: [process.pid, 'stderr.data', chunk.toString()]
+                ptyProcess.onData(data => {
+                  webview.postMessage({
+                    event: 'onProcessEvent',
+                    data: [process.pid, 'write', data]
+                  })
                 })
-              })
 
-              process.on('error', err => {
-                webview.postMessage({ event: 'onProcessEvent', data: [process.pid, 'error', err] })
-              })
-
-              process.on('exit', code => {
-                webview.postMessage({ event: 'onProcessEvent', data: [process.pid, 'exit', code] })
-              })
-
-              data = { pid: process.pid }
+                ptyProcess.onExit(() => {
+                  webview.postMessage({
+                    event: 'onProcessEvent',
+                    data: [process.pid, 'exit']
+                  })
+                })
+                data = { pid: ptyProcess.pid }
+              }
               break
             }
           }
