@@ -5,6 +5,9 @@ import styles from './CommandBlock.module.scss'
 import * as cx from 'classnames'
 import 'xterm/css/xterm.css'
 import { Terminal } from 'xterm'
+import { VSCodeButton } from '@vscode/webview-ui-toolkit/react'
+import IconGithub from '~/assets/github.svg'
+import IconGoogle from '~/assets/google.svg'
 
 export const CommandBlock: FC<{ block: ICommandBlock }> = ({ block }) => {
   const terminal$ = useRef<HTMLDivElement | null>(null)
@@ -40,11 +43,48 @@ export const CommandBlock: FC<{ block: ICommandBlock }> = ({ block }) => {
   }
 
   useEffect(() => {
-    const terminalElement = terminal$.current!
-    const terminal = new Terminal()
-    terminal.open(terminalElement)
-    terminal.write('Hello from \x1B[1;3;31mxterm.js\x1B[0m $ ')
+    if (block.type === BlockType.ShellResp) {
+      const terminalElement = terminal$.current!
+      const terminal = new Terminal()
+      terminal.open(terminalElement)
+      terminal.write('Hello from \x1B[1;3;31mxterm.js\x1B[0m $ ')
+    }
   }, [])
+
+  if (block.type === BlockType.LoginBlock) {
+    return (
+      <div
+        className={cx(
+          styles.CommandBlock,
+          styles[block.level],
+          block.status === ProgramStatus.Running && styles.running
+        )}
+        key={block.id}
+      >
+        <div className={styles.login}>
+          <div className={styles.header}>Log in to your account to continue</div>
+          <div className={styles.buttons}>
+            <VSCodeButton className={styles.github}>
+              <div className={styles.buttonContent}>
+                <div className={styles.icon}>
+                  <IconGithub />
+                </div>
+                Log in with GitHub
+              </div>
+            </VSCodeButton>
+            <VSCodeButton className={styles.google}>
+              <div className={styles.buttonContent}>
+                <div className={styles.icon}>
+                  <IconGoogle />
+                </div>
+                Log in with Google
+              </div>
+            </VSCodeButton>
+          </div>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div
