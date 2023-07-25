@@ -8,6 +8,8 @@ import { Terminal } from 'xterm'
 import { VSCodeButton } from '@vscode/webview-ui-toolkit/react'
 import IconGithub from '~/assets/github.svg'
 import IconGoogle from '~/assets/google.svg'
+import { VSCodeApi } from '../VSCodeApi'
+import { randomString } from '../utils'
 
 export const CommandBlock: FC<{ block: ICommandBlock }> = ({ block }) => {
   const terminal$ = useRef<HTMLDivElement | null>(null)
@@ -51,6 +53,11 @@ export const CommandBlock: FC<{ block: ICommandBlock }> = ({ block }) => {
     }
   }, [])
 
+  const loginWithGitHub = () => {
+    const state = randomString()
+    VSCodeApi.openLink(`https://askcodebase.com/api/login/github?state=${state}`)
+  }
+
   if (block.type === BlockType.LoginBlock) {
     return (
       <div
@@ -64,7 +71,7 @@ export const CommandBlock: FC<{ block: ICommandBlock }> = ({ block }) => {
         <div className={styles.login}>
           <div className={styles.header}>Log in to your account to continue</div>
           <div className={styles.buttons}>
-            <VSCodeButton className={styles.github}>
+            <VSCodeButton className={styles.github} onClick={loginWithGitHub}>
               <div className={styles.buttonContent}>
                 <div className={styles.icon}>
                   <IconGithub />
