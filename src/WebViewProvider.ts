@@ -42,6 +42,11 @@ export class WebViewProvider implements vscode.WebviewViewProvider {
               vscode.commands.executeCommand('vscode.open', Uri.parse(url))
               break
             }
+            case 'showInformationMessage': {
+              const { message: msg } = message.data
+              vscode.window.showInformationMessage(msg)
+              break
+            }
             case 'spawn': {
               const { pid, command } = message.data
 

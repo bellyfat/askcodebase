@@ -79,6 +79,10 @@ class VSCodeApiClass {
     return this._postMessage('openLink', { url })
   }
 
+  public async showInformationMessage(message: string) {
+    return this._postMessage('showInformationMessage', { message })
+  }
+
   public onColorThemeChanged(callback: () => void) {
     this._onDidChangeActiveColorThemeCallback = callback
   }

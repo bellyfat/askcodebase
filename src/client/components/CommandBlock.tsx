@@ -58,6 +58,10 @@ export const CommandBlock: FC<{ block: ICommandBlock }> = ({ block }) => {
     VSCodeApi.openLink(`https://askcodebase.com/api/login/github?state=${state}`)
   }
 
+  const loginWithGoogle = () => {
+    VSCodeApi.showInformationMessage('Coming soon, use GitHub for now.')
+  }
+
   if (block.type === BlockType.LoginBlock) {
     return (
       <div
@@ -79,7 +83,7 @@ export const CommandBlock: FC<{ block: ICommandBlock }> = ({ block }) => {
                 Log in with GitHub
               </div>
             </VSCodeButton>
-            <VSCodeButton className={styles.google}>
+            <VSCodeButton className={styles.google} onClick={loginWithGoogle}>
               <div className={styles.buttonContent}>
                 <div className={styles.icon}>
                   <IconGoogle />
