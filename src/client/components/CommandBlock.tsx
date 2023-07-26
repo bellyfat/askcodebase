@@ -11,6 +11,9 @@ import IconGoogle from '~/assets/google.svg'
 import { VSCodeApi } from '../VSCodeApi'
 import { randomString } from '../utils'
 
+let countdown = 2 * 60 // 2 minutes
+let timer: NodeJS.Timer | null = null
+
 export const CommandBlock: FC<{ block: ICommandBlock }> = ({ block }) => {
   const terminal$ = useRef<HTMLDivElement | null>(null)
   const [tooltipContent, setTooltipContent] = useState('Click to copy')
@@ -53,23 +56,24 @@ export const CommandBlock: FC<{ block: ICommandBlock }> = ({ block }) => {
     }
   }, [])
 
-  const loginWithGitHub = () => {
+  const loginWithGitHub = async () => {
     const state = randomString()
-    VSCodeApi.openLink(`https://askcodebase.com/api/login/github?state=${state}`)
+    const resp = await VSCodeApi.openLink(`https://askcodebase.com/api/login/github?state=${state}`)
 
-    let countdown = 2 * 60 // 2 minutes
-    const timer = setInterval(async () => {
-      countdown--
+    if (timer == null) {
+      timer = setInterval(async () => {
+        countdown--
 
-      if (countdown <= 0) {
-        clearInterval(timer)
-        return
-      }
+        if (countdown <= 0) {
+          clearInterval(timer!)
+          return
+        }
 
-      const resp = await fetch(`https://askcodebase.com/api/user?state=${state}`)
-      const user = await resp.json()
-      console.log('user', user)
-    }, 1000)
+        const resp = await fetch(`https://askcodebase.com/api/user?state=${state}`)
+        const user = await resp.json()
+        console.log('user', user)
+      }, 1000)
+    }
   }
 
   const loginWithGoogle = () => {

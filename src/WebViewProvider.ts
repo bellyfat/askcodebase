@@ -39,7 +39,7 @@ export class WebViewProvider implements vscode.WebviewViewProvider {
           switch (message.command) {
             case 'openLink': {
               const { url } = message.data
-              vscode.commands.executeCommand('vscode.open', Uri.parse(url))
+              data = await vscode.commands.executeCommand('vscode.open', Uri.parse(url))
               break
             }
             case 'showInformationMessage': {
