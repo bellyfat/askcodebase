@@ -10,6 +10,8 @@ import IconGithub from '~/assets/github.svg'
 import IconGoogle from '~/assets/google.svg'
 import { VSCodeApi } from '../VSCodeApi'
 import { randomString } from '../utils'
+import { AskCodebaseErrorCode, ErrorUserNull, IUser, JsonResp } from '@askcodebase/common'
+import { time } from 'console'
 
 let countdown = 2 * 60 // 2 minutes
 let timer: NodeJS.Timer | null = null
@@ -58,7 +60,7 @@ export const CommandBlock: FC<{ block: ICommandBlock }> = ({ block }) => {
 
   const loginWithGitHub = async () => {
     const state = randomString()
-    const resp = await VSCodeApi.openLink(`https://askcodebase.com/api/login/github?state=${state}`)
+    await VSCodeApi.openLink(`https://askcodebase.com/api/login/github?state=${state}`)
 
     if (timer == null) {
       timer = setInterval(async () => {
@@ -66,12 +68,31 @@ export const CommandBlock: FC<{ block: ICommandBlock }> = ({ block }) => {
 
         if (countdown <= 0) {
           clearInterval(timer!)
+          timer = null
           return
         }
 
-        const resp = await fetch(`https://askcodebase.com/api/user?state=${state}`)
-        const user = await resp.json()
-        console.log('user', user)
+        try {
+          const resp = await fetch(`https://askcodebase.com/api/user?state=${state}`)
+          const { data: user, error, errcode } = (await resp.json()) as JsonResp<IUser>
+
+          console.log({ errcode, error, user })
+          if (errcode > 0 && errcode !== ErrorUserNull.code) {
+            VSCodeApi.showErrorMessage(error)
+            clearInterval(timer!)
+            timer = null
+            return
+          }
+
+          if (user != null) {
+            VSCodeApi.showInformationMessage(`Welcome ${user.displayName}!`)
+            clearInterval(timer!)
+            timer = null
+            return
+          }
+        } catch (error) {
+          console.error(error)
+        }
       }, 1000)
     }
   }

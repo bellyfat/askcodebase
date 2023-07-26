@@ -53,7 +53,6 @@
     "build": "NODE_ENV=production webpack --config webpack.client.js"
   },
   "devDependencies": {
-    "node-pty": "^1.0.0",
     "@electron/rebuild": "^3.2.13",
     "@pmmmwh/react-refresh-webpack-plugin": "^0.5.10",
     "@svgr/webpack": "^8.0.1",
@@ -71,6 +70,7 @@
     "grapheme-splitter": "^1.0.4",
     "mocha": "^10.2.0",
     "node-loader": "^2.0.0",
+    "node-pty": "^1.0.0",
     "postcss-loader": "^7.3.3",
     "prettier": "^2.8.8",
     "react-refresh": "^0.14.0",
@@ -86,6 +86,7 @@
     "webpack-dev-server": "^4.15.1"
   },
   "dependencies": {
+    "@askcodebase/common": "^1.0.1",
     "@hediet/node-reload": "^0.7.3",
     "@hediet/std": "^0.6.0",
     "@monaco-editor/react": "^4.5.1",

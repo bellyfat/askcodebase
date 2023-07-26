@@ -44,7 +44,12 @@ export class WebViewProvider implements vscode.WebviewViewProvider {
             }
             case 'showInformationMessage': {
               const { message: msg } = message.data
-              vscode.window.showInformationMessage(msg)
+              data = await vscode.window.showInformationMessage(msg)
+              break
+            }
+            case 'showErrorMessage': {
+              const { message: msg } = message.data
+              data = await vscode.window.showErrorMessage(msg)
               break
             }
             case 'spawn': {

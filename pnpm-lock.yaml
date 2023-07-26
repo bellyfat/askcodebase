@@ -5,6 +5,9 @@ settings:
   excludeLinksFromLockfile: false
 
 dependencies:
+  '@askcodebase/common':
+    specifier: ^1.0.1
+    version: link:../askcodebase-common
   '@hediet/node-reload':
     specifier: ^0.7.3
     version: 0.7.3

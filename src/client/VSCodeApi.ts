@@ -83,6 +83,10 @@ class VSCodeApiClass {
     return this._postMessage('showInformationMessage', { message })
   }
 
+  public async showErrorMessage(message: string) {
+    return this._postMessage('showErrorMessage', { message })
+  }
+
   public onColorThemeChanged(callback: () => void) {
     this._onDidChangeActiveColorThemeCallback = callback
   }
