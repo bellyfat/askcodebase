@@ -10,7 +10,7 @@ import IconGoogle from '~/assets/google.svg'
 import { VSCodeApi } from '../VSCodeApi'
 import { randomString } from '../utils'
 import { ErrorUserNull, IUser, JsonResp } from '@askcodebase/common'
-import { useSetAtom } from 'jotai'
+import { useAtom, useSetAtom } from 'jotai'
 import { userAtom } from '../store'
 import { Tooltip } from 'react-tooltip'
 
@@ -18,18 +18,8 @@ let countdown = 2 * 60 // 2 minutes
 let timer: NodeJS.Timer | null = null
 
 export const CommandBlock: FC<{ block: ICommandBlock }> = ({ block }) => {
-  const setUserState = useSetAtom(userAtom)
+  const [user, setUserState] = useAtom(userAtom)
   const terminal$ = useRef<HTMLDivElement | null>(null)
-  const [tooltipContent, setTooltipContent] = useState('Click to copy')
-  const handleMouseDown = () => {
-    setTooltipContent('Copied!')
-  }
-
-  const handleMouseUp = () => {
-    setTimeout(() => {
-      setTooltipContent('Click to copy')
-    }, 2000)
-  }
 
   const renderHead = (block: ICommandBlock) => {
     switch (block.type) {
@@ -39,7 +29,7 @@ export const CommandBlock: FC<{ block: ICommandBlock }> = ({ block }) => {
             className={styles.userAvatar}
             style={
               {
-                '--avatar-url': `url(${block.user.avatarUrl})`
+                '--avatar-url': `url(${user?.avatar})`
               } as React.CSSProperties
             }
           ></div>
@@ -87,7 +77,6 @@ export const CommandBlock: FC<{ block: ICommandBlock }> = ({ block }) => {
 
           if (user != null) {
             setUserState(user)
-            VSCodeApi.showInformationMessage(`Welcome ${user.displayName}!`)
             clearInterval(timer!)
             timer = null
             return
@@ -150,13 +139,11 @@ export const CommandBlock: FC<{ block: ICommandBlock }> = ({ block }) => {
       <div className={styles.terminal} ref={ref => (terminal$.current = ref)}></div>
       {renderHead(block)}
       <div className={styles.message}>{block.message}</div>
-      {block.status === ProgramStatus.Exit ? (
+      {block.status === ProgramStatus.Exit || block.type === BlockType.UserReq ? (
         <div
           data-tooltip-id='copy-command'
-          data-tooltip-content={tooltipContent}
+          data-tooltip-content='Click to Copy'
           data-tooltip-delay-hide={1000}
-          onMouseDown={handleMouseDown}
-          onMouseUp={handleMouseUp}
           className={cx('codicon codicon-copy', styles.copy)}
         ></div>
       ) : (

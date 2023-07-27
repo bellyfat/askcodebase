@@ -1,4 +1,4 @@
-import { atom } from 'jotai'
+import { atomWithStorage } from 'jotai/utils'
 import { IUser } from '@askcodebase/common'
 
-export const userAtom = atom<IUser | null>(null)
+export const userAtom = atomWithStorage<IUser | null>('user', null)
