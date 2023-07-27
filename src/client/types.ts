@@ -15,7 +15,7 @@ export enum BlockType {
   LoginBlock = 'LoginBlock',
   UserReq = 'UserReq',
   ShellResp = 'ShellResp',
-  ChatGPTResp = 'ChatGPTResp'
+  AssistantResp = 'ChatGPTResp'
 }
 
 export interface IUser {

@@ -42,6 +42,7 @@ export function InputBox() {
     editor.addCommand(monaco.KeyCode.Enter, () => {
       const currentValue = editor.getValue()
       Log.userSend(currentValue)
+      Log.assistantRespond('Hello, I am AskCodebase Assistant. How can I help you?')
       editor.setValue('')
     })
 

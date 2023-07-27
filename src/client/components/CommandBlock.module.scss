@@ -68,7 +68,7 @@
     }
     @mixin colorize($color) {
         color: var($color);
-        &:nth-child(odd) {
+        &:nth-child(even) {
             background-color: rgba(var($color + "RGB"), 0.01);
         }
         border-top: 1px solid var(--vscode-input-border);

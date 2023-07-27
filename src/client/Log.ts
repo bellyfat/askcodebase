@@ -15,6 +15,11 @@ export class LogClass {
     const block = CommandBlockBuilder.create({ message, type: BlockType.UserReq })
     this.eventEmitter.emit(LogEvent.Push, block)
   }
+
+  public assistantRespond(message: string) {
+    const block = CommandBlockBuilder.create({ message, type: BlockType.AssistantResp })
+    this.eventEmitter.emit(LogEvent.Push, block)
+  }
 }
 
 export const Log = new LogClass()
