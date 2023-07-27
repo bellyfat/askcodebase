@@ -1,5 +1,4 @@
 import { FC, useEffect, useRef, useState } from 'react'
-import { Tooltip } from 'react-tooltip'
 import { ICommandBlock, BlockType, ProgramStatus } from '../types'
 import styles from './CommandBlock.module.scss'
 import * as cx from 'classnames'
@@ -10,13 +9,16 @@ import IconGithub from '~/assets/github.svg'
 import IconGoogle from '~/assets/google.svg'
 import { VSCodeApi } from '../VSCodeApi'
 import { randomString } from '../utils'
-import { AskCodebaseErrorCode, ErrorUserNull, IUser, JsonResp } from '@askcodebase/common'
-import { time } from 'console'
+import { ErrorUserNull, IUser, JsonResp } from '@askcodebase/common'
+import { useSetAtom } from 'jotai'
+import { userAtom } from '../store'
+import { Tooltip } from 'react-tooltip'
 
 let countdown = 2 * 60 // 2 minutes
 let timer: NodeJS.Timer | null = null
 
 export const CommandBlock: FC<{ block: ICommandBlock }> = ({ block }) => {
+  const setUserState = useSetAtom(userAtom)
   const terminal$ = useRef<HTMLDivElement | null>(null)
   const [tooltipContent, setTooltipContent] = useState('Click to copy')
   const handleMouseDown = () => {
@@ -76,15 +78,15 @@ export const CommandBlock: FC<{ block: ICommandBlock }> = ({ block }) => {
           const resp = await fetch(`https://askcodebase.com/api/user?state=${state}`)
           const { data: user, error, errcode } = (await resp.json()) as JsonResp<IUser>
 
-          console.log({ errcode, error, user })
           if (errcode > 0 && errcode !== ErrorUserNull.code) {
-            VSCodeApi.showErrorMessage(error)
+            VSCodeApi.showErrorMessage(error!)
             clearInterval(timer!)
             timer = null
             return
           }
 
           if (user != null) {
+            setUserState(user)
             VSCodeApi.showInformationMessage(`Welcome ${user.displayName}!`)
             clearInterval(timer!)
             timer = null
@@ -146,7 +148,7 @@ export const CommandBlock: FC<{ block: ICommandBlock }> = ({ block }) => {
       key={block.id}
     >
       <div className={styles.terminal} ref={ref => (terminal$.current = ref)}></div>
-      {/* {renderHead(block)}
+      {renderHead(block)}
       <div className={styles.message}>{block.message}</div>
       {block.status === ProgramStatus.Exit ? (
         <div
@@ -177,7 +179,7 @@ export const CommandBlock: FC<{ block: ICommandBlock }> = ({ block }) => {
         }}
       >
         Stop
-      </Tooltip> */}
+      </Tooltip>
     </div>
   )
 }

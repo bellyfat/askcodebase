@@ -1,11 +1,13 @@
-import { FC, useState } from 'react'
+import { FC } from 'react'
 import styles from './CommandBlocks.module.scss'
 import { BlockType, ICommandBlock } from '../types'
 import { CommandBlock } from './CommandBlock'
 import { CommandBlockBuilder } from '../CommandBlockBuilder'
+import { useAtomValue } from 'jotai'
+import { userAtom } from '../store'
 
 export const CommandBlocks: FC<{ blocks: ICommandBlock[] }> = ({ blocks }) => {
-  const [isLoggedIn, setIsLoggedIn] = useState(false)
+  const isLoggedIn = useAtomValue(userAtom)
 
   if (!isLoggedIn) {
     const block = CommandBlockBuilder.create({

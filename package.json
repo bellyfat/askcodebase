@@ -86,7 +86,7 @@
     "webpack-dev-server": "^4.15.1"
   },
   "dependencies": {
-    "@askcodebase/common": "^1.0.1",
+    "@askcodebase/common": "^1.1.0",
     "@hediet/node-reload": "^0.7.3",
     "@hediet/std": "^0.6.0",
     "@monaco-editor/react": "^4.5.1",

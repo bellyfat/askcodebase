@@ -6,8 +6,8 @@ settings:
 
 dependencies:
   '@askcodebase/common':
-    specifier: ^1.0.1
-    version: link:../askcodebase-common
+    specifier: ^1.1.0
+    version: 1.1.0
   '@hediet/node-reload':
     specifier: ^0.7.3
     version: 0.7.3
@@ -169,6 +169,10 @@ packages:
       '@jridgewell/gen-mapping': 0.3.3
       '@jridgewell/trace-mapping': 0.3.18
     dev: true
+
+  /@askcodebase/common@1.1.0:
+    resolution: {integrity: sha512-vodNlgG0aU9Im6RmWL0xH/hSMdUiAbbqsrejNkEZf9vbjLiXueq6FXb2V17s9RFJxtBsiq+JgMJqyM8U7n87xQ==}
+    dev: false
 
   /@babel/code-frame@7.22.5:
     resolution: {integrity: sha512-Xmwn266vad+6DAqEB2A6V/CcZVp62BbwVmcOJc2RPuwih1kw02TjQvWVWlcKGbBPd+8/0V5DEkOcizRGYsspYQ==}

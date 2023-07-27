@@ -91,7 +91,7 @@ class VSCodeApiClass {
     this._onDidChangeActiveColorThemeCallback = callback
   }
 
-  private _postMessage(command: string, data: unknown, timeout: number = 3000): Promise<any> {
+  private _postMessage(command: string, data: unknown, timeout: number = 15 * 1000): Promise<any> {
     const id = this._messageId++
     const deferredValue: Deferred<unknown> = deferred()
 
