@@ -73,14 +73,14 @@ export function AskCodebasePanel() {
   } as unknown as React.CSSProperties
 
   const getResponseStream = async (message: Message) => {
-    const resp = await fetch('https://askcodebase.com/chat', {
+    const resp = await fetch('https://askcodebase.com/api/chat', {
       headers: {
         'Content-Type': 'application/json',
         Authorization: 'Bearer ' + user?.jwt
       },
       method: 'POST',
       body: JSON.stringify({
-        question: message
+        question: message.content
       })
     })
     if (!(resp.body instanceof ReadableStream)) {
