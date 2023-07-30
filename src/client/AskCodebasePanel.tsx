@@ -1,5 +1,5 @@
 import styles from './AskCodebasePanel.module.scss'
-import { InputBox, WelcomeScreen } from '~/client/components'
+import { MonacoInputBox, WelcomeScreen } from '~/client/components'
 import { useEffect, useState } from 'react'
 import { VSCodeApi } from './VSCodeApi'
 import { colorToRGBString } from '~/client/utils'
@@ -9,6 +9,7 @@ import { commandBlocksAtom } from './store'
 import { useCommandBlocks } from './hooks'
 import { ReactStreamChat } from './components/ReactStreamChat'
 import { Message } from './types/chat'
+import { ChatInputComponent } from './components/Chat/Chat'
 
 function getThemeColors() {
   const element = document.getElementsByTagName('html')[0]
@@ -153,11 +154,27 @@ QuickSort is an efficient, in-place sorting algorithm that, in practice, outperf
       }
     })
   }
+  const CustomChatInput: ChatInputComponent = ({
+    stopConversationRef,
+    textareaRef,
+    onSend,
+    onScrollDownClick,
+    onRegenerate,
+    showScrollDownButton
+  }) => (
+    <MonacoInputBox
+      stopConversationRef={stopConversationRef}
+      textareaRef={textareaRef}
+      onSend={onSend}
+      onScrollDownClick={onScrollDownClick}
+      onRegenerate={onRegenerate}
+      showScrollDownButton={showScrollDownButton}
+    />
+  )
 
   return (
     <div className={styles.AskCodebasePanel} style={colors}>
-      <InputBox />
-      <ReactStreamChat getResponseStream={getResponseStream} />
+      <ReactStreamChat getResponseStream={getResponseStream} CustomChatInput={CustomChatInput} />
       {/* {blocks?.length > 0 ? <CommandBlocks blocks={blocks} /> : <WelcomeScreen />} */}
     </div>
   )

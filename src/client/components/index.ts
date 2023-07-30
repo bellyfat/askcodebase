@@ -1,2 +1,2 @@
 export * from './WelcomeScreen'
-export * from './InputBox'
+export * from './MonacoInputBox'

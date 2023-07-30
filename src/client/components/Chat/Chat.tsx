@@ -6,14 +6,15 @@ import { ReactStreamChatContext } from '~/client/components/ReactStreamChat/cont
 import { ChatInput } from './ChatInput'
 import { MemoizedChatMessage } from './MemoizedChatMessage'
 
-export type ChatInputComponent = (props: {
+export interface ChatInputProps {
   stopConversationRef: MutableRefObject<boolean>
   textareaRef: MutableRefObject<HTMLTextAreaElement | null>
   onSend: (message: Message) => void
   onScrollDownClick: () => void
   onRegenerate: () => void
   showScrollDownButton: boolean
-}) => React.ReactNode
+}
+export type ChatInputComponent = (props: ChatInputProps) => React.ReactNode
 
 interface Props {
   stopConversationRef: MutableRefObject<boolean>

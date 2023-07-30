@@ -1,15 +1,44 @@
 import styles from './InputBox.module.scss'
 import * as cx from 'classnames'
 import Editor, { Monaco, useMonaco } from '@monaco-editor/react'
-import { useRef } from 'react'
+import { FC, useContext, useRef } from 'react'
 import { Log } from '~/client/Log'
+import { ChatInputProps } from './Chat/Chat'
+import { ReactStreamChatContext } from './ReactStreamChat/context'
 
 const placeholder = 'Send a command or a message'
 
-export function InputBox() {
+export const MonacoInputBox: FC<ChatInputProps> = ({
+  onSend,
+  onRegenerate,
+  onScrollDownClick,
+  stopConversationRef,
+  textareaRef,
+  showScrollDownButton
+}) => {
+  const {
+    state: { selectedConversation, messageIsStreaming }
+  } = useContext(ReactStreamChatContext)
   const inputBox$ = useRef<HTMLDivElement | null>()
   const editor$ = useRef<any | null>(null)
   const monaco = useMonaco()
+
+  const handleSend = (content: string) => {
+    if (messageIsStreaming) {
+      return
+    }
+
+    if (!content) {
+      alert('Please enter a message')
+      return
+    }
+
+    onSend({ role: 'user', content })
+
+    if (window.innerWidth < 640 && textareaRef && textareaRef.current) {
+      textareaRef.current.blur()
+    }
+  }
 
   const handleEditorOnChange = (value: string | undefined, ev: any) => {
     let placeholder = document.querySelector('.monaco-placeholder') as HTMLElement | null
@@ -40,9 +69,8 @@ export function InputBox() {
 
     // Enter to send message
     editor.addCommand(monaco.KeyCode.Enter, () => {
-      const currentValue = editor.getValue()
-      Log.userSend(currentValue)
-      Log.assistantRespond('Hello, I am AskCodebase Assistant. How can I help you?')
+      const currentContent = editor.getValue()
+      handleSend(currentContent)
       editor.setValue('')
     })
 
