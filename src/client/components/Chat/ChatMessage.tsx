@@ -140,7 +140,7 @@ export const ChatMessage: FC<Props> = memo(({ message, messageIndex }) => {
                 }`}
               </MemoizedReactMarkdown>
 
-              <div className='md:-mr-8 ml-1 md:ml-0 flex flex-col md:flex-row gap-4 md:gap-1 items-center md:items-start justify-end md:justify-start'>
+              <div className='md:-mr-8 ml-1 md:ml-0 flex flex-col md:flex-row gap-4 md:gap-1 items-center md:items-start justify-end md:justify-start pr-4'>
                 {messagedCopied ? (
                   <IconCheck size={20} className='text-green-500 dark:text-green-400' />
                 ) : (

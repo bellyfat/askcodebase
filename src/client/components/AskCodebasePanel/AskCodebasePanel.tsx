@@ -1,6 +1,6 @@
 import styles from './AskCodebasePanel.module.scss'
 import { MonacoInputBox, WelcomeScreen } from '~/client/components'
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { VSCodeApi } from '~/client/VSCodeApi'
 import { colorToRGBString } from '~/client/utils'
 import { CommandBlocks, ChatInputComponent } from '~/client/components'
@@ -73,25 +73,29 @@ export function AskCodebasePanel() {
     ),
     '--vscode-terminal-ansiBrightBlackRGB': colorToRGBString(
       themeColors['--vscode-terminal-ansiBrightBlack']
-    ),
+    )
   } as unknown as React.CSSProperties
 
-  const getResponseStream = async (message: Message) => {
-    const resp = await fetch('https://askcodebase.com/api/chat', {
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: 'Bearer ' + user?.jwt
-      },
-      method: 'POST',
-      body: JSON.stringify({
-        question: message.content
+  const getResponseStream = useCallback(
+    async (message: Message) => {
+      const resp = await fetch('https://askcodebase.com/api/chat', {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: 'Bearer ' + user?.jwt
+        },
+        method: 'POST',
+        body: JSON.stringify({
+          question: message.content
+        })
       })
-    })
-    if (!(resp.body instanceof ReadableStream)) {
-      throw new Error('Network Error')
-    }
-    return resp.body
-  }
+      if (!(resp.body instanceof ReadableStream)) {
+        throw new Error('Network Error')
+      }
+      return resp.body
+    },
+    [user]
+  )
+
   const CustomChatInput: ChatInputComponent = ({
     stopConversationRef,
     textareaRef,

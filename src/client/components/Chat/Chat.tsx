@@ -37,11 +37,30 @@ export const Chat = memo(({ stopConversationRef, CustomChatInput, getResponseStr
   const chatContainerRef = useRef<HTMLDivElement>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
 
+  const setConversationLastMessage = (updatedConversation: Conversation, text: string) => {
+    const updatedMessages: Message[] = [
+      ...updatedConversation.messages,
+      {
+        role: 'assistant',
+        content: text
+      }
+    ]
+    updatedConversation = {
+      ...updatedConversation,
+      messages: updatedMessages
+    }
+    dispatch({
+      field: 'selectedConversation',
+      value: updatedConversation
+    })
+  }
+
   const handleSend = useCallback(
     async (message: Message, deleteCount = 0) => {
       if (selectedConversation) {
         let updatedConversation: Conversation
-        if (deleteCount) {
+        console.log('-- get --selectedConversation', selectedConversation)
+        if (deleteCount > 0) {
           const updatedMessages = [...selectedConversation.messages]
           for (let i = 0; i < deleteCount; i++) {
             updatedMessages.pop()
@@ -60,6 +79,7 @@ export const Chat = memo(({ stopConversationRef, CustomChatInput, getResponseStr
           field: 'selectedConversation',
           value: updatedConversation
         })
+        setConversationLastMessage(updatedConversation, 'Thinking...')
         dispatch({ field: 'loading', value: true })
         dispatch({ field: 'messageIsStreaming', value: true })
         if (updatedConversation.messages.length === 1) {
@@ -115,6 +135,7 @@ export const Chat = memo(({ stopConversationRef, CustomChatInput, getResponseStr
               ...updatedConversation,
               messages: updatedMessages
             }
+            console.log('--save ---selectedConversation', updatedConversation)
             dispatch({
               field: 'selectedConversation',
               value: updatedConversation
@@ -265,7 +286,6 @@ export const Chat = memo(({ stopConversationRef, CustomChatInput, getResponseStr
           }}
           onScrollDownClick={handleScrollDown}
           onRegenerate={throttle(() => {
-            console.log('-----------------onRenerate', currentMessage)
             if (currentMessage) {
               handleSend(currentMessage, 2)
             }

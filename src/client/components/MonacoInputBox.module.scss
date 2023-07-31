@@ -1,11 +1,12 @@
 .inputBox {
-  --ask-padding-vertical: 10px;
+  --ask-padding-vertical: 12px;
+  --ask-padding-bottom: 10px;
   --ask-padding-right: 10px;
   display: flex;
   align-items: center;
   border-top: 1px solid var(--vscode-chat-requestBorder);
   position: relative;
-  padding: var(--ask-padding-vertical) var(--ask-padding-right) var(--ask-padding-vertical) 0;
+  padding: var(--ask-padding-vertical) var(--ask-padding-right) var(--ask-padding-bottom) 0;
   background: var(--vscode-panel-background);
   height: 18px;
   box-sizing: content-box;
