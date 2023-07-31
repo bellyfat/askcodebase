@@ -226,7 +226,7 @@ export const Chat = memo(({ stopConversationRef, CustomChatInput, getResponseStr
           <MemoizedChatMessage key={index} message={message} messageIndex={index} />
         ))}
 
-        <div className='h-[162px] bg-white dark:bg-[#343541]' ref={messagesEndRef} />
+        <div className='h-[0px] bg-white dark:bg-[#343541]' ref={messagesEndRef} />
       </div>
 
       {CustomChatInput !== undefined ? (
