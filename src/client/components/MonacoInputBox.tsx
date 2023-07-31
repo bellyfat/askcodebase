@@ -1,12 +1,11 @@
-import styles from './InputBox.module.scss'
+import styles from './MonacoInputBox.module.scss'
 import * as cx from 'classnames'
 import Editor, { Monaco, useMonaco } from '@monaco-editor/react'
 import { FC, useContext, useRef } from 'react'
-import { Log } from '~/client/Log'
 import { ChatInputProps } from './Chat/Chat'
 import { ReactStreamChatContext } from './ReactStreamChat/context'
 
-const placeholder = 'Send a command or a message'
+const placeholder = 'Type a command or a message'
 
 export const MonacoInputBox: FC<ChatInputProps> = ({
   onSend,
