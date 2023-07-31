@@ -1,3 +1,8 @@
 1. 对每个 CommandBlock 有一个最大高度限制
 2. 集成 xterm.js，支持传统的 Terminal 特性
 3. 沉浸式，高亮当前 CommandBlock，按 ESC 或者 Command/Ctrl + Enter 可以离开当前 Terminal
+
+BUGS:
+
+1. 发送消息时，上一条消息记录会被覆盖；
+2. 使用 `Ctrl +-` 切换字体大小时，会进入死循环；
