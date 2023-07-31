@@ -25,6 +25,11 @@
     color: var(--vscode-foreground);
     border: none;
     font-size: 14px;
+    &::-webkit-scrollbar {
+      display: none;
+      width: 0;
+      height: 0;
+    }
   }
   .placeholder {
     position: absolute;
