@@ -1,15 +1,14 @@
 import styles from './AskCodebasePanel.module.scss'
 import { MonacoInputBox, WelcomeScreen } from '~/client/components'
 import { useEffect, useState } from 'react'
-import { VSCodeApi } from './VSCodeApi'
+import { VSCodeApi } from '~/client/VSCodeApi'
 import { colorToRGBString } from '~/client/utils'
-import { CommandBlocks } from './components/CommandBlocks'
+import { CommandBlocks, ChatInputComponent } from '~/client/components'
 import { useAtomValue } from 'jotai'
-import { commandBlocksAtom, userAtom } from './store'
-import { useCommandBlocks } from './hooks'
-import { ReactStreamChat } from './components/ReactStreamChat'
-import { Message } from './types/chat'
-import { ChatInputComponent } from './components/Chat/Chat'
+import { commandBlocksAtom, userAtom } from '~/client/store'
+import { useCommandBlocks } from '~/client/hooks'
+import { ReactStreamChat } from '~/client/components/ReactStreamChat'
+import { Message } from '~/client/types/chat'
 
 function getThemeColors() {
   const element = document.getElementsByTagName('html')[0]

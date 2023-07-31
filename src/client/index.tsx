@@ -1,9 +1,8 @@
 import { createRoot } from 'react-dom/client'
-import { AskCodebasePanel } from './AskCodebasePanel'
-import './global.scss'
 import { VSCodeApi } from './VSCodeApi'
 import 'react-tooltip/dist/react-tooltip.css'
-import { ProcessEvent } from './Process'
+import { AskCodebasePanel } from '~/client/components'
+import './global.scss'
 import '~/client/styles/globals.css'
 
 VSCodeApi.setup()

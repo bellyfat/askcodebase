@@ -1,2 +1,6 @@
 export * from './WelcomeScreen'
 export * from './MonacoInputBox'
+export { AskCodebasePanel } from './AskCodebasePanel'
+export { CommandBlocks } from './CommandBlocks'
+export { CommandBlock } from './CommandBlock'
+export { Chat, ChatInputComponent } from './Chat/Chat'
