@@ -131,7 +131,7 @@ export const ReactStreamChat: FC<Props> = ({
     >
       {selectedConversation && (
         <main className={`flex h-screen w-screen flex-col text-sm text-white dark:text-white dark`}>
-          <div className='flex h-full w-full pt-[48px] sm:pt-0'>
+          <div className='flex h-full w-full sm:pt-0'>
             <div className='flex flex-1'>
               <Chat
                 getResponseStream={getResponseStream}
