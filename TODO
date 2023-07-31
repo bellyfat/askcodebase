@@ -10,3 +10,18 @@ BUGS:
 TEST CASES
 
 1. creaate a new app.ts file in src folder and write a express server in it.
+2. `Fix` Problems
+3. `install` a colors npm package
+4. `Run` shell commands
+5. `refacor` extract to a function `utils.ts`
+
+JS/TS + Python
+
+Overview
+
+1. 八月份（V2: Conversation, TypeChat, 内测|市场验证）
+2. Team (Anaylst + Coder + Tester) => AutoGPT 软件架构师
+
+版本排期
+
+1周一个版本，每周日发布
