@@ -23,12 +23,13 @@ export const MonacoInputBox: FC<ChatInputProps> = ({
   const monaco = useMonaco()
 
   const handleSend = (content: string) => {
+    onScrollDownClick()
+
     if (messageIsStreaming) {
       return
     }
 
     if (!content) {
-      alert('Please enter a message')
       return
     }
 
@@ -37,6 +38,13 @@ export const MonacoInputBox: FC<ChatInputProps> = ({
     if (window.innerWidth < 640 && textareaRef && textareaRef.current) {
       textareaRef.current.blur()
     }
+  }
+
+  const handleStopConversation = () => {
+    stopConversationRef.current = true
+    setTimeout(() => {
+      stopConversationRef.current = false
+    }, 1000)
   }
 
   const handleEditorOnChange = (value: string | undefined, ev: any) => {
