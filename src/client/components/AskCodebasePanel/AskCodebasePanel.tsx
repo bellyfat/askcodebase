@@ -6,7 +6,7 @@ import { colorToRGBString } from '~/client/utils'
 import { ChatInputComponent } from '~/client/components'
 import { useAtomValue } from 'jotai'
 import { userAtom } from '~/client/store'
-import { useCommandBlocks } from '~/client/hooks'
+import { useAtomRefValue, useCommandBlocks } from '~/client/hooks'
 import { ReactStreamChat } from '~/client/components/ReactStreamChat'
 import { Message } from '~/client/types/chat'
 import { LoginModal } from '~/client/components'
@@ -25,10 +25,8 @@ function getThemeColors() {
 
 export function AskCodebasePanel() {
   const [themeColors, setThemeColors] = useState<Record<string, string>>(() => getThemeColors())
-  const user = useAtomValue(userAtom)
-  const user$ = useRef(user)
-  user$.current = user
   const showLoginModal = useAtomValue(showLoginModalAtom)
+  const [user, getUser] = useAtomRefValue(userAtom)
 
   useCommandBlocks()
 
@@ -81,7 +79,7 @@ export function AskCodebasePanel() {
     const resp = await fetch('https://askcodebase.com/api/chat', {
       headers: {
         'Content-Type': 'application/json',
-        Authorization: 'Bearer ' + user$.current?.jwt
+        Authorization: 'Bearer ' + getUser()?.jwt
       },
       method: 'POST',
       body: JSON.stringify({
