@@ -9,6 +9,8 @@ import { commandBlocksAtom, userAtom } from '~/client/store'
 import { useCommandBlocks } from '~/client/hooks'
 import { ReactStreamChat } from '~/client/components/ReactStreamChat'
 import { Message } from '~/client/types/chat'
+import { LoginModal } from '~/client/components'
+import { showLoginModalAtom } from '~/client/store/showLoginModal'
 
 function getThemeColors() {
   const element = document.getElementsByTagName('html')[0]
@@ -25,12 +27,15 @@ export function AskCodebasePanel() {
   const [themeColors, setThemeColors] = useState<Record<string, string>>(() => getThemeColors())
   const blocks = useAtomValue(commandBlocksAtom)
   const user = useAtomValue(userAtom)
+  const showLoginModal = useAtomValue(showLoginModalAtom)
 
   useCommandBlocks()
 
   useEffect(() => {
     VSCodeApi.onColorThemeChanged(() => setThemeColors(getThemeColors()))
   }, [])
+
+  console.log(themeColors)
 
   const colors = {
     '--vscode-terminal-ansiRedRGB': colorToRGBString(themeColors['--vscode-terminal-ansiRed']),
@@ -68,7 +73,7 @@ export function AskCodebasePanel() {
     ),
     '--vscode-terminal-ansiBrightBlackRGB': colorToRGBString(
       themeColors['--vscode-terminal-ansiBrightBlack']
-    )
+    ),
   } as unknown as React.CSSProperties
 
   const getResponseStream = async (message: Message) => {
@@ -108,7 +113,7 @@ export function AskCodebasePanel() {
   return (
     <div className={styles.AskCodebasePanel} style={colors}>
       <ReactStreamChat getResponseStream={getResponseStream} CustomChatInput={CustomChatInput} />
-      {/* {blocks?.length > 0 ? <CommandBlocks blocks={blocks} /> : <WelcomeScreen />} */}
+      {showLoginModal ? <LoginModal /> : null}
     </div>
   )
 }

@@ -1,5 +1,4 @@
 import styles from './WelcomeScreen.module.scss'
-import IconLogo from '~/client/icons/logo.svg'
 
 export function WelcomeScreen() {
   return (
@@ -8,7 +7,7 @@ export function WelcomeScreen() {
         <span>AskCodebase Terminal</span>
       </div>
       <div className={styles.description}>
-        Start building Your Next Big Thing with the Next-Generation Terminal <IconLogo />
+        Start building Your Next Big Thing with the Next-Generation Terminal.
       </div>
       <div className={styles.examples}>
         <div className={styles.block}>
@@ -36,7 +35,7 @@ export function WelcomeScreen() {
         </div>
         <div className={styles.block}>
           <div className={styles.head}>Ask Questions:</div>
-          <div className={styles.example}>How use use react 18?</div>
+          <div className={styles.example}>How to use react 18?</div>
           <div className={styles.example}>explain this project for me</div>
         </div>
       </div>

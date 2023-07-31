@@ -4,6 +4,9 @@ import Editor, { Monaco, useMonaco } from '@monaco-editor/react'
 import { FC, useContext, useEffect, useRef } from 'react'
 import { ChatInputProps } from './Chat/Chat'
 import { ReactStreamChatContext } from './ReactStreamChat/context'
+import { useAtomValue, useSetAtom } from 'jotai'
+import { userAtom } from '../store'
+import { showLoginModalAtom } from '../store/showLoginModal'
 
 const placeholder = 'Type a command or a message'
 
@@ -21,6 +24,10 @@ export const MonacoInputBox: FC<ChatInputProps> = ({
   const inputBox$ = useRef<HTMLDivElement | null>()
   const editor$ = useRef<any | null>(null)
   const monaco = useMonaco()
+  const user = useAtomValue(userAtom)
+  const user$ = useRef(user)
+  const setShowLoginModal = useSetAtom(showLoginModalAtom)
+  user$.current = user
 
   const handleSend = (content: string) => {
     onScrollDownClick()
@@ -80,6 +87,10 @@ export const MonacoInputBox: FC<ChatInputProps> = ({
     // Enter to send message
     editor.addCommand(monaco.KeyCode.Enter, () => {
       const currentContent = editor.getValue()
+      if (!user$.current) {
+        setShowLoginModal(true)
+        return
+      }
       handleSend(currentContent)
       editor.setValue('')
     })

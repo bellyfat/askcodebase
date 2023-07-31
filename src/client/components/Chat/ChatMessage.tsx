@@ -11,7 +11,6 @@ import * as cx from 'classnames'
 import styles from './ChatMessage.module.scss'
 import { useAtom } from 'jotai'
 import { userAtom } from '~/client/store'
-import { BlockType } from '~/client/types'
 
 export interface Props {
   message: Message
@@ -75,14 +74,14 @@ export const ChatMessage: FC<Props> = memo(({ message, messageIndex }) => {
         <div className='mt-[-2px] w-full dark:prose-invert flex items-center'>
           {message.role === 'user' ? (
             <div className='flex w-full'>
-              <div className='prose whitespace-pre-wrap dark:prose-invert flex-1'>
+              <div className='whitespace-pre-wrap dark:prose-invert flex-1 pr-1'>
                 {message.content}
               </div>
             </div>
           ) : (
             <div className='flex flex-row grow'>
               <MemoizedReactMarkdown
-                className={`prose dark:prose-invert flex-1`}
+                className='dark:prose-invert flex-1'
                 remarkPlugins={[remarkGfm, remarkMath]}
                 rehypePlugins={[rehypeMathjax]}
                 components={{

@@ -8,54 +8,6 @@
     display: flex;
     position: relative;
     padding-left: 20px;
-    .login {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        width: 100%;
-        .header {
-            font-size: 18px;
-            color: var(--vscode-foreground);
-            margin-top: 1rem;
-            margin-bottom: 1rem;
-        }
-        .buttons {
-            display: flex;
-            flex-direction: column;
-            .buttonContent {
-                display: flex;
-                align-items: center;
-            }
-            .google,
-            .github {
-                height: 2rem;
-                margin-bottom: 1rem;
-                display: flex;
-                align-items: center;
-                justify-content: space-between;
-                position: relative;
-                padding-left: 1rem;
-                .icon {
-                    color: black;
-                    background-color: white;
-                    position: absolute;
-                    border-radius: 2px;
-                    height: 100%;
-                    width: 2rem;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    left: 0;
-                    border: 1px solid var(--vscode-input-border);
-                    svg {
-                        height: 1rem;
-                        width: 1rem;
-                    }
-                }
-            }
-        }
-    }
     .userAvatar {
         height: 1rem;
         width: 1rem;

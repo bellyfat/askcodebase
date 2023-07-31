@@ -1,0 +1,74 @@
+.loginModal {
+    width: 100vw;
+    height: 100vh;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 10;
+    backdrop-filter: blur(3px) saturate(0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: 300ms all ease-in-out;
+    &::before {
+        position: absolute;
+        content: "";
+        width: 100%;
+        height: 100%;
+        background-color: var(--background);
+        opacity: 0.95;
+        z-index: 0;
+    }
+    .login {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        .header {
+            font-size: 1.5rem;
+            color: var(--vscode-sideBarTitle-foreground);
+            margin-top: 1rem;
+            margin-bottom: 2rem;
+            z-index: 2;
+        }
+        .buttons {
+            display: flex;
+            flex-direction: column;
+            .buttonContent {
+                display: flex;
+                align-items: center;
+            }
+            .google,
+            .github {
+                height: 2.5rem;
+                margin-bottom: 1rem;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                position: relative;
+                padding-left: 3rem;
+                padding-right: 1rem;
+                .icon {
+                    color: black;
+                    background-color: white;
+                    position: absolute;
+                    border-radius: 2px;
+                    height: 100%;
+                    width: 2.5rem;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    left: 0;
+                    border: 1px solid var(--vscode-input-border);
+                    svg {
+                        height: 1.5rem;
+                        width: 1.5rem;
+                    }
+                }
+            }
+        }
+    }
+}
