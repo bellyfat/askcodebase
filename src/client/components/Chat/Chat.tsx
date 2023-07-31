@@ -5,6 +5,7 @@ import { Conversation, Message } from '~/client/types/chat'
 import { ReactStreamChatContext } from '~/client/components/ReactStreamChat/context'
 import { ChatInput } from './ChatInput'
 import { MemoizedChatMessage } from './MemoizedChatMessage'
+import { WelcomeScreen } from '../WelcomeScreen'
 
 export interface ChatInputProps {
   stopConversationRef: MutableRefObject<boolean>
@@ -219,16 +220,25 @@ export const Chat = memo(({ stopConversationRef, CustomChatInput, getResponseStr
     }
   }, [messagesEndRef])
 
-  return (
-    <div className='relative flex-1 overflow-hidden'>
+  const { messages } = selectedConversation!
+
+  const renderMainContent = () => {
+    if (messages.length === 0) {
+      return <WelcomeScreen />
+    }
+    return (
       <div className='max-h-full overflow-x-hidden' ref={chatContainerRef} onScroll={handleScroll}>
-        {selectedConversation?.messages.map((message, index) => (
+        {messages.map((message, index) => (
           <MemoizedChatMessage key={index} message={message} messageIndex={index} />
         ))}
-
         <div className='h-[0px] bg-white dark:bg-[#343541]' ref={messagesEndRef} />
       </div>
+    )
+  }
 
+  return (
+    <div className='relative flex-1 overflow-hidden flex flex-col justify-end'>
+      {renderMainContent()}
       {CustomChatInput !== undefined ? (
         CustomChatInput({
           stopConversationRef,
