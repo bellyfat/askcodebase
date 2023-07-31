@@ -1,7 +1,7 @@
 import styles from './MonacoInputBox.module.scss'
 import * as cx from 'classnames'
 import Editor, { Monaco, useMonaco } from '@monaco-editor/react'
-import { FC, useContext, useRef } from 'react'
+import { FC, useContext, useEffect, useRef } from 'react'
 import { ChatInputProps } from './Chat/Chat'
 import { ReactStreamChatContext } from './ReactStreamChat/context'
 
@@ -65,10 +65,13 @@ export const MonacoInputBox: FC<ChatInputProps> = ({
       const container = editor$.current.getContainerDomNode()
       const halfWindowHeight = Math.floor(document.body.clientHeight / 2)
       const contentHeight = Math.min(halfWindowHeight, editor.getContentHeight())
+      const PROMPT_WIDTH = 40 // TODO hard coded, need a better solution
       container.style.height = `${contentHeight}px`
-      editor.layout({ width: editor.getLayoutInfo().width, height: contentHeight })
+      editor.layout({ width: innerWidth - PROMPT_WIDTH, height: contentHeight })
     }
     layout()
+
+    window.addEventListener('resize', layout)
     editor.onDidChangeModelContent(layout)
 
     // Disable Find Command

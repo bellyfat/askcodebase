@@ -221,7 +221,7 @@ export const Chat = memo(({ stopConversationRef, CustomChatInput, getResponseStr
 
   return (
     <div className='relative flex-1 overflow-hidden bg-white dark:bg-[#343541]'>
-      <div className='max-h-full pt-[50px] overflow-x-hidden' ref={chatContainerRef} onScroll={handleScroll}>
+      <div className='max-h-full overflow-x-hidden' ref={chatContainerRef} onScroll={handleScroll}>
         {selectedConversation?.messages.map((message, index) => (
           <MemoizedChatMessage key={index} message={message} messageIndex={index} />
         ))}

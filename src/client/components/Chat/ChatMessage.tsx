@@ -7,6 +7,8 @@ import { MemoizedReactMarkdown } from '../Markdown/MemoizedReactMarkdown'
 import rehypeMathjax from 'rehype-mathjax'
 import remarkGfm from 'remark-gfm'
 import remarkMath from 'remark-math'
+import * as cx from 'classnames'
+import styles from './ChatMessage.module.scss'
 
 export interface Props {
   message: Message
@@ -15,7 +17,7 @@ export interface Props {
 
 export const ChatMessage: FC<Props> = memo(({ message, messageIndex }) => {
   const {
-    state: { selectedConversation, messageIsStreaming },
+    state: { selectedConversation, messageIsStreaming }
   } = useContext(ReactStreamChatContext)
 
   const [messagedCopied, setMessageCopied] = useState(false)
@@ -32,31 +34,27 @@ export const ChatMessage: FC<Props> = memo(({ message, messageIndex }) => {
 
   return (
     <div
-      className={`group md:px-4 ${
-        message.role === 'assistant'
-          ? 'border-b border-black/10 bg-gray-50 text-gray-800 dark:border-gray-900/50 dark:bg-[#444654] dark:text-gray-100'
-          : 'border-b border-black/10 bg-white text-gray-800 dark:border-gray-900/50 dark:bg-[#343541] dark:text-gray-100'
-      }`}
+      className={cx(
+        'group md:px-4',
+        styles.ChatMessage,
+        message.role === 'user' ? styles.user : styles.assistant
+      )}
       style={{ overflowWrap: 'anywhere' }}
     >
-      <div className="relative m-auto flex p-4 text-base md:max-w-2xl md:gap-6 md:py-6 lg:max-w-2xl lg:px-0 xl:max-w-3xl">
-        <div className="min-w-[40px] text-right font-bold">
-          {message.role === 'assistant' ? (
-            <IconRobot size={30} />
-          ) : (
-            <IconUser size={30} />
-          )}
+      <div className='relative m-auto flex p-4 text-base md:max-w-2xl md:gap-6 md:py-6 lg:max-w-2xl lg:px-0 xl:max-w-3xl'>
+        <div className='min-w-[40px] text-right font-bold'>
+          {message.role === 'assistant' ? <IconRobot size={30} /> : <IconUser size={30} />}
         </div>
 
-        <div className="prose mt-[-2px] w-full dark:prose-invert">
+        <div className='prose mt-[-2px] w-full dark:prose-invert'>
           {message.role === 'user' ? (
-            <div className="flex w-full">
-              <div className="prose whitespace-pre-wrap dark:prose-invert flex-1">
+            <div className='flex w-full'>
+              <div className='prose whitespace-pre-wrap dark:prose-invert flex-1'>
                 {message.content}
               </div>
             </div>
           ) : (
-            <div className="flex flex-row">
+            <div className='flex flex-row'>
               <MemoizedReactMarkdown
                 className={`prose dark:prose-invert flex-1`}
                 remarkPlugins={[remarkGfm, remarkMath]}
@@ -65,11 +63,7 @@ export const ChatMessage: FC<Props> = memo(({ message, messageIndex }) => {
                   code({ node, inline, className, children, ...props }) {
                     if (children.length) {
                       if (children[0] == '▍') {
-                        return (
-                          <span className="animate-pulse cursor-default mt-1">
-                            ▍
-                          </span>
-                        )
+                        return <span className='animate-pulse cursor-default mt-1'>▍</span>
                       }
 
                       children[0] = (children[0] as string).replace('`▍`', '▍')
@@ -92,45 +86,41 @@ export const ChatMessage: FC<Props> = memo(({ message, messageIndex }) => {
                   },
                   table({ children }) {
                     return (
-                      <table className="border-collapse border border-black px-3 py-1 dark:border-white">
+                      <table className='border-collapse border border-black px-3 py-1 dark:border-white'>
                         {children}
                       </table>
                     )
                   },
                   th({ children }) {
                     return (
-                      <th className="break-words border border-black bg-gray-500 px-3 py-1 text-white dark:border-white">
+                      <th className='break-words border border-black bg-gray-500 px-3 py-1 text-white dark:border-white'>
                         {children}
                       </th>
                     )
                   },
                   td({ children }) {
                     return (
-                      <td className="break-words border border-black px-3 py-1 dark:border-white">
+                      <td className='break-words border border-black px-3 py-1 dark:border-white'>
                         {children}
                       </td>
                     )
-                  },
+                  }
                 }}
               >
                 {`${message.content}${
                   messageIsStreaming &&
-                  messageIndex ==
-                    (selectedConversation?.messages.length ?? 0) - 1
+                  messageIndex == (selectedConversation?.messages.length ?? 0) - 1
                     ? '`▍`'
                     : ''
                 }`}
               </MemoizedReactMarkdown>
 
-              <div className="md:-mr-8 ml-1 md:ml-0 flex flex-col md:flex-row gap-4 md:gap-1 items-center md:items-start justify-end md:justify-start">
+              <div className='md:-mr-8 ml-1 md:ml-0 flex flex-col md:flex-row gap-4 md:gap-1 items-center md:items-start justify-end md:justify-start'>
                 {messagedCopied ? (
-                  <IconCheck
-                    size={20}
-                    className="text-green-500 dark:text-green-400"
-                  />
+                  <IconCheck size={20} className='text-green-500 dark:text-green-400' />
                 ) : (
                   <button
-                    className="invisible group-hover:visible focus:visible text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
+                    className='invisible group-hover:visible focus:visible text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'
                     onClick={copyOnClick}
                   >
                     <IconCopy size={20} />
