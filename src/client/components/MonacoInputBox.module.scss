@@ -3,7 +3,7 @@
   --ask-padding-right: 10px;
   display: flex;
   align-items: center;
-  border-top: 1px solid var(--vscode-input-border);
+  border-top: 1px solid var(--vscode-chat-requestBorder);
   position: relative;
   padding: var(--ask-padding-vertical) var(--ask-padding-right) var(--ask-padding-vertical) 0;
   background: var(--vscode-panel-background);

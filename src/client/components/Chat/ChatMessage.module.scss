@@ -1,11 +1,8 @@
 .ChatMessage {
-    &.user {
+    &.assistant {
         background-color: var(--vscode-chat-requestBackground);
         color: var(--vscode-interactive-input-foreground);
     }
     color: var(--vscode-interactive-session-foreground);
-    &:nth-child(even) {
-        background-color: rgba(var(--vscode-terminal-ansiBrightWhite + "RGB"), 0.01);
-    }
-    border-top: 1px solid var(--vscode-input-border);
+    border-top: 1px solid var(--vscode-chat-requestBorder);
 }
