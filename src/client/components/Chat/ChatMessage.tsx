@@ -63,16 +63,16 @@ export const ChatMessage: FC<Props> = memo(({ message, messageIndex }) => {
   return (
     <div
       className={cx(
-        'group md:px-4',
+        'group px-4',
         styles.ChatMessage,
         message.role === 'user' ? styles.user : styles.assistant
       )}
       style={{ overflowWrap: 'anywhere' }}
     >
-      <div className='relative m-auto flex p-4 text-base md:gap-6 lg:px-0'>
+      <div className='relative m-auto flex p-4 text-base'>
         <div className='min-w-[40px] text-right font-bold'>{renderHead(message)}</div>
 
-        <div className='prose mt-[-2px] w-full dark:prose-invert flex items-center'>
+        <div className='mt-[-2px] w-full dark:prose-invert flex items-center'>
           {message.role === 'user' ? (
             <div className='flex w-full'>
               <div className='prose whitespace-pre-wrap dark:prose-invert flex-1'>
@@ -80,7 +80,7 @@ export const ChatMessage: FC<Props> = memo(({ message, messageIndex }) => {
               </div>
             </div>
           ) : (
-            <div className='flex flex-row'>
+            <div className='flex flex-row grow'>
               <MemoizedReactMarkdown
                 className={`prose dark:prose-invert flex-1`}
                 remarkPlugins={[remarkGfm, remarkMath]}

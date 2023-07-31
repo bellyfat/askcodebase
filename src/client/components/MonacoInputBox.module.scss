@@ -10,8 +10,8 @@
   height: 18px;
   box-sizing: content-box;
   .prompt {
-    padding: 0 6px 0 8px;
-    font-size: 16px;
+    font: normal bold normal 16px/1 codicon !important;
+    padding: 0 4px 0 10px;
     height: 100%;
     display: flex;
     flex-shrink: 0;
@@ -36,11 +36,12 @@
     display: none;
     white-space: pre-wrap;
     top: var(--ask-padding-vertical);
-    left: 36px;
+    left: 33px;
     color: var(--vscode-input-placeholderForeground);
     opacity: 0.75;
     pointer-events: none;
     user-select: none;
     z-index: 10;
+    font-size: 1rem;
   }
 }
