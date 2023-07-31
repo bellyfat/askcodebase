@@ -14,6 +14,8 @@ import { Chat, ChatInputComponent } from '~/client/components/Chat/Chat'
 import { ReactStreamChatContext } from './context'
 import { ReactStreamChatInitialState, initialState } from './state'
 import { v4 as uuidv4 } from 'uuid'
+import { activeConversationAtom } from '~/client/store'
+import { useAtom } from 'jotai'
 
 interface Props {
   CustomChatInput?: ChatInputComponent
@@ -34,56 +36,6 @@ export const ReactStreamChat: FC<Props> = ({
   } = contextValue
 
   const stopConversationRef = useRef<boolean>(false)
-
-  const handleSelectConversation = (conversation: Conversation) => {
-    dispatch({
-      field: 'selectedConversation',
-      value: conversation
-    })
-
-    saveConversation(conversation)
-  }
-
-  // CONVERSATION OPERATIONS  --------------------------------------------
-
-  const handleNewConversation = () => {
-    const lastConversation = conversations[conversations.length - 1]
-
-    const newConversation: Conversation = {
-      id: uuidv4(),
-      name: 'New Conversation',
-      messages: [],
-      model: lastConversation?.model || {
-        id: OpenAIModels[defaultModelId].id,
-        name: OpenAIModels[defaultModelId].name,
-        maxLength: OpenAIModels[defaultModelId].maxLength,
-        tokenLimit: OpenAIModels[defaultModelId].tokenLimit
-      },
-      prompt: DEFAULT_SYSTEM_PROMPT
-    }
-
-    const updatedConversations = [...conversations, newConversation]
-
-    dispatch({ field: 'selectedConversation', value: newConversation })
-    dispatch({ field: 'conversations', value: updatedConversations })
-
-    saveConversation(newConversation)
-    saveConversations(updatedConversations)
-
-    dispatch({ field: 'loading', value: false })
-  }
-
-  const handleUpdateConversation = (conversation: Conversation, data: KeyValuePair) => {
-    const updatedConversation = {
-      ...conversation,
-      [data.key]: data.value
-    }
-
-    const { single, all } = updateConversation(updatedConversation, conversations)
-
-    dispatch({ field: 'selectedConversation', value: single })
-    dispatch({ field: 'conversations', value: all })
-  }
 
   // ON LOAD --------------------------------------------
 
@@ -121,14 +73,7 @@ export const ReactStreamChat: FC<Props> = ({
   }, [dispatch])
 
   return (
-    <ReactStreamChatContext.Provider
-      value={{
-        ...contextValue,
-        handleNewConversation,
-        handleSelectConversation,
-        handleUpdateConversation
-      }}
-    >
+    <ReactStreamChatContext.Provider value={{ ...contextValue }}>
       {selectedConversation && (
         <main className={`flex h-screen w-screen flex-col text-sm text-white dark:text-white dark`}>
           <div className='flex h-full w-full sm:pt-0'>

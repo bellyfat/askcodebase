@@ -1,11 +1,12 @@
 import { MutableRefObject, memo, useCallback, useContext, useEffect, useRef, useState } from 'react'
-import { saveConversation, saveConversations } from '~/client/utils/app/conversation'
 import { throttle } from '~/client/utils/data/throttle'
 import { Conversation, Message } from '~/client/types/chat'
 import { ReactStreamChatContext } from '~/client/components/ReactStreamChat/context'
 import { ChatInput } from './ChatInput'
 import { MemoizedChatMessage } from './MemoizedChatMessage'
 import { WelcomeScreen } from '../WelcomeScreen'
+import { useAtom } from 'jotai'
+import { activeConversationAtom } from '~/client/store'
 
 export interface ChatInputProps {
   stopConversationRef: MutableRefObject<boolean>
@@ -24,10 +25,8 @@ interface Props {
 }
 
 export const Chat = memo(({ stopConversationRef, CustomChatInput, getResponseStream }: Props) => {
-  const {
-    state: { selectedConversation, conversations },
-    dispatch
-  } = useContext(ReactStreamChatContext)
+  const { dispatch } = useContext(ReactStreamChatContext)
+  const [activeConversation, setActiveConversation] = useAtom(activeConversationAtom)
 
   const [currentMessage, setCurrentMessage] = useState<Message>()
   const [autoScrollEnabled, setAutoScrollEnabled] = useState<boolean>(true)
@@ -49,137 +48,105 @@ export const Chat = memo(({ stopConversationRef, CustomChatInput, getResponseStr
       ...updatedConversation,
       messages: updatedMessages
     }
-    dispatch({
-      field: 'selectedConversation',
-      value: updatedConversation
-    })
+    setActiveConversation(updatedConversation)
   }
 
   const handleSend = useCallback(
     async (message: Message, deleteCount = 0) => {
-      if (selectedConversation) {
-        let updatedConversation: Conversation
-        console.log('-- get --selectedConversation', selectedConversation)
-        if (deleteCount > 0) {
-          const updatedMessages = [...selectedConversation.messages]
-          for (let i = 0; i < deleteCount; i++) {
-            updatedMessages.pop()
-          }
-          updatedConversation = {
-            ...selectedConversation,
-            messages: [...updatedMessages, message]
-          }
-        } else {
-          updatedConversation = {
-            ...selectedConversation,
-            messages: [...selectedConversation.messages, message]
-          }
+      let updatedConversation: Conversation
+      if (deleteCount > 0) {
+        const updatedMessages = [...activeConversation.messages]
+        for (let i = 0; i < deleteCount; i++) {
+          updatedMessages.pop()
         }
-        dispatch({
-          field: 'selectedConversation',
-          value: updatedConversation
+        updatedConversation = {
+          ...activeConversation,
+          messages: [...updatedMessages, message]
+        }
+      } else {
+        updatedConversation = {
+          ...activeConversation,
+          messages: [...activeConversation.messages, message]
+        }
+      }
+      setActiveConversation(activeConversation)
+      setConversationLastMessage(updatedConversation, 'Thinking...')
+      dispatch({ field: 'loading', value: true })
+      dispatch({ field: 'messageIsStreaming', value: true })
+      if (updatedConversation.messages.length === 1) {
+        const { content } = message
+        const customName = content.length > 30 ? content.substring(0, 30) + '...' : content
+        updatedConversation = {
+          ...updatedConversation,
+          name: customName
+        }
+      }
+      dispatch({ field: 'loading', value: false })
+      let stream
+      try {
+        stream = await getResponseStream(message)
+      } catch (e) {
+        stream = new ReadableStream({
+          start(controller) {
+            const encoder = new TextEncoder()
+            const details = (e as Error)?.message as string
+            const output =
+              `Something went wrong. Error: "${details}". ` +
+              'Please contact support@askcodebase.com if you need help.'
+            const error = encoder.encode(output)
+            controller.enqueue(error)
+            controller.close()
+          },
+          pull(controller) {},
+          cancel(reason) {}
         })
-        setConversationLastMessage(updatedConversation, 'Thinking...')
-        dispatch({ field: 'loading', value: true })
-        dispatch({ field: 'messageIsStreaming', value: true })
-        if (updatedConversation.messages.length === 1) {
-          const { content } = message
-          const customName = content.length > 30 ? content.substring(0, 30) + '...' : content
+      }
+      const reader = stream.getReader()
+      const decoder = new TextDecoder()
+
+      let done = false
+      let isFirst = true
+      let text = ''
+      while (!done) {
+        if (stopConversationRef.current === true) {
+          done = true
+          break
+        }
+        const { value, done: doneReading } = await reader.read()
+        done = doneReading
+        const chunkValue = decoder.decode(value)
+        text += chunkValue
+        if (isFirst) {
+          isFirst = false
+          const updatedMessages: Message[] = [
+            ...updatedConversation.messages,
+            { role: 'assistant', content: chunkValue }
+          ]
           updatedConversation = {
             ...updatedConversation,
-            name: customName
+            messages: updatedMessages
           }
-        }
-        dispatch({ field: 'loading', value: false })
-        let stream
-        try {
-          stream = await getResponseStream(message)
-        } catch (e) {
-          stream = new ReadableStream({
-            start(controller) {
-              const encoder = new TextEncoder()
-              const details = (e as Error)?.message as string
-              const output =
-                `Something went wrong. Error: "${details}". ` +
-                'Please contact support@askcodebase.com if you need help.'
-              const error = encoder.encode(output)
-              controller.enqueue(error)
-              controller.close()
-            },
-            pull(controller) {},
-            cancel(reason) {}
-          })
-        }
-        const reader = stream.getReader()
-        const decoder = new TextDecoder()
-
-        let done = false
-        let isFirst = true
-        let text = ''
-        while (!done) {
-          if (stopConversationRef.current === true) {
-            done = true
-            break
-          }
-          const { value, done: doneReading } = await reader.read()
-          done = doneReading
-          const chunkValue = decoder.decode(value)
-          text += chunkValue
-          if (isFirst) {
-            isFirst = false
-            const updatedMessages: Message[] = [
-              ...updatedConversation.messages,
-              { role: 'assistant', content: chunkValue }
-            ]
-            updatedConversation = {
-              ...updatedConversation,
-              messages: updatedMessages
-            }
-            console.log('--save ---selectedConversation', updatedConversation)
-            dispatch({
-              field: 'selectedConversation',
-              value: updatedConversation
-            })
-          } else {
-            const updatedMessages: Message[] = updatedConversation.messages.map(
-              (message, index) => {
-                if (index === updatedConversation.messages.length - 1) {
-                  return {
-                    ...message,
-                    content: text
-                  }
-                }
-                return message
+          setActiveConversation(updatedConversation)
+        } else {
+          const updatedMessages: Message[] = updatedConversation.messages.map((message, index) => {
+            if (index === updatedConversation.messages.length - 1) {
+              return {
+                ...message,
+                content: text
               }
-            )
-            updatedConversation = {
-              ...updatedConversation,
-              messages: updatedMessages
             }
-            dispatch({
-              field: 'selectedConversation',
-              value: updatedConversation
-            })
+            return message
+          })
+          updatedConversation = {
+            ...updatedConversation,
+            messages: updatedMessages
           }
+          setActiveConversation(updatedConversation)
         }
-        saveConversation(updatedConversation)
-
-        const updatedConversations: Conversation[] = conversations.map(conversation => {
-          if (conversation.id === selectedConversation.id) {
-            return updatedConversation
-          }
-          return conversation
-        })
-
-        if (updatedConversations.length === 0) {
-          updatedConversations.push(updatedConversation)
-        }
-        dispatch({ field: 'conversations', value: updatedConversations })
-        saveConversations(updatedConversations)
-        dispatch({ field: 'messageIsStreaming', value: false })
       }
+      dispatch({ field: 'messageIsStreaming', value: false })
     },
-    [conversations, getResponseStream, selectedConversation, stopConversationRef]
+    [getResponseStream, activeConversationAtom, stopConversationRef]
   )
 
   const handleScroll = () => {
@@ -213,9 +180,8 @@ export const Chat = memo(({ stopConversationRef, CustomChatInput, getResponseStr
 
   useEffect(() => {
     throttledScrollDown()
-    selectedConversation &&
-      setCurrentMessage(selectedConversation.messages[selectedConversation.messages.length - 2])
-  }, [selectedConversation, throttledScrollDown])
+    setCurrentMessage(activeConversation.messages[activeConversation.messages.length - 2])
+  }, [activeConversation, throttledScrollDown])
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -241,7 +207,7 @@ export const Chat = memo(({ stopConversationRef, CustomChatInput, getResponseStr
     }
   }, [messagesEndRef])
 
-  const { messages } = selectedConversation!
+  const { messages } = activeConversation!
 
   const renderMainContent = () => {
     if (messages.length === 0) {
