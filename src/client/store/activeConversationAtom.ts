@@ -18,3 +18,5 @@ export const activeConversationAtom = atomWithStorage<Conversation>('activeConve
   },
   prompt: DEFAULT_SYSTEM_PROMPT
 })
+
+activeConversationAtom.debugLabel = 'activeConversationAtom'

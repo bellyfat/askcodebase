@@ -1,11 +1,11 @@
 import styles from './AskCodebasePanel.module.scss'
-import { MonacoInputBox, WelcomeScreen } from '~/client/components'
-import { useCallback, useEffect, useState } from 'react'
+import { MonacoInputBox } from '~/client/components'
+import { useEffect, useRef, useState } from 'react'
 import { VSCodeApi } from '~/client/VSCodeApi'
 import { colorToRGBString } from '~/client/utils'
-import { CommandBlocks, ChatInputComponent } from '~/client/components'
+import { ChatInputComponent } from '~/client/components'
 import { useAtomValue } from 'jotai'
-import { commandBlocksAtom, userAtom } from '~/client/store'
+import { userAtom } from '~/client/store'
 import { useCommandBlocks } from '~/client/hooks'
 import { ReactStreamChat } from '~/client/components/ReactStreamChat'
 import { Message } from '~/client/types/chat'
@@ -25,8 +25,9 @@ function getThemeColors() {
 
 export function AskCodebasePanel() {
   const [themeColors, setThemeColors] = useState<Record<string, string>>(() => getThemeColors())
-  const blocks = useAtomValue(commandBlocksAtom)
   const user = useAtomValue(userAtom)
+  const user$ = useRef(user)
+  user$.current = user
   const showLoginModal = useAtomValue(showLoginModalAtom)
 
   useCommandBlocks()
@@ -76,25 +77,22 @@ export function AskCodebasePanel() {
     )
   } as unknown as React.CSSProperties
 
-  const getResponseStream = useCallback(
-    async (message: Message) => {
-      const resp = await fetch('https://askcodebase.com/api/chat', {
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: 'Bearer ' + user?.jwt
-        },
-        method: 'POST',
-        body: JSON.stringify({
-          question: message.content
-        })
+  const getResponseStream = async (message: Message) => {
+    const resp = await fetch('https://askcodebase.com/api/chat', {
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: 'Bearer ' + user$.current?.jwt
+      },
+      method: 'POST',
+      body: JSON.stringify({
+        question: message.content
       })
-      if (!(resp.body instanceof ReadableStream)) {
-        throw new Error('Network Error')
-      }
-      return resp.body
-    },
-    [user]
-  )
+    })
+    if (!(resp.body instanceof ReadableStream)) {
+      throw new Error('Network Error')
+    }
+    return resp.body
+  }
 
   const CustomChatInput: ChatInputComponent = ({
     stopConversationRef,
