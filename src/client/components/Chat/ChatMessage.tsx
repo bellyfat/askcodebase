@@ -74,14 +74,19 @@ export const ChatMessage: FC<Props> = memo(({ message, messageIndex }) => {
         <div className='mt-[-2px] w-full dark:prose-invert flex items-center'>
           {message.role === 'user' ? (
             <div className='flex w-full'>
-              <div className='whitespace-pre-wrap dark:prose-invert flex-1 pr-1'>
+              <div
+                className={cx(
+                  'whitespace-pre-wrap dark:prose-invert flex-1 pr-1',
+                  styles.messageContent
+                )}
+              >
                 {message.content}
               </div>
             </div>
           ) : (
             <div className='flex flex-row grow'>
               <MemoizedReactMarkdown
-                className='dark:prose-invert flex-1'
+                className={cx('dark:prose-invert flex-1', styles.messageContent)}
                 remarkPlugins={[remarkGfm, remarkMath]}
                 rehypePlugins={[rehypeMathjax]}
                 components={{

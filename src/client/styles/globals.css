@@ -2,6 +2,13 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer base {
+  a {
+    color: var(--vscode-textLink-foreground);
+    text-decoration: underline;
+  }
+}
+
 ::-webkit-scrollbar {
   width: 14px;
   height: 6px;

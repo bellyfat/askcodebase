@@ -1,11 +1,10 @@
-import { MutableRefObject, memo, useCallback, useContext, useEffect, useRef, useState } from 'react'
+import { MutableRefObject, memo, useContext, useEffect, useRef, useState } from 'react'
 import { throttle } from '~/client/utils/data/throttle'
 import { Conversation, Message } from '~/client/types/chat'
 import { ReactStreamChatContext } from '~/client/components/ReactStreamChat/context'
-import { ChatInput } from './ChatInput'
 import { MemoizedChatMessage } from './MemoizedChatMessage'
 import { WelcomeScreen } from '../WelcomeScreen'
-import { useAtom, useSetAtom } from 'jotai'
+import { useSetAtom } from 'jotai'
 import { activeConversationAtom } from '~/client/store'
 import { MonacoInputBox } from '../MonacoInputBox'
 import { useAtomRefValue } from '~/client/hooks'
@@ -72,7 +71,6 @@ export const Chat = memo(({ stopConversationRef, CustomChatInput, getResponseStr
         messages: [...conversation.messages, message]
       }
     }
-    console.log('set2', updatedConversation.messages)
     setActiveConversation(activeConversation)
     setConversationLastMessage(updatedConversation, 'Thinking...')
     dispatch({ field: 'loading', value: true })
@@ -130,7 +128,6 @@ export const Chat = memo(({ stopConversationRef, CustomChatInput, getResponseStr
           ...updatedConversation,
           messages: updatedMessages
         }
-        console.log('set3', updatedConversation.messages)
         setActiveConversation(updatedConversation)
       } else {
         const updatedMessages: Message[] = updatedConversation.messages.map((message, index) => {
@@ -146,7 +143,6 @@ export const Chat = memo(({ stopConversationRef, CustomChatInput, getResponseStr
           ...updatedConversation,
           messages: updatedMessages
         }
-        console.log('set4', updatedConversation.messages)
         setActiveConversation(updatedConversation)
       }
     }

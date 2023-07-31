@@ -4,7 +4,9 @@
 
 BUGS:
 
-1. 发送消息时，上一条消息记录会被覆盖；
-2. 使用 `Ctrl +-` 切换字体大小时，会进入死循环；
 3. ChatMessage 前景色没有适配 VSCode 主题；
 4. 支持 Stop Conversation 和 Regenerate；
+
+TEST CASES
+
+1. creaate a new app.ts file in src folder and write a express server in it.

@@ -1,18 +1,21 @@
 .ChatMessage {
-    &.assistant {
-        background-color: var(--vscode-chat-requestBackground);
-        color: var(--vscode-interactive-input-foreground);
-    }
-    color: var(--vscode-interactive-session-foreground);
-    border-top: 1px solid var(--vscode-chat-requestBorder);
-    .userAvatar {
-        height: 24px;
-        width: 24px;
-        background-image: var(--avatar-url);
-        border-radius: 15%; 
-        background-size: 100% 100%;
-        user-select: none;
-        margin-right: 10px;
-        opacity: 0.85;
-    }
+  &.user {
+    background-color: var(--vscode-chat-requestBackground);
+    color: var(--vscode-interactive-input-foreground);
+  }
+  color: var(--vscode-interactive-session-foreground);
+  border-top: 1px solid var(--vscode-chat-requestBorder);
+  .userAvatar {
+    height: 24px;
+    width: 24px;
+    background-image: var(--avatar-url);
+    border-radius: 15%;
+    background-size: 100% 100%;
+    user-select: none;
+    margin-right: 10px;
+    opacity: 0.85;
+  }
+  .messageContent {
+    color: var(--vscode-foreground);
+  }
 }
