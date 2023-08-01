@@ -119,8 +119,6 @@ export class WebViewProvider implements vscode.WebviewViewProvider {
     } else {
       scriptUri = `${localServerUrl}/${jsFile}`
     }
-    const devServerHtml = await fetch(`${localServerUrl}/index.html`).then(res => res.text())
-
     if (isProduction) {
       return `<!DOCTYPE html>
       <html lang="en">
@@ -135,6 +133,7 @@ export class WebViewProvider implements vscode.WebviewViewProvider {
       </body>
       </html>`
     } else {
+      const devServerHtml = await fetch(`${localServerUrl}/index.html`).then(res => res.text())
       const html = devServerHtml.replace(/(href|src)="(.+)"/g, (_, p1, p2) => {
         return `${p1}="${localServerUrl}/${p2}"`
       })
