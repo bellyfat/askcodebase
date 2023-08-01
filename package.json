@@ -1,7 +1,7 @@
 {
   "name": "askcodebase",
   "displayName": "AskCodebase AI",
-  "description": "Code Chat is All You Need! Write Code 100x faster.",
+  "description": "Chat is All You Need! Write Code 100x faster.",
   "version": "0.1.2",
   "engines": {
     "vscode": "^1.70.0"
