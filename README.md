@@ -1,9 +1,6 @@
-# AskCodebase: Next-Generation Developers User Interface
+# AskCodebase
 
 > **Code Chat is All You Need** - Experience the future of coding with AskCodebase.
-
-
-![](https://askcodebase.com/assets/preview.png)
 
 ## Say hello to AskCodebase 👋🏻
 
@@ -12,6 +9,8 @@ AskCodebase is the Next-Generation Developers' User Interface, revolutionizing t
 AskCodebase turns your Visual Studio Code into a vibrant chatroom, where you are in constant dialogue with your codebase. By merely conversing with our AI-powered AskCodebase Assistant, you can seamlessly add functionalities, debug issues, refactor your code, and deploy with unprecedented efficiency.
 
 Forget typing code, let's talk code! **Code is cheap, show me the talk.**
+
+![](https://askcodebase.com/assets/preview.png)
 
 ## Usage
 
