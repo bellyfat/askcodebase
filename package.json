@@ -1,15 +1,16 @@
 {
-  "name": "ask-codebase",
-  "displayName": "AskCodebase: Code Chat Is All You Need",
-  "description": "Write Code 1000x faster! AskCodebase AI is the Next-Generation Developers UI Interface, it helps developers build codebase with AI assistant, Terminal, Spotlight all in one place.",
+  "name": "askcodebase",
+  "displayName": "AskCodebase AI",
+  "description": "Code Chat is All You Need! Write Code 100x faster.",
   "version": "0.0.1",
   "engines": {
     "vscode": "^1.79.0"
   },
+  "icon": "media/logo.png",
   "publisher": "JipitiAI",
   "pricing": "Free",
   "repository": "https://github.com/jipitiai/vscode-ask-codebase",
-  "license": "MIT",
+  "license": "UNLICENSED",
   "categories": [
     "Snippets",
     "Programming Languages",
@@ -17,7 +18,7 @@
     "Machine Learning",
     "Education"
   ],
-  "tags": [
+  "keywords": [
     "ai",
     "autocomplete",
     "code-recommendation",
