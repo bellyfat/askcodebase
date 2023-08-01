@@ -1,13 +1,36 @@
 {
   "name": "ask-codebase",
-  "displayName": "Ask Codebase",
-  "description": "Build your codebase with ChatGPT.",
+  "displayName": "AskCodebase: Code Chat Is All You Need",
+  "description": "Write Code 1000x faster! AskCodebase AI is the Next-Generation Developers UI Interface, it helps developers build codebase with AI assistant, Terminal, Spotlight all in one place.",
   "version": "0.0.1",
   "engines": {
     "vscode": "^1.79.0"
   },
+  "publisher": "JipitiAI",
+  "pricing": "Free",
+  "repository": "https://github.com/jipitiai/vscode-ask-codebase",
+  "license": "MIT",
   "categories": [
-    "Other"
+    "Snippets",
+    "Programming Languages",
+    "Debuggers",
+    "Machine Learning",
+    "Education"
+  ],
+  "tags": [
+    "ai",
+    "autocomplete",
+    "code-recommendation",
+    "intellisense",
+    "intellicode",
+    "typescript",
+    "javascript",
+    "bash",
+    "c",
+    "c#",
+    "c++",
+    "cpp",
+    "csharp"
   ],
   "activationEvents": [],
   "main": "./dist/extension.js",
