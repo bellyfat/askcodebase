@@ -15,6 +15,11 @@ TEST CASES
 4. `Run` shell commands
 5. `refacor` extract to a function `utils.ts`
 
+MileStone: 
+
+1. 0 hand-crafted code
+2. 一个完整的基于 Next.js todo list app 示例应用宣传视频，完全通过 AskCodebase AI 构建出来，100%通过聊天生成。
+
 JS/TS + Python
 
 Overview
