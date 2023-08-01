@@ -1,6 +1,6 @@
-# AskCodebase
+# AskCodebase AI
 
-> **Code Chat is All You Need** - Welcome to the era of Conversational Programming with AskCodebase.
+> **Chat is All You Need** - Welcome to the era of Conversational Programming with AskCodebase.
 
 ## A Paradigm Shift: Conversational Programming
 
@@ -28,4 +28,4 @@ Deeply integrated with VSCode, AskCodebase harnesses VSCode's features like Code
 2. Select `AskCodebase` tab
 3. Start a conversation with the AI
 
-   That's it! You're now ready to explore a completely new way of programming.
+That's it! You're now ready to explore a completely new way of programming.
