@@ -1,0 +1,68 @@
+name: Package VSCode Extension
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Setup Node.js environment
+        uses: actions/setup-node@v2
+        with:
+          node-version: '16'
+
+      - name: Install vsce
+        run: npm install -g @vscode/vsce
+
+      - name: Install Dependencies
+        run: npm install
+
+      - name: Package Extension
+        run: vsce package
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: vscode-extension
+          path: '*.vsix'
+
+  comment:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download Artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: vscode-extension
+
+      - name: Post Comment
+        uses: actions/github-script@v3
+        with:
+          github-token: ${{secrets.GITHUB_TOKEN}}
+          script: |
+            const fs = require('fs');
+            const artifacts = fs.readdirSync('.');
+            const artifact = artifacts.find(artifact => artifact.endsWith('.vsix'));
+
+            const url = `https://github.com/${process.env.GITHUB_REPOSITORY}/actions/runs/${process.env.GITHUB_RUN_ID}`;
+
+            const comment = `
+              :wave: Hey, the extension has been packaged successfully.
+              You can download the VSIX file [here](${url}).
+              
+              :point_up: Navigate to the Artifacts section in the above link and download the file named \`${artifact}\`.
+            `;
+
+            github.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: comment
+            });
