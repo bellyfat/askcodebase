@@ -1,5 +1,8 @@
 # AskCodebase AI
 
+![Twitter Follow](https://img.shields.io/twitter/follow/AskCodebase)
+
+
 > **Chat is All You Need** - Welcome to the era of Conversational Programming with AskCodebase.
 
 ## A Paradigm Shift: Conversational Programming
@@ -13,6 +16,8 @@ The time has come to move away from traditional hand coding. Let's embrace the f
 > **Code is cheap, show me the talk.**
 
 ![](https://askcodebase.com/assets/preview.png)
+
+**[Install AskCodebase in VSCode →](https://marketplace.visualstudio.com/items?itemName=JipitiAI.askcodebase)**
 
 ## Envision the Future of Coding
 
