@@ -9,7 +9,7 @@ module.exports = {
   entry: './src/client/index.tsx',
   mode: isDev ? 'development' : 'production',
   output: {
-    path: path.resolve(__dirname, 'dist/client'),
+    path: path.resolve(__dirname, 'dist-client'),
     filename: 'vscode.js',
     clean: true,
     publicPath: 'http://localhost:3000/'

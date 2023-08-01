@@ -22,7 +22,7 @@ export class WebViewProvider implements vscode.WebviewViewProvider {
     const { webview } = webviewView
     webview.options = {
       enableScripts: true,
-      localResourceRoots: []
+      localResourceRoots: [vscode.Uri.joinPath(this._context.extensionUri, 'dist-client')]
     }
     webview.html = await this._getHtmlForWebview(webviewView.webview)
 
@@ -95,24 +95,29 @@ export class WebViewProvider implements vscode.WebviewViewProvider {
     )
   }
 
-  private async _getHtmlForWebview(webView: vscode.Webview) {
+  private async _getHtmlForWebview(webview: vscode.Webview) {
     const jsFile = 'vscode.js'
-    const cssFile = 'vscode.css'
     const localServerUrl = 'http://localhost:3000'
 
-    let scriptUrl: string | null = null
-    let cssUrl: string | null = null
+    let scriptUri: string | null = null
+    let cssUri: string | null = null
 
     const isProduction = this._context.extensionMode === ExtensionMode.Production
     if (isProduction) {
-      scriptUrl = webView
-        .asWebviewUri(Uri.file(join(this._context.extensionPath, 'dist', jsFile)))
-        .toString()
-      cssUrl = webView
-        .asWebviewUri(Uri.file(join(this._context.extensionPath, 'dist', cssFile)))
-        .toString()
+      const scriptOnDiskPath = vscode.Uri.joinPath(
+        this._context.extensionUri,
+        'dist-client',
+        'vscode.js'
+      )
+      const cssOnDiskPath = vscode.Uri.joinPath(
+        this._context.extensionUri,
+        'dist-client',
+        'codicon.css'
+      )
+      scriptUri = webview.asWebviewUri(scriptOnDiskPath).toString()
+      cssUri = webview.asWebviewUri(cssOnDiskPath).toString()
     } else {
-      scriptUrl = `${localServerUrl}/${jsFile}`
+      scriptUri = `${localServerUrl}/${jsFile}`
     }
     const devServerHtml = await fetch(`${localServerUrl}/index.html`).then(res => res.text())
 
@@ -122,11 +127,11 @@ export class WebViewProvider implements vscode.WebviewViewProvider {
       <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        ${isProduction ? `<link href="${cssUrl}" rel="stylesheet">` : ''}
+        <link rel="stylesheet" href="${cssUri}" />
       </head>
       <body>
         <div id="root"></div>
-        <script src="${scriptUrl}" />
+        <script src="${scriptUri}"></script>
       </body>
       </html>`
     } else {
