@@ -4,7 +4,7 @@
   "description": "Code Chat is All You Need! Write Code 100x faster.",
   "version": "0.0.1",
   "engines": {
-    "vscode": "^1.79.0"
+    "vscode": "^1.70.0"
   },
   "icon": "media/logo.png",
   "publisher": "JipitiAI",
