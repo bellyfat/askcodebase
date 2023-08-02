@@ -24,9 +24,11 @@ jobs:
 
       - name: Install Dependencies
         run: |
-          export NODE_ENV=development
           npm install
-          npm install -g copy-webpack-plugin
+
+      - name: Build client
+        run: |
+          npm run build
 
       - name: Clean Git Working Directory
         run: git reset --hard HEAD && git clean -fdx
