@@ -5,6 +5,6 @@ const execCommand = (command) => {
 }
 
 execCommand('git add -A');
-execCommand(`git commit -m "chore: prepare for publish"`);
+execCommand(`git commit -m "bump: prepare for publish"`);
 execCommand('npm version minor');
 execCommand('git push');
