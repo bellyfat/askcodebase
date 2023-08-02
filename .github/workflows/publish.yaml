@@ -26,7 +26,6 @@ jobs:
         run: |
           export NODE_ENV=development
           npm install
-          npm install -D copy-webpack-plugin
           npm install -g copy-webpack-plugin
 
       - name: Clean Git Working Directory
