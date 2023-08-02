@@ -45,7 +45,7 @@ jobs:
     - name: Post Comment
       uses: actions/github-script@v3
       with:
-        github-token: ${{secrets.GITHUB_TOKEN}}
+        github-token: ${{secrets.PAT_TOKEN}}
         script: |
           const fs = require('fs');
           const artifacts = fs.readdirSync('.');
