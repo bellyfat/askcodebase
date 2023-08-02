@@ -43,8 +43,6 @@ jobs:
 
       - name: Push Changes
         run: |
-          git add -A
-          git commit -m "Automated publish: bump version to ${{ steps.pkg.outputs.version }}"
           git push
         env:
           GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
