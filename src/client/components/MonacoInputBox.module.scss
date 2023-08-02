@@ -7,9 +7,17 @@
   border-top: 1px solid var(--vscode-chat-requestBorder);
   position: relative;
   padding: var(--ask-padding-vertical) var(--ask-padding-right) var(--ask-padding-bottom) 0;
-  background: var(--vscode-panel-background);
   height: 18px;
+  background: var(--vscode-inlineChatInput-background);
   box-sizing: content-box;
+  max-width: 896px;
+  margin: 0 auto 10px;
+  border: 1px solid var(--vscode-chat-requestBorder);
+  border-radius: 5px;
+  box-sizing: border-box;
+  &:focus-within {
+    border: 1px solid var(--vscode-textLink-activeForeground);
+  }
   .prompt {
     font: normal bold normal 16px/1 codicon !important;
     padding: 0 4px 0 10px;
@@ -45,6 +53,5 @@
     user-select: none;
     z-index: 10;
     font-size: 1rem;
-    transform: translateY(1px);
   }
 }

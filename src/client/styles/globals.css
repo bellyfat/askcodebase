@@ -10,8 +10,9 @@
 }
 
 ::-webkit-scrollbar {
-  width: 14px;
-  height: 6px;
+  display: none;
+  /* width: 14px;
+  height: 6px; */
 }
 
 ::-webkit-scrollbar-track {

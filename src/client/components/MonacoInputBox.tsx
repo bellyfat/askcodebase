@@ -72,9 +72,13 @@ export const MonacoInputBox: FC<ChatInputProps> = ({
       const container = editor$.current.getContainerDomNode()
       const halfWindowHeight = Math.floor(document.body.clientHeight / 2)
       const contentHeight = Math.min(halfWindowHeight, editor.getContentHeight())
-      const PROMPT_WIDTH = 40 // TODO hard coded, need a better solution
+      let promptWidth = 30
+      if (innerWidth < 896) {
+        promptWidth = 60
+      }
       container.style.height = `${contentHeight}px`
-      editor.layout({ width: innerWidth - PROMPT_WIDTH, height: contentHeight })
+      const contentWidth = Math.min(896 - promptWidth, innerWidth - promptWidth)
+      editor.layout({ width: contentWidth, height: contentHeight })
     }
     layout()
 

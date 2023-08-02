@@ -43,12 +43,12 @@ export const Chat = memo(({ stopConversationRef, CustomChatInput, getResponseStr
       ...updatedConversation.messages,
       {
         role: 'assistant',
-        content: text
-      }
+        content: text,
+      },
     ]
     updatedConversation = {
       ...updatedConversation,
-      messages: updatedMessages
+      messages: updatedMessages,
     }
     setActiveConversation(updatedConversation)
   }
@@ -63,12 +63,12 @@ export const Chat = memo(({ stopConversationRef, CustomChatInput, getResponseStr
       }
       updatedConversation = {
         ...conversation,
-        messages: [...updatedMessages, message]
+        messages: [...updatedMessages, message],
       }
     } else {
       updatedConversation = {
         ...conversation,
-        messages: [...conversation.messages, message]
+        messages: [...conversation.messages, message],
       }
     }
     setActiveConversation(activeConversation)
@@ -80,7 +80,7 @@ export const Chat = memo(({ stopConversationRef, CustomChatInput, getResponseStr
       const customName = content.length > 30 ? content.substring(0, 30) + '...' : content
       updatedConversation = {
         ...updatedConversation,
-        name: customName
+        name: customName,
       }
     }
     dispatch({ field: 'loading', value: false })
@@ -100,7 +100,7 @@ export const Chat = memo(({ stopConversationRef, CustomChatInput, getResponseStr
           controller.close()
         },
         pull(controller) {},
-        cancel(reason) {}
+        cancel(reason) {},
       })
     }
     const reader = stream.getReader()
@@ -122,11 +122,11 @@ export const Chat = memo(({ stopConversationRef, CustomChatInput, getResponseStr
         isFirst = false
         const updatedMessages: Message[] = [
           ...updatedConversation.messages,
-          { role: 'assistant', content: chunkValue }
+          { role: 'assistant', content: chunkValue },
         ]
         updatedConversation = {
           ...updatedConversation,
-          messages: updatedMessages
+          messages: updatedMessages,
         }
         setActiveConversation(updatedConversation)
       } else {
@@ -134,14 +134,14 @@ export const Chat = memo(({ stopConversationRef, CustomChatInput, getResponseStr
           if (index === updatedConversation.messages.length - 1) {
             return {
               ...message,
-              content: text
+              content: text,
             }
           }
           return message
         })
         updatedConversation = {
           ...updatedConversation,
-          messages: updatedMessages
+          messages: updatedMessages,
         }
         setActiveConversation(updatedConversation)
       }
@@ -167,7 +167,7 @@ export const Chat = memo(({ stopConversationRef, CustomChatInput, getResponseStr
   const handleScrollDown = () => {
     chatContainerRef.current?.scrollTo({
       top: chatContainerRef.current.scrollHeight,
-      behavior: 'smooth'
+      behavior: 'smooth',
     })
   }
 
@@ -193,8 +193,8 @@ export const Chat = memo(({ stopConversationRef, CustomChatInput, getResponseStr
       },
       {
         root: null,
-        threshold: 0.5
-      }
+        threshold: 0.5,
+      },
     )
     const messagesEndElement = messagesEndRef.current
     if (messagesEndElement) {
@@ -214,10 +214,14 @@ export const Chat = memo(({ stopConversationRef, CustomChatInput, getResponseStr
       return <WelcomeScreen />
     }
     return (
-      <div className='max-h-full overflow-x-hidden' ref={chatContainerRef} onScroll={handleScroll}>
-        {messages.map((message, index) => (
-          <MemoizedChatMessage key={index} message={message} messageIndex={index} />
-        ))}
+      <div
+        className='max-h-full overflow-x-hidden'
+        ref={chatContainerRef}
+        onScroll={handleScroll}
+      >
+          {messages.map((message, index) => (
+            <MemoizedChatMessage key={index} message={message} messageIndex={index} />
+          ))}
         <div className='h-[0px] bg-white dark:bg-[#343541]' ref={messagesEndRef} />
       </div>
     )
