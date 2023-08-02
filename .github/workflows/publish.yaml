@@ -7,20 +7,13 @@ on:
 
 jobs:
   build:
+    if: "contains(github.event.commits[0].message, 'bump')"
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout
         uses: actions/checkout@v2
 
-      - name: Check commit message
-        id: check_msg
-        run: echo "::set-output name=trigger::$(git log -1 --pretty="%B" | grep -i 'bump')"
-      
-      - name: Stop job if 'bump' not found in commit message
-        if: steps.check_msg.outputs.trigger == ''
-        run: echo "'bump' not found in commit message, stopping job" && exit 0
-      
       - name: Setup Node.js environment
         uses: actions/setup-node@v2
         with:
@@ -32,13 +25,24 @@ jobs:
       - name: Install Dependencies
         run: npm install
 
+      - name: Clean Git Working Directory
+        run: git reset --hard HEAD && git clean -fdx
+
       - name: Publish Extension
         run: vsce publish minor
         env:
           VSCE_PAT: ${{ secrets.VSCE_PAT }}
 
-      - name: Upload Artifact
-        uses: actions/upload-artifact@v2
-        with:
-          name: vscode-extension
-          path: '*.vsix'
+      - name: Get new version
+        id: pkg
+        run: echo "::set-output name=version::$(node -p "require('./package.json').version")"
+
+      - name: Push Changes
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          git add -A
+          git commit -m "Automated publish: bump version to ${{ steps.pkg.outputs.version }}"
+          git push
+        env:
+          GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
