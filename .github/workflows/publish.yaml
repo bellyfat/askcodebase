@@ -43,7 +43,7 @@ jobs:
 
       - name: Push changes
         run: |
-          git remote set-url --push origin https://shiqimei:${PAT_TOKEN}@github.com/jipitiai/vscode-askcodebase
+          PAT_TOKEN=$PAT_TOKEN && git remote set-url --push origin https://shiqimei:${PAT_TOKEN}@github.com/jipitiai/vscode-askcodebase
           git push
         env:
           PAT_TOKEN: ${{ secrets.PAT_TOKEN }}
