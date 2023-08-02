@@ -11,13 +11,14 @@ Programming, as we know it, is on the brink of evolution. With AskCodebase, we i
 
 AskCodebase transforms your Visual Studio Code into an interactive chat room, a space where you're in an intuitive, ongoing dialogue with your codebase. Engage in seamless conversations with our AI-powered askCodebase assistant to **add functionalities, debug issues, refactor your code, and deploy** with a level of efficiency never experienced before.
 
-The time has come to move away from traditional hand coding. Let's embrace the future: talk your code into existence.
-
 > **Code is cheap, show me the talk.**
 
 ![](https://askcodebase.com/assets/preview.png)
 
+The time has come to move away from traditional hand coding. Let's embrace the future: talk your code into existence.
+
 **[Install AskCodebase in VSCode →](https://marketplace.visualstudio.com/items?itemName=JipitiAI.askcodebase)**
+
 
 ## Usage
 
