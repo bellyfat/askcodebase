@@ -1,7 +1,7 @@
 {
   "name": "askcodebase",
   "displayName": "AskCodebase AI",
-  "description": "Chat is All You Need! Write Code 100x faster.",
+  "description": "Chat is All You Need. Write Code 100x faster.",
   "version": "0.7.0",
   "engines": {
     "vscode": "^1.70.0"
@@ -75,7 +75,8 @@
     "lint": "eslint src --ext ts",
     "test": "node ./out/test/runTest.js",
     "dev": "NODE_ENV=development npx webpack serve --config webpack.client.js",
-    "build:client": "NODE_ENV=production npx webpack --config webpack.client.js"
+    "build:client": "NODE_ENV=production npx webpack --config webpack.client.js",
+    "pub": "node scripts/publish.js"
   },
   "devDependencies": {
     "@electron/rebuild": "^3.2.13",
