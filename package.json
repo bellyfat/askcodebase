@@ -29,21 +29,30 @@
     "GPT4",
     "Copilot"
   ],
-  "activationEvents": [],
+  "activationEvents": [
+    "*"
+  ],
   "main": "./dist/extension.js",
   "contributes": {
+    "keybindings": [
+      {
+        "command": "askcodebase.toggleAskCodebase",
+        "key": "ctrl+h",
+        "mac": "cmd+h"
+      }
+    ],
     "commands": [
       {
-        "command": "ask-codebase.helloWorld",
-        "title": "Hello World"
+        "command": "askcodebase.toggleAskCodebase",
+        "title": "AskCodebase: Toggle AskCodebase Panel"
       }
     ],
     "viewsContainers": {
       "panel": [
         {
-          "icon": "media/dep.svg",
+          "icon": "media/logo.svg",
           "id": "ask-codebase",
-          "title": "Ask Codebase"
+          "title": "AskCodebase"
         }
       ]
     },
@@ -52,8 +61,8 @@
         {
           "type": "webview",
           "id": "ask-codebase",
-          "name": "Ask Codebase",
-          "icon": "media/dep.svg"
+          "name": "AskCodebase",
+          "icon": "media/logo.svg"
         }
       ]
     }

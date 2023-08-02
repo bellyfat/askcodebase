@@ -4,6 +4,7 @@ import { ExtensionMode, Uri } from 'vscode'
 import type { IPty } from 'node-pty'
 import fetch from 'node-fetch'
 import { requireVSCodeModule } from '~/extensions'
+import { deferred } from './common/Deferred'
 
 const { spawn } = requireVSCodeModule<typeof import('node-pty')>('node-pty')
 const shell = process.platform === 'win32' ? 'powershell.exe' : 'bash'
@@ -11,20 +12,32 @@ const shell = process.platform === 'win32' ? 'powershell.exe' : 'bash'
 export class WebViewProvider implements vscode.WebviewViewProvider {
   public static readonly viewType = 'ask-codebase'
   private _ptyProcesses = new Map<number, IPty>()
+  public visible = false
 
   constructor(private readonly _context: vscode.ExtensionContext) {}
+
+  public isWebviewVisible = () => {
+    return this.visible
+  }
 
   public async resolveWebviewView(
     webviewView: vscode.WebviewView,
     context: vscode.WebviewViewResolveContext<unknown>,
-    token: vscode.CancellationToken
+    token: vscode.CancellationToken,
   ) {
     const { webview } = webviewView
     webview.options = {
       enableScripts: true,
-      localResourceRoots: [vscode.Uri.joinPath(this._context.extensionUri, 'dist-client')]
+      localResourceRoots: [vscode.Uri.joinPath(this._context.extensionUri, 'dist-client')],
     }
     webview.html = await this._getHtmlForWebview(webviewView.webview)
+
+    // Webview visibility
+    this.visible = webviewView.visible
+    webviewView.onDidChangeVisibility(e => {
+      this.visible = webviewView.visible
+      webview.postMessage({ event: 'onDidChangeVisibility', data: webviewView.visible })
+    })
 
     // VSCode theme color change
     vscode.window.onDidChangeActiveColorTheme(e => {
@@ -37,6 +50,10 @@ export class WebViewProvider implements vscode.WebviewViewProvider {
         let error
         try {
           switch (message.command) {
+            case 'hidePanel': {
+              vscode.commands.executeCommand('workbench.action.closePanel')
+              break
+            }
             case 'openLink': {
               const { url } = message.data
               data = await vscode.commands.executeCommand('vscode.open', Uri.parse(url))
@@ -63,21 +80,21 @@ export class WebViewProvider implements vscode.WebviewViewProvider {
                 const ptyProcess = spawn(shell, [], {
                   name: 'xterm-color',
                   cwd: process.env.HOME,
-                  env: process.env
+                  env: process.env,
                 })
                 this._ptyProcesses.set(pid, ptyProcess)
 
                 ptyProcess.onData(data => {
                   webview.postMessage({
                     event: 'onProcessEvent',
-                    data: [process.pid, 'write', data]
+                    data: [process.pid, 'write', data],
                   })
                 })
 
                 ptyProcess.onExit(() => {
                   webview.postMessage({
                     event: 'onProcessEvent',
-                    data: [process.pid, 'exit']
+                    data: [process.pid, 'exit'],
                   })
                 })
                 data = { pid: ptyProcess.pid }
@@ -91,7 +108,7 @@ export class WebViewProvider implements vscode.WebviewViewProvider {
         webview.postMessage({ responseId: message.id, data, error })
       },
       undefined,
-      this._context.subscriptions
+      this._context.subscriptions,
     )
   }
 
@@ -107,12 +124,12 @@ export class WebViewProvider implements vscode.WebviewViewProvider {
       const scriptOnDiskPath = vscode.Uri.joinPath(
         this._context.extensionUri,
         'dist-client',
-        'vscode.js'
+        'vscode.js',
       )
       const cssOnDiskPath = vscode.Uri.joinPath(
         this._context.extensionUri,
         'dist-client',
-        'codicon.css'
+        'codicon.css',
       )
       scriptUri = webview.asWebviewUri(scriptOnDiskPath).toString()
       cssUri = webview.asWebviewUri(cssOnDiskPath).toString()

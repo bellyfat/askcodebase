@@ -1,5 +1,6 @@
 import { Deferred, deferred } from '~/common/Deferred'
 import { Process } from './Process'
+import { EventEmitter } from 'events'
 
 interface MessagePromise {
   resolve: (value: unknown) => void
@@ -12,6 +13,9 @@ declare global {
     postMessage(message: any): void
   }
 }
+
+export const globalEventEmitter = new EventEmitter()
+
 class VSCodeApiClass {
   private _vscode = acquireVsCodeApi()
   private _messageId: number = 0
@@ -27,6 +31,11 @@ class VSCodeApiClass {
       // Process events
       if (message && typeof message.event === 'string') {
         switch (message.event) {
+          case 'onDidChangeVisibility': {
+            const visible = message.data
+            globalEventEmitter.emit('onDidChangeVisibility', visible)
+            break
+          }
           case 'onDidChangeActiveColorTheme': {
             this._onDidChangeActiveColorThemeCallback()
             break
@@ -79,6 +88,10 @@ class VSCodeApiClass {
     return this._postMessage('openLink', { url })
   }
 
+  public async hidePanel() {
+    return this._postMessage('hidePanel')
+  }
+
   public async showInformationMessage(message: string) {
     return this._postMessage('showInformationMessage', { message })
   }
@@ -91,7 +104,7 @@ class VSCodeApiClass {
     this._onDidChangeActiveColorThemeCallback = callback
   }
 
-  private _postMessage(command: string, data: unknown, timeout: number = 15 * 1000): Promise<any> {
+  private _postMessage(command: string, data?: unknown, timeout: number = 15 * 1000): Promise<any> {
     const id = this._messageId++
     const deferredValue: Deferred<unknown> = deferred()
 

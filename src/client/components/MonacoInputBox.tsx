@@ -8,6 +8,7 @@ import { useAtomValue, useSetAtom } from 'jotai'
 import { userAtom } from '../store'
 import { showLoginModalAtom } from '../store/showLoginModal'
 import { useAtomRefValue } from '../hooks'
+import { VSCodeApi, globalEventEmitter } from '../VSCodeApi'
 
 const placeholder = 'Type a command or a message'
 
@@ -17,10 +18,10 @@ export const MonacoInputBox: FC<ChatInputProps> = ({
   onScrollDownClick,
   stopConversationRef,
   textareaRef,
-  showScrollDownButton
+  showScrollDownButton,
 }) => {
   const {
-    state: { selectedConversation, messageIsStreaming }
+    state: { selectedConversation, messageIsStreaming },
   } = useContext(ReactStreamChatContext)
   const inputBox$ = useRef<HTMLDivElement | null>()
   const editor$ = useRef<any | null>(null)
@@ -82,6 +83,12 @@ export const MonacoInputBox: FC<ChatInputProps> = ({
 
     // Disable Find Command
     editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyF, function () {})
+    editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyH, function () {
+      VSCodeApi.hidePanel()
+    })
+    editor.addCommand(monaco.KeyMod.WinCtrl | monaco.KeyCode.KeyH, function () {
+      VSCodeApi.hidePanel()
+    })
 
     // Enter to send message
     editor.addCommand(monaco.KeyCode.Enter, () => {
@@ -104,8 +111,8 @@ export const MonacoInputBox: FC<ChatInputProps> = ({
       inherit: true,
       rules: [],
       colors: {
-        'editor.background': '#00000000'
-      }
+        'editor.background': '#00000000',
+      },
     })
     let placeholder = document.querySelector('.monaco-placeholder') as HTMLElement | null
     placeholder!.style.display = 'block'
@@ -113,6 +120,21 @@ export const MonacoInputBox: FC<ChatInputProps> = ({
     monaco.editor.setTheme('ask-codebase')
     editor.focus()
   }
+
+  useEffect(() => {
+    const handleOnDidChangeVisibility = (visible: boolean) => {
+      if (visible) {
+        setTimeout(() => {
+          editor$.current.focus()
+        }, 300)
+      }
+    }
+    globalEventEmitter.on('onDidChangeVisibility', handleOnDidChangeVisibility)
+    return () => {
+      globalEventEmitter.off('onDidChangeVisibility', handleOnDidChangeVisibility)
+      return
+    }
+  }, [])
 
   return (
     <div className={styles.inputBox} ref={ref => (inputBox$.current = ref)}>
@@ -129,19 +151,19 @@ export const MonacoInputBox: FC<ChatInputProps> = ({
           folding: false,
           fontFamily: 'var(--vscode-editor-font-family)',
           minimap: {
-            enabled: false
+            enabled: false,
           },
           overviewRulerBorder: false,
           scrollbar: {
             vertical: 'hidden',
-            horizontal: 'hidden'
+            horizontal: 'hidden',
           },
           automaticLayout: true,
           renderLineHighlight: 'none',
           scrollBeyondLastLine: false,
           scrollBeyondLastColumn: 0,
           wordWrap: 'on',
-          wrappingStrategy: 'advanced'
+          wrappingStrategy: 'advanced',
         }}
         onChange={handleEditorOnChange}
         onMount={handleEditorOnMount}
