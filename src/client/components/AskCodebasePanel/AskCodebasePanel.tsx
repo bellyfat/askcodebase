@@ -11,6 +11,7 @@ import { ReactStreamChat } from '~/client/components/ReactStreamChat'
 import { Message } from '~/client/types/chat'
 import { LoginModal } from '~/client/components'
 import { showLoginModalAtom } from '~/client/store/showLoginModal'
+import { ProcessEvent } from '~/client/Process'
 
 function getThemeColors() {
   const element = document.getElementsByTagName('html')[0]
@@ -34,57 +35,82 @@ export function AskCodebasePanel() {
     VSCodeApi.onColorThemeChanged(() => setThemeColors(getThemeColors()))
   }, [])
 
-  console.log(themeColors)
-
   const colors = {
     '--vscode-terminal-ansiRedRGB': colorToRGBString(themeColors['--vscode-terminal-ansiRed']),
     '--vscode-terminal-ansiGreenRGB': colorToRGBString(themeColors['--vscode-terminal-ansiGreen']),
     '--vscode-terminal-ansiYellowRGB': colorToRGBString(
-      themeColors['--vscode-terminal-ansiYellow']
+      themeColors['--vscode-terminal-ansiYellow'],
     ),
     '--vscode-terminal-ansiBlueRGB': colorToRGBString(themeColors['--vscode-terminal-ansiBlue']),
     '--vscode-terminal-ansiMagentaRGB': colorToRGBString(
-      themeColors['--vscode-terminal-ansiMagenta']
+      themeColors['--vscode-terminal-ansiMagenta'],
     ),
     '--vscode-terminal-ansiCyanRGB': colorToRGBString(themeColors['--vscode-terminal-ansiCyan']),
     '--vscode-terminal-ansiWhiteRGB': colorToRGBString(themeColors['--vscode-terminal-ansiWhite']),
     '--vscode-terminal-ansiBlackRGB': colorToRGBString(themeColors['--vscode-terminal-ansiBlack']),
     '--vscode-terminal-ansiBrightRedRGB': colorToRGBString(
-      themeColors['--vscode-terminal-ansiBrightRed']
+      themeColors['--vscode-terminal-ansiBrightRed'],
     ),
     '--vscode-terminal-ansiBrightGreenRGB': colorToRGBString(
-      themeColors['--vscode-terminal-ansiBrightGreen']
+      themeColors['--vscode-terminal-ansiBrightGreen'],
     ),
     '--vscode-terminal-ansiBrightYellowRGB': colorToRGBString(
-      themeColors['--vscode-terminal-ansiBrightYellow']
+      themeColors['--vscode-terminal-ansiBrightYellow'],
     ),
     '--vscode-terminal-ansiBrightBlueRGB': colorToRGBString(
-      themeColors['--vscode-terminal-ansiBrightBlue']
+      themeColors['--vscode-terminal-ansiBrightBlue'],
     ),
     '--vscode-terminal-ansiBrightMagentaRGB': colorToRGBString(
-      themeColors['--vscode-terminal-ansiBrightMagenta']
+      themeColors['--vscode-terminal-ansiBrightMagenta'],
     ),
     '--vscode-terminal-ansiBrightCyanRGB': colorToRGBString(
-      themeColors['--vscode-terminal-ansiBrightCyan']
+      themeColors['--vscode-terminal-ansiBrightCyan'],
     ),
     '--vscode-terminal-ansiBrightWhiteRGB': colorToRGBString(
-      themeColors['--vscode-terminal-ansiBrightWhite']
+      themeColors['--vscode-terminal-ansiBrightWhite'],
     ),
     '--vscode-terminal-ansiBrightBlackRGB': colorToRGBString(
-      themeColors['--vscode-terminal-ansiBrightBlack']
-    )
+      themeColors['--vscode-terminal-ansiBrightBlack'],
+    ),
   } as unknown as React.CSSProperties
 
   const getResponseStream = async (message: Message) => {
+    const command = message.content.split(' ')[0]
+    const isCommandExists = await new Promise(async resolve => {
+      const process = await VSCodeApi.spawn(`which ${command}`)
+      let stdout = ''
+      let stderr = ''
+      process.stdout.on('data', (data: string) => {
+        stdout += data
+      })
+      process.stderr.on('data', (data: string) => {
+        stdout += data
+      })
+      process.on(ProcessEvent.Exit, (code: number) => {
+        resolve(code === 0)
+        console.log({
+          code,
+          stdout,
+          stderr,
+        })
+      })
+    })
+    console.log({ isCommandExists })
+    const process = await VSCodeApi.spawn(message.content)
+
+    console.log({
+      pid: process.pid,
+    })
+
     const resp = await fetch('https://askcodebase.com/api/chat', {
       headers: {
         'Content-Type': 'application/json',
-        Authorization: 'Bearer ' + getUser()?.jwt
+        Authorization: 'Bearer ' + getUser()?.jwt,
       },
       method: 'POST',
       body: JSON.stringify({
-        question: message.content
-      })
+        question: message.content,
+      }),
     })
     if (!(resp.body instanceof ReadableStream)) {
       throw new Error('Network Error')
@@ -98,7 +124,7 @@ export function AskCodebasePanel() {
     onSend,
     onScrollDownClick,
     onRegenerate,
-    showScrollDownButton
+    showScrollDownButton,
   }) => (
     <MonacoInputBox
       stopConversationRef={stopConversationRef}
