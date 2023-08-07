@@ -5,6 +5,8 @@ All notable changes to the "ask-codebase" extension will be documented in this f
 ## 0.13.0
 
 - Support `clear` built-in command to clear messages
+- Support hybrid input (Chat & Shell Commands)
+- Long-term memory is supported (context)
 
 ## 0.1.0
 
