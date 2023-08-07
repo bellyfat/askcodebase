@@ -60,7 +60,6 @@ export const XtermMessage: FC<Props> = ({ message }) => {
     terminal$.current = term
     term.open(container)
     term.loadAddon(new CanvasAddon())
-    term.write(message.content.trim())
   }, [])
 
   useEffect(() => {
@@ -75,7 +74,7 @@ export const XtermMessage: FC<Props> = ({ message }) => {
     const lines = message.content.split('\n').length
     if (term != null) {
       term.clear()
-      term.write(message.content)
+      term.write(message.content.trim())
       term.resize(rows$.current, lines)
       term.scrollToBottom()
     }

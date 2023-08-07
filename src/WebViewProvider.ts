@@ -6,16 +6,11 @@ import { requireVSCodeModule } from '~/extensions'
 
 const { spawn } = requireVSCodeModule<typeof import('node-pty')>('node-pty')
 const shell = process.platform === 'win32' ? 'powershell.exe' : 'bash'
-let cwd: string
-if (vscode.workspace.workspaceFolders) {
-  cwd = vscode.workspace.workspaceFolders[0].uri.fsPath
-} else {
-  cwd = process.env.HOME || ''
-}
 
 export class WebViewProvider implements vscode.WebviewViewProvider {
   public static readonly viewType = 'ask-codebase'
   private _ptyProcesses: IPty[] = []
+  private _shellPrompt: string = ''
   public visible = false
 
   constructor(private readonly _context: vscode.ExtensionContext) {}
@@ -30,6 +25,12 @@ export class WebViewProvider implements vscode.WebviewViewProvider {
     token: vscode.CancellationToken,
   ) {
     const { webview } = webviewView
+    let cwd: string
+    if (vscode.workspace.workspaceFolders) {
+      cwd = vscode.workspace.workspaceFolders[0].uri.fsPath
+    } else {
+      cwd = process.env.HOME || ''
+    }
     webview.options = {
       enableScripts: true,
       localResourceRoots: [vscode.Uri.joinPath(this._context.extensionUri, 'dist-client')],
@@ -80,12 +81,25 @@ export class WebViewProvider implements vscode.WebviewViewProvider {
                 cwd: cwd,
                 env: {
                   ...process.env,
+                  cwd,
                   BASH_SILENCE_DEPRECATION_WARNING: '1',
                 },
               })
               this._ptyProcesses.push(ptyProcess)
               ptyProcess.write(`${command}\r`)
               ptyProcess.onData(data => {
+                if (
+                  data === `${command}\r\n` ||
+                  data === `${this._shellPrompt}${command}\r\n` ||
+                  data === this._shellPrompt
+                ) {
+                  return
+                }
+                data = data.replace(/\r\n$/, '')
+                data = data.replace(`\r\n${this._shellPrompt}`, '')
+                data = data.replace(`${this._shellPrompt}${command}\r\n`, '')
+                // 1. "\r\n> "
+                // 2. start with `bash:` & contains "command not found"
                 webview.postMessage({
                   event: 'onProcessEvent',
                   data: [ptyProcess.pid, 'data', data],
@@ -109,6 +123,27 @@ export class WebViewProvider implements vscode.WebviewViewProvider {
       undefined,
       this._context.subscriptions,
     )
+
+    this._shellPrompt = await this._getShellPrompt(cwd)
+  }
+
+  private _getShellPrompt(cwd: string): Promise<string> {
+    const ptyProcess = spawn(shell, [], {
+      name: 'xterm-color',
+      cwd: cwd,
+      env: {
+        ...process.env,
+        cwd,
+        BASH_SILENCE_DEPRECATION_WARNING: '1',
+      },
+    })
+    ptyProcess.write('\r')
+    return new Promise(resolve => {
+      ptyProcess.onData(data => {
+        const prompt = data.split('\r\n').pop() || ''
+        resolve(prompt)
+      })
+    })
   }
 
   private async _getHtmlForWebview(webview: vscode.Webview) {

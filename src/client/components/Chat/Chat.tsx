@@ -274,6 +274,16 @@ export const Chat = memo(({ stopConversationRef, CustomChatInput, getResponseStr
       </div>
     )
   }
+  const handleBuiltinCommands = (command: string) => {
+    if (command === 'clear') {
+      setActiveConversation({
+        ...getActiveConversation(),
+        messages: [],
+      })
+      return true
+    }
+    return false
+  }
 
   return (
     <div className='relative flex-1 overflow-hidden flex flex-col justify-end'>
@@ -282,6 +292,9 @@ export const Chat = memo(({ stopConversationRef, CustomChatInput, getResponseStr
         stopConversationRef={stopConversationRef}
         textareaRef={textareaRef}
         onSend={message => {
+          if (handleBuiltinCommands(message.content)) {
+            return
+          }
           setCurrentMessage(message)
           handleSend(message, 0)
         }}
