@@ -24,9 +24,16 @@
         padding-left: 2rem;
         box-sizing: border-box;
         li {
+          line-height: 0;
           padding-left: 5px;
+          margin-bottom: 20px;
           p {
             max-width: calc(100% - 2rem);
+            transform: translateY(-0.5rem);
+            line-height: 1;
+          }
+          &:last-child {
+            margin-bottom: 0;
           }
         }
       }
