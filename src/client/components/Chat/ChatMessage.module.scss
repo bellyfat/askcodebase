@@ -10,6 +10,34 @@
       border-radius: 0;
     }
   }
+  &.assistant {
+    .messageContent {
+      white-space: break-spaces;
+      border-radius: 5px;
+      background-color: var(--vscode-panel-background);
+      border: 2px solid var(--vscode-chat-requestBackground, transparent);
+      padding: 5px 10px;
+      ol,
+      ul {
+        display: flex;
+        flex-direction: column;
+        padding-left: 2rem;
+        box-sizing: border-box;
+        li {
+          padding-left: 5px;
+          p {
+            max-width: calc(100% - 2rem);
+          }
+        }
+      }
+      ol li {
+        list-style-type: decimal;
+      }
+      ul li {
+        list-style-type: disc;
+      }
+    }
+  }
   &:first-child {
     margin-top: 10px;
   }

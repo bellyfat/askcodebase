@@ -2,6 +2,8 @@ import { IconCheck, IconClipboard } from '@tabler/icons-react'
 import { FC, memo, useState } from 'react'
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { oneDark } from 'react-syntax-highlighter/dist/esm/styles/prism'
+import * as cx from 'classnames'
+import styles from './CodeBlock.module.scss'
 
 interface Props {
   language: string
@@ -26,13 +28,16 @@ export const CodeBlock: FC<Props> = memo(({ language, value }) => {
   }
 
   return (
-    <div className="codeblock relative font-sans text-[13px]">
-      <div className="flex items-center justify-between py-1.5 px-4">
-        <span className="text-xs lowercase text-white">{language}</span>
+    <div className={cx('codeblock relative font-sans text-[13px]', styles.codeblock)}>
+      <div className='flex items-center justify-between py-1.5 px-4'>
+        <span className={cx('text-xs lowercase', styles.language)}>{language}</span>
 
-        <div className="flex items-center">
+        <div className='flex items-center'>
           <button
-            className="flex gap-1.5 items-center rounded bg-none p-1 text-xs text-white"
+            className={cx(
+              'flex gap-1.5 items-center rounded bg-none p-1 text-xs',
+              styles.copyButton,
+            )}
             onClick={copyToClipboard}
           >
             {isCopied ? <IconCheck size={18} /> : <IconClipboard size={18} />}
@@ -41,11 +46,7 @@ export const CodeBlock: FC<Props> = memo(({ language, value }) => {
         </div>
       </div>
 
-      <SyntaxHighlighter
-        language={language}
-        style={oneDark}
-        customStyle={{ margin: 0 }}
-      >
+      <SyntaxHighlighter language={language} style={oneDark} customStyle={{ margin: 0 }}>
         {value}
       </SyntaxHighlighter>
     </div>

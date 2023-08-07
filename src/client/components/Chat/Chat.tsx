@@ -104,7 +104,7 @@ export const Chat = memo(({ stopConversationRef, CustomChatInput, getResponseStr
 
     // setActiveConversation(activeConversation)
     // fixme: this is a hack to make sure the scroll down happens after the message is rendered
-    setTimeout(handleScrollDown, 1000)
+    setTimeout(handleScrollDown, 500)
     dispatch({ field: 'messageIsStreaming', value: true })
 
     const chatController = new AbortController()
@@ -119,7 +119,13 @@ export const Chat = memo(({ stopConversationRef, CustomChatInput, getResponseStr
 
       if (isFirstTerminalMessage) {
         isFirstTerminalMessage = false
-        if (termMessage.startsWith('bash:') || termMessage.endsWith('\r\n> ')) {
+        const reversedKeywords = ['write']
+        if (
+          reversedKeywords.some(keyword => message.content.startsWith(keyword)) ||
+          termMessage.startsWith('bash:') ||
+          termMessage.includes('command not found') ||
+          termMessage.endsWith('\r\n> ')
+        ) {
           pushMessageToConversation(
             updatedConversation,
             'assistant',

@@ -91,7 +91,8 @@ export class WebViewProvider implements vscode.WebviewViewProvider {
                 if (
                   data === `${command}\r\n` ||
                   data === `${this._shellPrompt}${command}\r\n` ||
-                  data === this._shellPrompt
+                  data === this._shellPrompt ||
+                  `${this._shellPrompt}${command}`.includes(data.replace('\r\n', ''))
                 ) {
                   return
                 }

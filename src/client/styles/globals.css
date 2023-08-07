@@ -28,3 +28,8 @@
 pre:has(div.codeblock) {
   padding: 0;
 }
+
+blockquote {
+  padding-left: 1rem;
+  line-height: 1;
+}
