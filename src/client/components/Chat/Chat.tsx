@@ -73,6 +73,8 @@ export const Chat = memo(({ stopConversationRef, CustomChatInput, getResponseStr
     }
     setActiveConversation(activeConversation)
     setConversationLastMessage(updatedConversation, 'Thinking...')
+    // fixme: this is a hack to make sure the scroll down happens after the message is rendered
+    setTimeout(handleScrollDown, 1000)
     dispatch({ field: 'loading', value: true })
     dispatch({ field: 'messageIsStreaming', value: true })
     if (updatedConversation.messages.length === 1) {
@@ -214,14 +216,10 @@ export const Chat = memo(({ stopConversationRef, CustomChatInput, getResponseStr
       return <WelcomeScreen />
     }
     return (
-      <div
-        className='max-h-full overflow-x-hidden'
-        ref={chatContainerRef}
-        onScroll={handleScroll}
-      >
-          {messages.map((message, index) => (
-            <MemoizedChatMessage key={index} message={message} messageIndex={index} />
-          ))}
+      <div className='max-h-full overflow-x-hidden' ref={chatContainerRef} onScroll={handleScroll}>
+        {messages.map((message, index) => (
+          <MemoizedChatMessage key={index} message={message} messageIndex={index} />
+        ))}
         <div className='h-[0px] bg-white dark:bg-[#343541]' ref={messagesEndRef} />
       </div>
     )

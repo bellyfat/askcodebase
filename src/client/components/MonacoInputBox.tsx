@@ -32,8 +32,6 @@ export const MonacoInputBox: FC<ChatInputProps> = ({
   const [user, getUserRefValue] = useAtomRefValue(userAtom)
 
   const handleSend = (content: string) => {
-    onScrollDownClick()
-
     if (messageIsStreaming) {
       return
     }
@@ -43,10 +41,7 @@ export const MonacoInputBox: FC<ChatInputProps> = ({
     }
 
     onSend({ role: 'user', content })
-
-    if (window.innerWidth < 640 && textareaRef && textareaRef.current) {
-      textareaRef.current.blur()
-    }
+    onScrollDownClick()
   }
 
   const handleStopConversation = () => {
