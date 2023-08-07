@@ -2,7 +2,6 @@ import { Conversation, Message } from '~/client/types/chat'
 import { OpenAIModelID } from '~/client/types/openai'
 
 export interface ReactStreamChatInitialState {
-  loading: boolean
   messageIsStreaming: boolean
   conversations: Conversation[]
   selectedConversation: Conversation | undefined
@@ -11,7 +10,6 @@ export interface ReactStreamChatInitialState {
 }
 
 export const initialState: ReactStreamChatInitialState = {
-  loading: false,
   messageIsStreaming: false,
   conversations: [],
   selectedConversation: undefined,

@@ -38,13 +38,12 @@ class VSCodeApiClass {
           }
           case 'onDidChangeActiveColorTheme': {
             this._onDidChangeActiveColorThemeCallback()
+            globalEventEmitter.emit('onDidChangeActiveColorTheme')
             break
           }
           case 'onProcessEvent': {
-            console.log('--------- dispatchEvent helo', message)
             const [pid, event, data] = message.data
             const process = this._pendingProcesses[pid]
-            console.log('--------- dispatchEvent', pid, event, data, process)
             if (process != null) {
               process.dispatchEvent(event, data)
             }
@@ -57,7 +56,6 @@ class VSCodeApiClass {
       if (message && typeof message.responseId === 'number') {
         const promise = this._messagePromises[message.responseId]
 
-        console.log('resp message: ', message)
         if (promise) {
           if (message.error) {
             promise.reject(message.error)
@@ -78,7 +76,6 @@ class VSCodeApiClass {
 
     if (typeof pid === 'number') {
       const process = new Process(pid)
-      console.log('save pid', process, pid)
       this._pendingProcesses[pid] = process
 
       return process

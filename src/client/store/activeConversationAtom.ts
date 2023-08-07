@@ -14,9 +14,9 @@ export const activeConversationAtom = atomWithStorage<Conversation>('activeConve
     id: OpenAIModels[defaultModelId].id,
     name: OpenAIModels[defaultModelId].name,
     maxLength: OpenAIModels[defaultModelId].maxLength,
-    tokenLimit: OpenAIModels[defaultModelId].tokenLimit
+    tokenLimit: OpenAIModels[defaultModelId].tokenLimit,
   },
-  prompt: DEFAULT_SYSTEM_PROMPT
+  prompt: DEFAULT_SYSTEM_PROMPT,
 })
 
 activeConversationAtom.debugLabel = 'activeConversationAtom'

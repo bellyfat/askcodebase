@@ -9,7 +9,6 @@ import { activeConversationAtom } from '~/client/store'
 import { MonacoInputBox } from '../MonacoInputBox'
 import { useAtomRefValue } from '~/client/hooks'
 import { VSCodeApi } from '~/client/VSCodeApi'
-import { commands } from 'vscode'
 import { ProcessEvent } from '~/client/Process'
 
 export interface ChatInputProps {
@@ -41,7 +40,7 @@ export const Chat = memo(({ stopConversationRef, CustomChatInput, getResponseStr
   const chatContainerRef = useRef<HTMLDivElement>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
 
-  const setConversationLastMessage = (
+  const pushMessageToConversation = (
     updatedConversation: Conversation,
     role: Role = 'assistant',
     text: string,
@@ -58,48 +57,84 @@ export const Chat = memo(({ stopConversationRef, CustomChatInput, getResponseStr
       messages: updatedMessages,
     }
     setActiveConversation(updatedConversation)
+    return updatedConversation
+  }
+
+  const updateLastConversationMessage = (updatedConversation: Conversation, text: string) => {
+    const updatedMessages: Message[] = updatedConversation.messages.map((message, index) => {
+      if (index === updatedConversation.messages.length - 1) {
+        return {
+          ...message,
+          content: text,
+        }
+      }
+      return message
+    })
+    updatedConversation = {
+      ...updatedConversation,
+      messages: updatedMessages,
+    }
+    setActiveConversation(updatedConversation)
+    return updatedConversation
+  }
+
+  const getClonedActiveConversation = () => {
+    let updatedConversation = getActiveConversation()
+    updatedConversation = {
+      ...updatedConversation,
+      messages: [...updatedConversation.messages],
+    }
+    return updatedConversation
   }
 
   const handleSend = async (message: Message, deleteCount = 0) => {
-    let updatedConversation: Conversation
-    const conversation = getActiveConversation()
+    let updatedConversation = getActiveConversation()
     if (deleteCount > 0) {
-      const updatedMessages = [...conversation.messages]
+      const updatedMessages = [...updatedConversation.messages]
       for (let i = 0; i < deleteCount; i++) {
         updatedMessages.pop()
       }
       updatedConversation = {
-        ...conversation,
+        ...updatedConversation,
         messages: [...updatedMessages, message],
       }
     } else {
-      updatedConversation = {
-        ...conversation,
-        messages: [...conversation.messages, message],
-      }
+      updatedConversation = pushMessageToConversation(updatedConversation, 'user', message.content)
     }
-    setActiveConversation(activeConversation)
-    setConversationLastMessage(updatedConversation, 'assistant', 'Thinking...')
+
+    const start = Date.now()
+    // setActiveConversation(activeConversation)
+    // pushMessageToConversation(updatedConversation, 'assistant', 'Thinking...')
     // fixme: this is a hack to make sure the scroll down happens after the message is rendered
     setTimeout(handleScrollDown, 1000)
-    dispatch({ field: 'loading', value: true })
     dispatch({ field: 'messageIsStreaming', value: true })
-    if (updatedConversation.messages.length === 1) {
-      const { content } = message
-      const customName = content.length > 30 ? content.substring(0, 30) + '...' : content
-      updatedConversation = {
-        ...updatedConversation,
-        name: customName,
-      }
-    }
-    dispatch({ field: 'loading', value: false })
+
     const chatController = new AbortController()
     const process = await VSCodeApi.spawn(message.content)
 
+    let isFirstTerminalMessage = true
+    let termMessage = ''
     process.on(ProcessEvent.Data, data => {
-      setConversationLastMessage(updatedConversation, 'terminal', data)
-      chatController.abort()
+      if (data !== message.content) {
+        termMessage += data
+      }
+
+      if (isFirstTerminalMessage) {
+        console.log('end1', Date.now() - start, 'ms')
+        isFirstTerminalMessage = false
+        updatedConversation = pushMessageToConversation(
+          updatedConversation,
+          'terminal',
+          termMessage,
+        )
+        chatController.abort()
+        console.log('end2', Date.now() - start, 'ms')
+      } else {
+        updatedConversation = updateLastConversationMessage(updatedConversation, termMessage)
+        console.log('end3', Date.now() - start, 'ms')
+      }
     })
+    return
 
     let stream
     try {
@@ -111,7 +146,7 @@ export const Chat = memo(({ stopConversationRef, CustomChatInput, getResponseStr
           const details = (e as Error)?.message as string
           const output =
             `Something went wrong. Error: "${details}". ` +
-            'Please contact support@askcodebase.com if you need help.'
+            'Please fire an issue on our [GitHub](https://github.com/jipitiai/vscode-askcodebase/issues/new). contact support@askcodebase.com if you need help.'
           const error = encoder.encode(output)
           controller.enqueue(error)
           controller.close()

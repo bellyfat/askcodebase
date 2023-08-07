@@ -1,3 +1,8 @@
 .xtermMessage {
     height: unset !important;
+    white-space: break-spaces;
+    border-radius: 5px;
+    background-color: var(--vscode-panel-background);
+    border: 2px solid var(--vscode-chat-requestBackground, transparent);
+    padding: 5px 10px;
 }

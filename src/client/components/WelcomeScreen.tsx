@@ -4,11 +4,9 @@ export function WelcomeScreen() {
   return (
     <div className={styles.WelcomeScreen}>
       <div className={styles.title}>
-        <span>AskCodebase Terminal</span>
+        <span>AskCodebase AI</span>
       </div>
-      <div className={styles.description}>
-        Start building Your Next Big Thing with the Next-Generation Terminal.
-      </div>
+      <div className={styles.description}>Chat Is All You Need</div>
       <div className={styles.examples}>
         <div className={styles.block}>
           <div className={styles.subTitle}>Examples:</div>

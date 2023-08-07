@@ -86,7 +86,6 @@ export class WebViewProvider implements vscode.WebviewViewProvider {
               this._ptyProcesses.push(ptyProcess)
               ptyProcess.write(`${command}\r`)
               ptyProcess.onData(data => {
-                console.log('data', data)
                 webview.postMessage({
                   event: 'onProcessEvent',
                   data: [ptyProcess.pid, 'data', data],
