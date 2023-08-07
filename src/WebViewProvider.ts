@@ -95,9 +95,11 @@ export class WebViewProvider implements vscode.WebviewViewProvider {
                 ) {
                   return
                 }
+                console.log('1', JSON.stringify(data), JSON.stringify(this._shellPrompt))
                 data = data.replace(/\r\n$/, '')
                 data = data.replace(`\r\n${this._shellPrompt}`, '')
                 data = data.replace(`${this._shellPrompt}${command}\r\n`, '')
+                console.log('2', JSON.stringify(data), JSON.stringify(this._shellPrompt))
                 // 1. "\r\n> "
                 // 2. start with `bash:` & contains "command not found"
                 webview.postMessage({

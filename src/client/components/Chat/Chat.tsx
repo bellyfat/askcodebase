@@ -102,9 +102,7 @@ export const Chat = memo(({ stopConversationRef, CustomChatInput, getResponseStr
       updatedConversation = pushMessageToConversation(updatedConversation, 'user', message.content)
     }
 
-    const start = Date.now()
     // setActiveConversation(activeConversation)
-    // pushMessageToConversation(updatedConversation, 'assistant', 'Thinking...')
     // fixme: this is a hack to make sure the scroll down happens after the message is rendered
     setTimeout(handleScrollDown, 1000)
     dispatch({ field: 'messageIsStreaming', value: true })
@@ -114,91 +112,96 @@ export const Chat = memo(({ stopConversationRef, CustomChatInput, getResponseStr
 
     let isFirstTerminalMessage = true
     let termMessage = ''
-    process.on(ProcessEvent.Data, data => {
+    process.on(ProcessEvent.Data, async data => {
       if (data !== message.content) {
         termMessage += data
       }
 
       if (isFirstTerminalMessage) {
-        console.log('end1', Date.now() - start, 'ms')
         isFirstTerminalMessage = false
-        updatedConversation = pushMessageToConversation(
-          updatedConversation,
-          'terminal',
-          termMessage,
-        )
-        chatController.abort()
-        console.log('end2', Date.now() - start, 'ms')
-      } else {
-        updatedConversation = updateLastConversationMessage(updatedConversation, termMessage)
-        console.log('end3', Date.now() - start, 'ms')
-      }
-    })
-    return
+        if (termMessage.startsWith('bash:') || termMessage.endsWith('\r\n> ')) {
+          pushMessageToConversation(
+            updatedConversation,
+            'assistant',
+            `> ${termMessage}\n\nThinking...🤔`,
+          )
 
-    let stream
-    try {
-      stream = await getResponseStream(message, chatController.signal)
-    } catch (e) {
-      stream = new ReadableStream({
-        start(controller) {
-          const encoder = new TextEncoder()
-          const details = (e as Error)?.message as string
-          const output =
-            `Something went wrong. Error: "${details}". ` +
-            'Please fire an issue on our [GitHub](https://github.com/jipitiai/vscode-askcodebase/issues/new). contact support@askcodebase.com if you need help.'
-          const error = encoder.encode(output)
-          controller.enqueue(error)
-          controller.close()
-        },
-        pull(controller) {},
-        cancel(reason) {},
-      })
-    }
-    const reader = stream.getReader()
-    const decoder = new TextDecoder()
+          let stream
+          try {
+            stream = await getResponseStream(message, chatController.signal)
+          } catch (e) {
+            stream = new ReadableStream({
+              start(controller) {
+                const encoder = new TextEncoder()
+                const details = (e as Error)?.message as string
+                const output =
+                  `Something went wrong. Error: "${details}". ` +
+                  'Please fire an issue on our [GitHub](https://github.com/jipitiai/vscode-askcodebase/issues/new). contact support@askcodebase.com if you need help.'
+                const error = encoder.encode(output)
+                controller.enqueue(error)
+                controller.close()
+              },
+              pull(controller) {},
+              cancel(reason) {},
+            })
+          }
+          const reader = stream.getReader()
+          const decoder = new TextDecoder()
 
-    let done = false
-    let isFirst = true
-    let text = ''
-    while (!done) {
-      if (stopConversationRef.current === true) {
-        done = true
-        break
-      }
-      const { value, done: doneReading } = await reader.read()
-      done = doneReading
-      const chunkValue = decoder.decode(value)
-      text += chunkValue
-      if (isFirst) {
-        isFirst = false
-        const updatedMessages: Message[] = [
-          ...updatedConversation.messages,
-          { role: 'assistant', content: chunkValue },
-        ]
-        updatedConversation = {
-          ...updatedConversation,
-          messages: updatedMessages,
-        }
-        setActiveConversation(updatedConversation)
-      } else {
-        const updatedMessages: Message[] = updatedConversation.messages.map((message, index) => {
-          if (index === updatedConversation.messages.length - 1) {
-            return {
-              ...message,
-              content: text,
+          let done = false
+          let isFirst = true
+          let text = ''
+          while (!done) {
+            if (stopConversationRef.current === true) {
+              done = true
+              break
+            }
+            const { value, done: doneReading } = await reader.read()
+            done = doneReading
+            const chunkValue = decoder.decode(value)
+            text += chunkValue
+            if (isFirst) {
+              isFirst = false
+              const updatedMessages: Message[] = [
+                ...updatedConversation.messages,
+                { role: 'assistant', content: chunkValue },
+              ]
+              updatedConversation = {
+                ...updatedConversation,
+                messages: updatedMessages,
+              }
+              setActiveConversation(updatedConversation)
+            } else {
+              const updatedMessages: Message[] = updatedConversation.messages.map(
+                (message, index) => {
+                  if (index === updatedConversation.messages.length - 1) {
+                    return {
+                      ...message,
+                      content: text,
+                    }
+                  }
+                  return message
+                },
+              )
+              updatedConversation = {
+                ...updatedConversation,
+                messages: updatedMessages,
+              }
+              setActiveConversation(updatedConversation)
             }
           }
-          return message
-        })
-        updatedConversation = {
-          ...updatedConversation,
-          messages: updatedMessages,
+          dispatch({ field: 'messageIsStreaming', value: false })
+        } else {
+          updatedConversation = pushMessageToConversation(
+            updatedConversation,
+            'terminal',
+            termMessage,
+          )
         }
-        setActiveConversation(updatedConversation)
+      } else {
+        updatedConversation = updateLastConversationMessage(updatedConversation, termMessage)
       }
-    }
-    dispatch({ field: 'messageIsStreaming', value: false })
+    })
   }
 
   const handleScroll = () => {
