@@ -1,6 +1,6 @@
 import { OpenAIModel } from './openai'
 
-export type Role = 'assistant' | 'user'
+export type Role = 'assistant' | 'user' | 'terminal'
 
 export interface Message {
   role: Role

@@ -1,18 +1,21 @@
-import { join } from 'path'
 import * as vscode from 'vscode'
 import { ExtensionMode, Uri } from 'vscode'
 import type { IPty } from 'node-pty'
 import fetch from 'node-fetch'
 import { requireVSCodeModule } from '~/extensions'
-import { deferred } from './common/Deferred'
-import * as cp from 'child_process'
 
 const { spawn } = requireVSCodeModule<typeof import('node-pty')>('node-pty')
 const shell = process.platform === 'win32' ? 'powershell.exe' : 'bash'
+let cwd: string
+if (vscode.workspace.workspaceFolders) {
+  cwd = vscode.workspace.workspaceFolders[0].uri.fsPath
+} else {
+  cwd = process.env.HOME || ''
+}
 
 export class WebViewProvider implements vscode.WebviewViewProvider {
   public static readonly viewType = 'ask-codebase'
-  private _ptyProcesses = new Map<number, IPty>()
+  private _ptyProcesses: IPty[] = []
   public visible = false
 
   constructor(private readonly _context: vscode.ExtensionContext) {}
@@ -72,36 +75,30 @@ export class WebViewProvider implements vscode.WebviewViewProvider {
             }
             case 'spawn': {
               const { command } = message.data
-              let args = ['bash', ['-c', command], { shell: true }] as [string, string[], any]
-              if (command.startsWith('which')) {
-                args = [`which ${command.split(' ')[1]}`, [], { shell: true }]
-              }
-              console.log({ args })
-              const process = cp.spawn(...args)
-
-              process.stdout.on('data', chunk => {
+              const ptyProcess = spawn(shell, [], {
+                name: 'xterm-color',
+                cwd: cwd,
+                env: {
+                  ...process.env,
+                  BASH_SILENCE_DEPRECATION_WARNING: '1',
+                },
+              })
+              this._ptyProcesses.push(ptyProcess)
+              ptyProcess.write(`${command}\r`)
+              ptyProcess.onData(data => {
+                console.log('data', data)
                 webview.postMessage({
                   event: 'onProcessEvent',
-                  data: [process.pid, 'stdout.data', chunk.toString()],
+                  data: [ptyProcess.pid, 'data', data],
                 })
               })
-
-              process.stderr.on('data', chunk => {
+              ptyProcess.onExit(() => {
                 webview.postMessage({
                   event: 'onProcessEvent',
-                  data: [process.pid, 'stderr.data', chunk.toString()],
+                  data: [ptyProcess.pid, 'exit'],
                 })
               })
-
-              process.on('error', err => {
-                webview.postMessage({ event: 'onProcessEvent', data: [process.pid, 'error', err] })
-              })
-
-              process.on('exit', code => {
-                webview.postMessage({ event: 'onProcessEvent', data: [process.pid, 'exit', code] })
-              })
-
-              data = { pid: process.pid }
+              data = { pid: ptyProcess.pid }
               break
             }
           }

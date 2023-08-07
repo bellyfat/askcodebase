@@ -1,6 +1,6 @@
 import { MutableRefObject, memo, useContext, useEffect, useRef, useState } from 'react'
 import { throttle } from '~/client/utils/data/throttle'
-import { Conversation, Message } from '~/client/types/chat'
+import { Conversation, Message, Role } from '~/client/types/chat'
 import { ReactStreamChatContext } from '~/client/components/ReactStreamChat/context'
 import { MemoizedChatMessage } from './MemoizedChatMessage'
 import { WelcomeScreen } from '../WelcomeScreen'
@@ -8,6 +8,9 @@ import { useSetAtom } from 'jotai'
 import { activeConversationAtom } from '~/client/store'
 import { MonacoInputBox } from '../MonacoInputBox'
 import { useAtomRefValue } from '~/client/hooks'
+import { VSCodeApi } from '~/client/VSCodeApi'
+import { commands } from 'vscode'
+import { ProcessEvent } from '~/client/Process'
 
 export interface ChatInputProps {
   stopConversationRef: MutableRefObject<boolean>
@@ -21,7 +24,7 @@ export type ChatInputComponent = (props: ChatInputProps) => React.ReactNode
 
 interface Props {
   stopConversationRef: MutableRefObject<boolean>
-  getResponseStream: (message: Message) => Promise<ReadableStream<Uint8Array>>
+  getResponseStream: (message: Message, signal: AbortSignal) => Promise<ReadableStream<Uint8Array>>
   CustomChatInput?: ChatInputComponent
 }
 
@@ -38,11 +41,15 @@ export const Chat = memo(({ stopConversationRef, CustomChatInput, getResponseStr
   const chatContainerRef = useRef<HTMLDivElement>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
 
-  const setConversationLastMessage = (updatedConversation: Conversation, text: string) => {
+  const setConversationLastMessage = (
+    updatedConversation: Conversation,
+    role: Role = 'assistant',
+    text: string,
+  ) => {
     const updatedMessages: Message[] = [
       ...updatedConversation.messages,
       {
-        role: 'assistant',
+        role,
         content: text,
       },
     ]
@@ -72,7 +79,7 @@ export const Chat = memo(({ stopConversationRef, CustomChatInput, getResponseStr
       }
     }
     setActiveConversation(activeConversation)
-    setConversationLastMessage(updatedConversation, 'Thinking...')
+    setConversationLastMessage(updatedConversation, 'assistant', 'Thinking...')
     // fixme: this is a hack to make sure the scroll down happens after the message is rendered
     setTimeout(handleScrollDown, 1000)
     dispatch({ field: 'loading', value: true })
@@ -86,9 +93,17 @@ export const Chat = memo(({ stopConversationRef, CustomChatInput, getResponseStr
       }
     }
     dispatch({ field: 'loading', value: false })
+    const chatController = new AbortController()
+    const process = await VSCodeApi.spawn(message.content)
+
+    process.on(ProcessEvent.Data, data => {
+      setConversationLastMessage(updatedConversation, 'terminal', data)
+      chatController.abort()
+    })
+
     let stream
     try {
-      stream = await getResponseStream(message)
+      stream = await getResponseStream(message, chatController.signal)
     } catch (e) {
       stream = new ReadableStream({
         start(controller) {

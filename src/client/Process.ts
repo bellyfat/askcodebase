@@ -2,12 +2,14 @@ import { EventEmitter } from 'events'
 
 export enum ProcessEvent {
   Error = 'error',
-  Exit = 'exit'
+  Exit = 'exit',
+  Data = 'data',
 }
 
 export interface ProcessCallbacks {
   [ProcessEvent.Error]: (error: Error) => void
   [ProcessEvent.Exit]: (code: number) => void
+  [ProcessEvent.Data]: (data: string) => void
 }
 
 export class Process {
@@ -21,6 +23,7 @@ export class Process {
     switch (event) {
       case 'exit':
       case 'error':
+      case 'data':
         this._events.emit(event, data)
         break
       case 'stdout.data':
@@ -40,7 +43,7 @@ export class Process {
     return {
       on: (event: string, callback: (data: any) => void) => {
         this._stdout.on(`stdout.${event}`, callback)
-      }
+      },
     }
   }
 
@@ -48,7 +51,7 @@ export class Process {
     return {
       on: (event: string, callback: (data: any) => void) => {
         this._stderr.on(`stderr.${event}`, callback)
-      }
+      },
     }
   }
 }

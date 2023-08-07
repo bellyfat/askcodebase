@@ -4,28 +4,17 @@ import { useEffect, useRef, useState } from 'react'
 import { VSCodeApi } from '~/client/VSCodeApi'
 import { colorToRGBString } from '~/client/utils'
 import { ChatInputComponent } from '~/client/components'
-import { useAtomValue } from 'jotai'
-import { activeConversationAtom, userAtom } from '~/client/store'
+import { useAtom, useAtomValue } from 'jotai'
+import { activeConversationAtom, themeColorsAtom, userAtom } from '~/client/store'
 import { useAtomRefValue, useCommandBlocks } from '~/client/hooks'
 import { ReactStreamChat } from '~/client/components/ReactStreamChat'
 import { Message } from '~/client/types/chat'
 import { LoginModal } from '~/client/components'
 import { showLoginModalAtom } from '~/client/store/showLoginModal'
-import { ProcessEvent } from '~/client/Process'
-
-function getThemeColors() {
-  const element = document.getElementsByTagName('html')[0]
-  const colors = Object.values(element.style).map(color => {
-    const colorValue = element.style.getPropertyValue(color)
-    return [color, colorValue]
-  })
-  return colors
-    .filter(([key, value]) => key.startsWith('--'))
-    .reduce((o, [key, value]) => Object.assign(o, { [key]: value }), {})
-}
+import { getThemeColors } from '~/client/store/themeColorsAtom'
 
 export function AskCodebasePanel() {
-  const [themeColors, setThemeColors] = useState<Record<string, string>>(() => getThemeColors())
+  const [themeColors, setThemeColors] = useAtom(themeColorsAtom)
   const showLoginModal = useAtomValue(showLoginModalAtom)
   const activeConversation = useAtomValue(activeConversationAtom)
   const [user, getUser] = useAtomRefValue(userAtom)
@@ -75,34 +64,7 @@ export function AskCodebasePanel() {
     ),
   } as unknown as React.CSSProperties
 
-  const getResponseStream = async (message: Message) => {
-    const command = message.content.split(' ')[0]
-    const isCommandExists = await new Promise(async resolve => {
-      const process = await VSCodeApi.spawn(`which ${command}`)
-      let stdout = ''
-      let stderr = ''
-      process.stdout.on('data', (data: string) => {
-        stdout += data
-      })
-      process.stderr.on('data', (data: string) => {
-        stdout += data
-      })
-      process.on(ProcessEvent.Exit, (code: number) => {
-        resolve(code === 0)
-        console.log({
-          code,
-          stdout,
-          stderr,
-        })
-      })
-    })
-    console.log({ isCommandExists })
-    const process = await VSCodeApi.spawn(message.content)
-
-    console.log({
-      pid: process.pid,
-    })
-
+  const getResponseStream = async (message: Message, signal: AbortSignal) => {
     const resp = await fetch('https://askcodebase.com/api/chat', {
       headers: {
         'Content-Type': 'application/json',
@@ -113,6 +75,7 @@ export function AskCodebasePanel() {
         project_id: activeConversation.id,
         message: message.content,
       }),
+      signal,
     })
     if (!(resp.body instanceof ReadableStream)) {
       throw new Error('Network Error')

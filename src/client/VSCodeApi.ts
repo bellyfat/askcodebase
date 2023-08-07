@@ -41,8 +41,10 @@ class VSCodeApiClass {
             break
           }
           case 'onProcessEvent': {
+            console.log('--------- dispatchEvent helo', message)
             const [pid, event, data] = message.data
             const process = this._pendingProcesses[pid]
+            console.log('--------- dispatchEvent', pid, event, data, process)
             if (process != null) {
               process.dispatchEvent(event, data)
             }
@@ -76,6 +78,7 @@ class VSCodeApiClass {
 
     if (typeof pid === 'number') {
       const process = new Process(pid)
+      console.log('save pid', process, pid)
       this._pendingProcesses[pid] = process
 
       return process

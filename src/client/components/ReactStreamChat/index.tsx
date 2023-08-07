@@ -7,15 +7,15 @@ import { ReactStreamChatInitialState, initialState } from './state'
 
 interface Props {
   CustomChatInput?: ChatInputComponent
-  getResponseStream: (message: Message) => Promise<ReadableStream<Uint8Array>>
+  getResponseStream: (message: Message, signal: AbortSignal) => Promise<ReadableStream<Uint8Array>>
 }
 
 export const ReactStreamChat: FC<Props> = ({
   getResponseStream,
-  CustomChatInput: customChatInput
+  CustomChatInput: customChatInput,
 }) => {
   const contextValue = useCreateReducer<ReactStreamChatInitialState>({
-    initialState
+    initialState,
   })
   const stopConversationRef = useRef<boolean>(false)
 
