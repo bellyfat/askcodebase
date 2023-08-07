@@ -5,7 +5,7 @@ import { VSCodeApi } from '~/client/VSCodeApi'
 import { colorToRGBString } from '~/client/utils'
 import { ChatInputComponent } from '~/client/components'
 import { useAtomValue } from 'jotai'
-import { userAtom } from '~/client/store'
+import { activeConversationAtom, userAtom } from '~/client/store'
 import { useAtomRefValue, useCommandBlocks } from '~/client/hooks'
 import { ReactStreamChat } from '~/client/components/ReactStreamChat'
 import { Message } from '~/client/types/chat'
@@ -27,6 +27,7 @@ function getThemeColors() {
 export function AskCodebasePanel() {
   const [themeColors, setThemeColors] = useState<Record<string, string>>(() => getThemeColors())
   const showLoginModal = useAtomValue(showLoginModalAtom)
+  const activeConversation = useAtomValue(activeConversationAtom)
   const [user, getUser] = useAtomRefValue(userAtom)
 
   useCommandBlocks()
@@ -109,7 +110,8 @@ export function AskCodebasePanel() {
       },
       method: 'POST',
       body: JSON.stringify({
-        question: message.content,
+        project_id: activeConversation.id,
+        message: message.content,
       }),
     })
     if (!(resp.body instanceof ReadableStream)) {
