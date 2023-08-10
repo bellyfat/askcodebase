@@ -1,7 +1,8 @@
 .WelcomeScreen {
   display: flex;
   position: fixed;
-  top: 10vh;
+  top: 50%;
+  transform: translateY(-50%);
   width: 100vw;
   justify-content: center;
   flex-direction: column;
@@ -9,59 +10,68 @@
   color: var(--vscode-panel-background);
   filter: brightness(500%);
   user-select: none;
-  .title {
-    justify-content: center;
-    align-items: center;
-    font-size: 30px;
-    font-weight: 600;
-  }
-  .description {
-    margin-top: 2rem;
-    font-size: 16px;
-    filter: brightness(95%);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    svg {
-      width: 25px;
-      height: 25px;
-      margin-left: 8px;
-    }
-  }
-  .examples {
-    margin: 1rem auto;
-    width: 80vw;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  .WelcomeScreenInner {
     display: flex;
     flex-direction: column;
-    .block {
-      display: flex;
-      margin-top: 10px;
+    align-items: center;
+    justify-content: center;
+    max-width: 896px;
+    .title {
+      justify-content: center;
       align-items: center;
-      flex-wrap: wrap;
-      .head {
-        font-size: 14px;
-        margin-right: 10px;
+      font-size: 30px;
+      font-weight: 600;
+    }
+    .description {
+      margin-top: 2rem;
+      font-size: 16px;
+      filter: brightness(95%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      svg {
+        width: 25px;
+        height: 25px;
+        margin-left: 8px;
+      }
+    }
+    .examples {
+      margin: 50px auto;
+      display: flex;
+      flex-direction: column;
+      .block {
         display: flex;
+        margin-top: 10px;
         align-items: center;
-        padding-left: 10px;
-      }
-      .tail {
-        margin-left: 10px;
-      }
-      .subTitle {
-        font-size: 16px;
-        font-weight: bold;
-      }
-      .example {
-        display: flex;
-        margin: 1px 5px;
-        color: var(--vscode-foreground);
-        background: transparent;
-        filter: brightness(15%);
-        font-size: 14px;
-        padding: 3px 5px;
-        border-radius: 3px;
-        opacity: 0.9;
+        flex-wrap: wrap;
+        .head {
+          font-size: 14px;
+          margin-right: 10px;
+          display: flex;
+          align-items: center;
+          padding-left: 10px;
+        }
+        .tail {
+          margin-left: 10px;
+        }
+        .subTitle {
+          font-size: 16px;
+          font-weight: bold;
+        }
+        .example {
+          display: flex;
+          margin: 1px 5px;
+          color: var(--vscode-foreground);
+          background: transparent;
+          filter: brightness(15%);
+          font-size: 14px;
+          padding: 3px 5px;
+          border-radius: 3px;
+          opacity: 0.9;
+        }
       }
     }
   }
