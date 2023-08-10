@@ -33,6 +33,6 @@ jobs:
           git reset --hard HEAD
 
       - name: Publish Extension
-        run: vsce publish minor
+        run: vsce publish
         env:
           VSCE_PAT: ${{ secrets.VSCE_PAT }}
