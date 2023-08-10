@@ -14,6 +14,10 @@
     .messageContent {
       white-space: break-spaces;
       border-radius: 5px;
+      code {
+        margin-left: 5px;
+        margin-right: 5px;
+      }
       ol,
       ul {
         display: flex;
@@ -21,13 +25,15 @@
         padding-left: 2rem;
         box-sizing: border-box;
         li {
-          line-height: 0;
+          vertical-align: middle;
+          list-style-type: disc;
+          margin-right: 1em;
+          text-align: left;
+          white-space: nowrap;
           padding-left: 5px;
-          margin-bottom: 20px;
           p {
-            max-width: calc(100% - 2rem);
-            transform: translateY(-0.5rem);
-            line-height: 1;
+            line-height: 2;
+            white-space: pre-wrap;
           }
           &:last-child {
             margin-bottom: 0;
