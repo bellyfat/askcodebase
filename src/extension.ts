@@ -8,21 +8,25 @@ function registerStatusBarItem(context: vscode.ExtensionContext) {
   )
 
   statusBarItem.command = 'askcodebase.toggleAskCodebase'
-  statusBarItem.text = '$(layout-panel) Toggle AskCodebase'
+  statusBarItem.text = '$(layout-panel) Open AskCodebase'
   statusBarItem.tooltip = 'Toggle AskCodebase Panel'
   context.subscriptions.push(statusBarItem)
   statusBarItem.show()
+
+  return statusBarItem
 }
 
 export function activate(context: vscode.ExtensionContext) {
-  const provider = new WebViewProvider(context)
+  const statusBarItem = registerStatusBarItem(context)
+  const updateStatusBar = () => updateStatusBarItem(statusBarItem, provider.isWebviewVisible)
+  const provider = new WebViewProvider(context, updateStatusBar)
   const { isWebviewVisible } = provider
   const disposable = vscode.window.registerWebviewViewProvider(WebViewProvider.viewType, provider, {
     webviewOptions: { retainContextWhenHidden: true },
   })
 
-  registerStatusBarItem(context)
   context.subscriptions.push(disposable)
+  updateStatusBar()
 
   vscode.commands.registerCommand('askcodebase.toggleAskCodebase', async () => {
     if (isWebviewVisible()) {
@@ -30,7 +34,16 @@ export function activate(context: vscode.ExtensionContext) {
     } else {
       await vscode.commands.executeCommand('ask-codebase.focus')
     }
+    updateStatusBarItem(statusBarItem, isWebviewVisible)
   })
+}
+
+function updateStatusBarItem(statusBarItem: vscode.StatusBarItem, isWebviewVisible: () => boolean) {
+  if (isWebviewVisible()) {
+    statusBarItem.text = '$(layout-panel) Hide AskCodebase'
+  } else {
+    statusBarItem.text = '$(layout-panel) Open AskCodebase'
+  }
 }
 
 export function deactivate() {}

@@ -13,7 +13,10 @@ export class WebViewProvider implements vscode.WebviewViewProvider {
   private _shellPrompt: string = ''
   public visible = false
 
-  constructor(private readonly _context: vscode.ExtensionContext) {}
+  constructor(
+    private readonly _context: vscode.ExtensionContext,
+    private readonly _updateStatusBarItem: () => void,
+  ) {}
 
   public isWebviewVisible = () => {
     return this.visible
@@ -127,6 +130,7 @@ export class WebViewProvider implements vscode.WebviewViewProvider {
       this._context.subscriptions,
     )
 
+    this._updateStatusBarItem()
     this._shellPrompt = await this._getShellPrompt(cwd)
   }
 
