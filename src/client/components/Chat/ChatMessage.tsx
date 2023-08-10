@@ -12,6 +12,7 @@ import styles from './ChatMessage.module.scss'
 import { useAtom } from 'jotai'
 import { userAtom } from '~/client/store'
 import { XtermMessage } from './XtermMessage'
+import React = require('react')
 
 export interface Props {
   message: Message
@@ -108,6 +109,20 @@ export const ChatMessage: FC<Props> = memo(({ message, messageIndex }) => {
                       {children}
                     </th>
                   )
+                },
+                li({ children }) {
+                  const childrenArray = React.Children.toArray(children)
+                  const firstChild = childrenArray.find(element => typeof element !== 'string')
+
+                  if (React.isValidElement(firstChild) && firstChild.type === 'p') {
+                    return <li className='mb-5'>{children}</li>
+                  } else {
+                    return (
+                      <li>
+                        <p>{children}</p>
+                      </li>
+                    )
+                  }
                 },
                 td({ children }) {
                   return (
