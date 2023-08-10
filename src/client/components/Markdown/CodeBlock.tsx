@@ -1,9 +1,10 @@
 import { IconCheck, IconClipboard } from '@tabler/icons-react'
 import { FC, memo, useState } from 'react'
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
-import { oneDark } from 'react-syntax-highlighter/dist/esm/styles/prism'
+import { atomDark, duotoneDark, oneDark, vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism'
 import * as cx from 'classnames'
 import styles from './CodeBlock.module.scss'
+import { darcula } from 'react-syntax-highlighter/dist/esm/styles/hljs'
 
 interface Props {
   language: string
@@ -29,7 +30,7 @@ export const CodeBlock: FC<Props> = memo(({ language, value }) => {
 
   return (
     <div className={cx('codeblock relative font-sans text-[13px]', styles.codeblock)}>
-      <div className='flex items-center justify-between py-1.5 px-4'>
+      <div className={cx('flex items-center justify-between py-1.5 px-4', styles.header)}>
         <span className={cx('text-xs lowercase', styles.language)}>{language}</span>
 
         <div className='flex items-center'>
@@ -48,7 +49,7 @@ export const CodeBlock: FC<Props> = memo(({ language, value }) => {
 
       <SyntaxHighlighter
         language={language}
-        style={oneDark}
+        style={vscDarkPlus}
         customStyle={{
           borderTopLeftRadius: 0,
           borderTopRightRadius: 0,
