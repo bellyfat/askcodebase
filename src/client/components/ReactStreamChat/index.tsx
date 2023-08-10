@@ -7,7 +7,7 @@ import { ReactStreamChatInitialState, initialState } from './state'
 
 interface Props {
   CustomChatInput?: ChatInputComponent
-  getResponseStream: (message: Message, signal: AbortSignal) => Promise<ReadableStream<Uint8Array>>
+  getResponseStream: (message: Message) => Promise<ReadableStream<Uint8Array>>
 }
 
 export const ReactStreamChat: FC<Props> = ({

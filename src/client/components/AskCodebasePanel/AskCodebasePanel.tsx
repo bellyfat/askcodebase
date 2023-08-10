@@ -64,7 +64,7 @@ export function AskCodebasePanel() {
     ),
   } as unknown as React.CSSProperties
 
-  const getResponseStream = async (message: Message, signal: AbortSignal) => {
+  const getResponseStream = async (message: Message) => {
     const resp = await fetch('https://askcodebase.com/api/chat', {
       headers: {
         'Content-Type': 'application/json',
@@ -74,8 +74,7 @@ export function AskCodebasePanel() {
       body: JSON.stringify({
         project_id: activeConversation.id,
         message: message.content,
-      }),
-      signal,
+      })
     })
     if (!(resp.body instanceof ReadableStream)) {
       throw new Error('Network Error')

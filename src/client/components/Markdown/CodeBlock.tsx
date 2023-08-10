@@ -46,7 +46,16 @@ export const CodeBlock: FC<Props> = memo(({ language, value }) => {
         </div>
       </div>
 
-      <SyntaxHighlighter language={language} style={oneDark} customStyle={{ margin: 0 }}>
+      <SyntaxHighlighter
+        language={language}
+        style={oneDark}
+        customStyle={{
+          borderTopLeftRadius: 0,
+          borderTopRightRadius: 0,
+          margin: 0,
+          backgroundColor: 'var(--vscode-editor-background)',
+        }}
+      >
         {value}
       </SyntaxHighlighter>
     </div>

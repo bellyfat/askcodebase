@@ -1,4 +1,6 @@
 .codeblock {
+    border-radius: 5px;
+    border: 1px solid var(--vscode-input-border, transparent);
     .language,
     .copyButton {
         color: var(--vscode-foreground);
