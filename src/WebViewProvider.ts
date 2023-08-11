@@ -44,6 +44,7 @@ export class WebViewProvider implements vscode.WebviewViewProvider {
     this.visible = webviewView.visible
     webviewView.onDidChangeVisibility(e => {
       this.visible = webviewView.visible
+      this._updateStatusBarItem()
       webview.postMessage({ event: 'onDidChangeVisibility', data: webviewView.visible })
     })
 

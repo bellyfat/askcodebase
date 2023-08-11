@@ -38,30 +38,42 @@
       {
         "id": "askcodebase-walkthrough",
         "title": "Meet with AskCodebase AI",
-        "description": "Embrace Conversational Programming from today.",
+        "description": "You first steps to set up AskCodebase AI yours.",
         "steps": [
           {
-            "id": "open",
-            "title": "Run Command",
-            "description": "This step will run a command and check off once it has been run.\n[Run Command](command:getting-started-sample.runCommand)",
+            "id": "whats-new",
+            "title": "What's New",
+            "description": "Get to know our latest features to improve your productivity.\n[Got it](command:askcodebase.readWhatsNew)",
             "media": {
-              "image": "media/image.png",
-              "altText": "Empty image"
-            },
-            "completionEvents": [
-              "onCommand:getting-started-sample.runCommand"
-            ]
+              "markdown": "media/whats-new.md"
+            }
           },
           {
-            "id": "changesetting",
-            "title": "Change Setting",
-            "description": "This step will change a setting and check off when the setting has changed\n[Change Setting](command:getting-started-sample.changeSetting)",
+            "id": "open-askcodebase",
+            "title": "Open AskCodebase",
+            "description": "Click \"Open Askcodebase\" button in the status bar to open AskCodebase AI panel.\n[Next](command:askcodebase.readOpenAskCodebase)",
             "media": {
-              "markdown": "media/markdown.md"
-            },
-            "completionEvents": [
-              "onSettingChanged:getting-started-sample.sampleSetting"
-            ]
+              "image": "media/openAskCodebase.png",
+              "altText": "Open AskCodebase"
+            }
+          },
+          {
+            "id": "select-layout",
+            "title": "Select Layout",
+            "description": "Choose your favorite layout to use AskCodebase AI in VSCode comfortablely.\n[Select Layout](command:askcodebase.selectLayout)",
+            "media": {
+              "image": "media/defaultLayout.png",
+              "altText": "Choose Layout"
+            }
+          },
+          {
+            "id": "join-discord",
+            "title": "Join Discord Community",
+            "description": "Join our discord community to report feedbacks and co-build the product.\n[Join Discord](command:askcodebase.joinDiscord)",
+            "media": {
+              "image": "media/discord.png",
+              "altText": "Join Discord"
+            }
           }
         ]
       }
@@ -77,6 +89,18 @@
       {
         "command": "askcodebase.toggleAskCodebase",
         "title": "AskCodebase: Toggle AskCodebase Panel"
+      },
+      {
+        "command": "askcodebase.selectLayout",
+        "title": "AskCodebase: Select Layout"
+      },
+      {
+        "command": "askcodebase.clearLocalCache",
+        "title": "AskCodebase: Clear Local Cache (Dangerous)"
+      },
+      {
+        "command": "askcodebase.joinDiscord",
+        "title": "AskCodebase: Join Discord"
       }
     ],
     "viewsContainers": {
@@ -161,6 +185,7 @@
     "@tabler/icons-react": "^2.30.0",
     "@types/react-dom": "^18.2.6",
     "@types/react-window": "^1.8.5",
+    "@types/semver-compare": "^1.0.1",
     "@vscode/codicons": "^0.0.33",
     "@vscode/webview-ui-toolkit": "^1.2.2",
     "classnames": "^2.3.2",
@@ -178,6 +203,7 @@
     "rehype-mathjax": "^4.0.3",
     "remark-gfm": "^3.0.1",
     "remark-math": "^5.1.1",
+    "semver-compare": "^1.0.0",
     "uuid": "^9.0.0",
     "xterm": "^5.2.1",
     "xterm-addon-canvas": "^0.4.0",
