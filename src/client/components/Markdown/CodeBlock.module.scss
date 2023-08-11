@@ -1,12 +1,19 @@
 .codeblock {
+  border-radius: 5px;
+  border: 1px solid var(--vscode-input-border, transparent);
+  .header {
+    background: var(--vscode-chat-requestBackground);
+    border-radius: 5px 5px 0 0;
+  }
+  .language,
+  .copyButton {
+    color: var(--vscode-foreground);
+  }
+  pre {
     border-radius: 5px;
-    border: 1px solid var(--vscode-input-border, transparent);
-    .header {
-        background: var(--vscode-chat-requestBackground);
-        border-radius: 5px 5px 0 0;
-    }
-    .language,
-    .copyButton {
-        color: var(--vscode-foreground);
-    }
+    width: auto!important;
+  }
+  code {
+    white-space: break-spaces !important;
+  }
 }

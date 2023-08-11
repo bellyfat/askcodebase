@@ -8,6 +8,8 @@
     border: 1px solid var(--vscode-input-border, transparent);
     @media (max-width: 896px) {
       border-radius: 0;
+      border-left: none;
+      border-right: none;
     }
   }
   &.assistant {
@@ -56,6 +58,10 @@
   color: var(--vscode-interactive-session-foreground);
   max-width: 896px;
   margin: 0 auto;
+  .ChatMessageInner {
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+  }
   .userAvatar {
     height: 24px;
     width: 24px;

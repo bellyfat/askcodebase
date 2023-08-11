@@ -1,10 +1,9 @@
 import { IconCheck, IconClipboard } from '@tabler/icons-react'
 import { FC, memo, useState } from 'react'
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
-import { atomDark, duotoneDark, oneDark, vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism'
+import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism'
 import * as cx from 'classnames'
 import styles from './CodeBlock.module.scss'
-import { darcula } from 'react-syntax-highlighter/dist/esm/styles/hljs'
 
 interface Props {
   language: string

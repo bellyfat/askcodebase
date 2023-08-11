@@ -185,7 +185,7 @@ export const ChatMessage: FC<Props> = memo(({ message, messageIndex }) => {
       )}
       style={{ overflowWrap: 'anywhere' }}
     >
-      <div className='relative m-auto flex p-4 text-base'>
+      <div className={cx('relative m-auto flex text-base', styles.ChatMessageInner)}>
         <div className='min-w-[40px] text-right font-bold'>{renderHead(message)}</div>
 
         <div className='mt-[-2px] w-full dark:prose-invert flex items-center'>
