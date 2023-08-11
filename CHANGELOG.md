@@ -2,6 +2,13 @@
 
 All notable changes to the "ask-codebase" extension will be documented in this file.
 
+## [0.19.0 (2023-08-11) 🥳](https://marketplace.visualstudio.com/items/JipitiAI.askcodebase/changelog)
+
+### 🧹 Chore
+
+1. Update README.md 
+2. Delay `Open Walkthrough` after extension was updated
+
 ## [0.18.0 (2023-08-11) 🥳](https://marketplace.visualstudio.com/items/JipitiAI.askcodebase/changelog)
 
 ### 🎉 Walkthrough

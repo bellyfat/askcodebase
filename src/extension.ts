@@ -117,11 +117,12 @@ export function activate(context: vscode.ExtensionContext) {
     context.globalState.update(STORAGE_KEYS.localVersion, extensionVersion)
 
     setTimeout(async () => {
-      await vscode.commands.executeCommand(
+      const openWalkthrough = await vscode.commands.executeCommand(
         'workbench.action.openWalkthrough',
         `${EXTENSION_ID}#${WALKTHROUGH_ID}`,
       )
-    }, 3 * 1000)
+      console.log('openWalkthrough', openWalkthrough)
+    }, 10 * 1000)
   }
 }
 
