@@ -1,8 +1,8 @@
 {
   "name": "askcodebase",
   "displayName": "AskCodebase AI - Copilot, ChatGPT, Code Chat",
-  "description": "Make VSCode AI-first Code Editor - GPT-4, GPT-3.5, Code GPT, AI Pair Programmer",
-  "version": "0.21.0",
+  "description": "AI, GPT-4, GPT-3.5, GPT, AI Code, your AI pair programmer for JavaScript, Python, Java, TypeScript and more.",
+  "version": "0.22.0",
   "engines": {
     "vscode": "^1.70.0"
   },
