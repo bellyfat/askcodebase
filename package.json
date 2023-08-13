@@ -1,8 +1,8 @@
 {
   "name": "askcodebase",
-  "displayName": "AskCodebase AI",
-  "description": "AI Code Chat, Code AI",
-  "version": "0.23.0",
+  "displayName": "AskCodebase AI - Code Chat",
+  "description": "Make VSCode AI-first Code Editor",
+  "version": "0.24.0",
   "engines": {
     "vscode": "^1.70.0"
   },
@@ -19,8 +19,8 @@
     "Education"
   ],
   "keywords": [
-    "Conversation Programming",
-    "Chat Is All You Need",
+    "AI",
+    "Code Chat",
     "AI Code Assistant",
     "ChatGPT",
     "GPT-4",
