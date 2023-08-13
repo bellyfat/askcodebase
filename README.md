@@ -3,7 +3,7 @@
 <img src="https://img.shields.io/github/actions/workflow/status/jipitiai/vscode-askcodebase/package.yaml?label=Build" alt="Build Status">  <a href="https://discord.gg/5Ny6UuNKVD" target="_blank"><img src="https://img.shields.io/discord/1063090582890758175?label=Discord" alt="Join Discord" /></a> <a href="https://twitter.com/intent/user?screen_name=AskCodebase" target="_blank"><img src="https://img.shields.io/twitter/follow/AskCodebase" alt="Follow Twitter" /></a>
 
 
-> AskCodebase is the extension to **make VSCode AI-first Code Editor.**
+#### The extension to *make VSCode AI-first Code Editor.*
 
 ![](https://images.askcodebase.com/vscode.png)
 
