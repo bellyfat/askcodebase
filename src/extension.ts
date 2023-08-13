@@ -43,19 +43,6 @@ export function activate(context: vscode.ExtensionContext) {
   updateStatusBar()
 
   vscode.commands.registerCommand('askcodebase.toggleAskCodebase', async () => {
-    if (isNeedUpdate) {
-      context.globalState.update(STORAGE_KEYS.localVersion, extensionVersion)
-
-      statusBarItem.color = new vscode.ThemeColor('statusBarItem.prominentForeground')
-      statusBarItem.backgroundColor = new vscode.ThemeColor('statusBarItem.prominentBackground')
-      statusBarItem.text = 'Get Started with AskCodebase AI'
-
-      await vscode.commands.executeCommand(
-        'workbench.action.openWalkthrough',
-        `${EXTENSION_ID}#${WALKTHROUGH_ID}`,
-      )
-    }
-
     if (isWebviewVisible()) {
       await vscode.commands.executeCommand('workbench.action.closePanel')
     } else {

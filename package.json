@@ -1,8 +1,8 @@
 {
   "name": "askcodebase",
-  "displayName": "AskCodebase AI - Copilot, ChatGPT, Code Chat",
-  "description": "AI, GPT-4, GPT-3.5, GPT, AI Code, your AI pair programmer for JavaScript, Python, Java, TypeScript and more.",
-  "version": "0.22.0",
+  "displayName": "AskCodebase AI",
+  "description": "AI Code Chat, Code AI",
+  "version": "0.23.0",
   "engines": {
     "vscode": "^1.70.0"
   },
