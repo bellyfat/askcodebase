@@ -1,8 +1,8 @@
 {
   "name": "askcodebase",
-  "displayName": "AskCodebase AI - Code Chat",
-  "description": "Make VSCode AI-first Code Editor",
-  "version": "0.24.0",
+  "displayName": "AskCodebase AI",
+  "description": "AI-first Code Chat Extension",
+  "version": "0.25.0",
   "engines": {
     "vscode": "^1.70.0"
   },
