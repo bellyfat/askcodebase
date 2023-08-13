@@ -26,6 +26,11 @@ const WALKTHROUGH_ID = 'askcodebase-walkthrough'
 
 export function activate(context: vscode.ExtensionContext) {
   const extension = vscode.extensions.getExtension(EXTENSION_ID)
+  const extensionVersion = extension?.packageJSON.version ?? '0.0.0'
+  const localVersion = context.globalState.get<string>(STORAGE_KEYS.localVersion, '0.0.0')
+  const isNeedUpdate = semverCompare(extensionVersion, localVersion)
+  const isFirstInstall = localVersion === '0.0.0'
+
   const statusBarItem = registerStatusBarItem(context)
   const updateStatusBar = () => updateStatusBarItem(statusBarItem, provider.isWebviewVisible)
   const provider = new WebViewProvider(context, updateStatusBar)
@@ -38,6 +43,19 @@ export function activate(context: vscode.ExtensionContext) {
   updateStatusBar()
 
   vscode.commands.registerCommand('askcodebase.toggleAskCodebase', async () => {
+    if (isNeedUpdate) {
+      context.globalState.update(STORAGE_KEYS.localVersion, extensionVersion)
+
+      statusBarItem.color = new vscode.ThemeColor('statusBarItem.prominentForeground')
+      statusBarItem.backgroundColor = new vscode.ThemeColor('statusBarItem.prominentBackground')
+      statusBarItem.text = 'Get Started with AskCodebase AI'
+
+      await vscode.commands.executeCommand(
+        'workbench.action.openWalkthrough',
+        `${EXTENSION_ID}#${WALKTHROUGH_ID}`,
+      )
+    }
+
     if (isWebviewVisible()) {
       await vscode.commands.executeCommand('workbench.action.closePanel')
     } else {
@@ -96,13 +114,6 @@ export function activate(context: vscode.ExtensionContext) {
     }
   })
 
-  const extensionVersion = extension?.packageJSON.version ?? '0.0.0'
-  const localVersion = context.globalState.get<string>(STORAGE_KEYS.localVersion, '0.0.0')
-  const isNeedUpdate = semverCompare(extensionVersion, localVersion)
-  const isFirstInstall = localVersion === '0.0.0'
-
-  console.log({ extensionVersion, localVersion, isNeedUpdate, isFirstInstall })
-
   vscode.commands.registerCommand('askcodebase.readWhatsNew', async () => {
     if (isFirstInstall) {
       return vscode.commands.executeCommand(
@@ -119,29 +130,6 @@ export function activate(context: vscode.ExtensionContext) {
       `${EXTENSION_ID}#${WALKTHROUGH_ID}#select-layout`,
     )
   })
-
-  if (isNeedUpdate) {
-    context.globalState.update(STORAGE_KEYS.localVersion, extensionVersion)
-
-    setTimeout(async () => {
-      const openWalkthrough = await vscode.commands.executeCommand(
-        'workbench.action.openWalkthrough',
-        `${EXTENSION_ID}#${WALKTHROUGH_ID}`,
-      )
-      console.log('openWalkthrough', openWalkthrough)
-    }, 15 * 1000)
-  }
-}
-
-async function openWalkthroughWithStep(walkthrough: string, step: string) {
-  await vscode.commands.executeCommand(
-    'workbench.action.openWalkthrough',
-    `${EXTENSION_ID}#${WALKTHROUGH_ID}`,
-  )
-  await vscode.commands.executeCommand(
-    'walkthroughs.selectStep',
-    `${EXTENSION_ID}#${WALKTHROUGH_ID}#open-askcodebase`,
-  )
 }
 
 function updateStatusBarItem(statusBarItem: vscode.StatusBarItem, isWebviewVisible: () => boolean) {
