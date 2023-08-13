@@ -1,8 +1,8 @@
 {
   "name": "askcodebase",
   "displayName": "AskCodebase AI",
-  "description": "AI-first Code Chat Extension",
-  "version": "0.25.0",
+  "description": "AI-first Code Chat Copilot",
+  "version": "0.27.0",
   "engines": {
     "vscode": "^1.70.0"
   },
@@ -20,6 +20,7 @@
   ],
   "keywords": [
     "AI",
+    "CodeChat",
     "Code Chat",
     "AI Code Assistant",
     "ChatGPT",
