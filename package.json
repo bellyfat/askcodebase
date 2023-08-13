@@ -1,8 +1,8 @@
 {
   "name": "askcodebase",
-  "displayName": "AskCodebase AI",
-  "description": "Chat is All You Need. Write Code 100x faster.",
-  "version": "0.19.0",
+  "displayName": "AskCodebase AI - Copilot, ChatGPT, Code Chat",
+  "description": "Make VSCode AI-first Code Editor, GPT-4, GPT-3.5",
+  "version": "0.20.0",
   "engines": {
     "vscode": "^1.70.0"
   },
@@ -101,6 +101,10 @@
       {
         "command": "askcodebase.joinDiscord",
         "title": "AskCodebase: Join Discord"
+      },
+      {
+        "command": "askcodebase.openWalkthrough",
+        "title": "AskCodebase: Open Walkthrough"
       }
     ],
     "viewsContainers": {

@@ -58,6 +58,13 @@ export function activate(context: vscode.ExtensionContext) {
     context.globalState.update(STORAGE_KEYS.localVersion, '0.0.0')
   })
 
+  vscode.commands.registerCommand('askcodebase.openWalkthrough', async () => {
+    await vscode.commands.executeCommand(
+      'workbench.action.openWalkthrough',
+      `${EXTENSION_ID}#${WALKTHROUGH_ID}`,
+    )
+  })
+
   vscode.commands.registerCommand('askcodebase.joinDiscord', async () => {
     const discordLink = 'https://discord.gg/5Ny6UuNKVD'
     await vscode.commands.executeCommand('vscode.open', vscode.Uri.parse(discordLink))
@@ -122,7 +129,7 @@ export function activate(context: vscode.ExtensionContext) {
         `${EXTENSION_ID}#${WALKTHROUGH_ID}`,
       )
       console.log('openWalkthrough', openWalkthrough)
-    }, 10 * 1000)
+    }, 15 * 1000)
   }
 }
 
