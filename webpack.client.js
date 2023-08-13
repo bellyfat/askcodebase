@@ -81,7 +81,7 @@ module.exports = {
       patterns: [{ from: 'public' }],
     }),
     isDev && new ReactRefreshWebpackPlugin(),
-    new analyzer.BundleAnalyzerPlugin(),
+    // new analyzer.BundleAnalyzerPlugin(),
   ].filter(Boolean),
   devServer: {
     static: {
