@@ -7,7 +7,7 @@ on:
 
 jobs:
   build:
-    if: "contains(github.event.commits[0].message, 'prerelease')"
+    if: "contains(github.event.commits[0].message, 'pre-release')"
     runs-on: ubuntu-latest
 
     steps:
