@@ -1,4 +1,7 @@
-import { IconCheck, IconCopy, IconRobot, IconUser } from '@tabler/icons-react'
+// @ts-ignore
+import IconCheck from '@tabler/icons-react/dist/esm/icons/IconCheck'
+// @ts-ignore
+import IconCopy from '@tabler/icons-react/dist/esm/icons/IconCopy'
 import { FC, memo, useContext, useState } from 'react'
 import { Message } from '~/client/types/chat'
 import { ReactStreamChatContext } from '~/client/components/ReactStreamChat/context'

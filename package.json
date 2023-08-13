@@ -1,7 +1,7 @@
 {
   "name": "askcodebase",
   "displayName": "AskCodebase AI - Copilot, ChatGPT, Code Chat",
-  "description": "Make VSCode AI-first Code Editor, GPT-4, GPT-3.5",
+  "description": "Make VSCode AI-first Code Editor - GPT-4, GPT-3.5, Code GPT, AI Pair Programmer",
   "version": "0.20.0",
   "engines": {
     "vscode": "^1.70.0"

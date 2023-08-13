@@ -1,4 +1,7 @@
-import { IconCheck, IconClipboard } from '@tabler/icons-react'
+// @ts-ignore
+import IconCheck from '@tabler/icons-react/dist/esm/icons/IconCheck'
+// @ts-ignore
+import IconClipboard from '@tabler/icons-react/dist/esm/icons/IconClipboard'
 import { FC, memo, useState } from 'react'
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism'
