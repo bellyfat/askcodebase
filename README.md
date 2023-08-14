@@ -35,3 +35,7 @@ Deeply integrated with VSCode, AskCodebase harnesses VSCode's features like Code
 ```bash
 npm run pub # bump version and publish to marketplace
 ```
+
+## Resources
+
+1. [Monaco Editor APIs](https://microsoft.github.io/monaco-editor/docs.html)

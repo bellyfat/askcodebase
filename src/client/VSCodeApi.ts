@@ -84,6 +84,10 @@ class VSCodeApiClass {
     }
   }
 
+  public async executeCommand<T = any>(command: string, ...args: any[]): Promise<T> {
+    return this._postMessage('executeCommand', { command, args })
+  }
+
   public async openLink(url: string) {
     return this._postMessage('openLink', { url })
   }

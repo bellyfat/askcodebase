@@ -92,8 +92,18 @@ export const MonacoInputBox: FC<ChatInputProps> = ({
       VSCodeApi.hidePanel()
     })
 
+    let isSuggestionOpen = false
+    const suggestionController = editor.getContribution('editor.contrib.suggestController')
+    suggestionController.widget.value.onDidShow(() => (isSuggestionOpen = true))
+    suggestionController.widget.value.onDidHide(() => (isSuggestionOpen = false))
+
     // Enter to send message
     editor.addCommand(monaco.KeyCode.Enter, () => {
+      if (isSuggestionOpen) {
+        editor.trigger('keyboard', 'acceptSelectedSuggestion', {})
+        return
+      }
+
       const currentContent = editor.getValue()
       if (!getUserRefValue()) {
         setShowLoginModal(true)
@@ -101,6 +111,15 @@ export const MonacoInputBox: FC<ChatInputProps> = ({
       }
       handleSend(currentContent)
       editor.setValue('')
+    })
+
+    // Ctrl + P to Open File
+    // TODO hardcoded shortcut here, there's no callback for when the quickOpen is closed
+    editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyP, async () => {
+      VSCodeApi.executeCommand('workbench.action.quickOpen')
+    })
+    editor.addCommand(monaco.KeyMod.WinCtrl | monaco.KeyCode.KeyP, async () => {
+      VSCodeApi.executeCommand('workbench.action.quickOpen')
     })
 
     // Shift + Enter to start new line

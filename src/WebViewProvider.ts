@@ -59,6 +59,11 @@ export class WebViewProvider implements vscode.WebviewViewProvider {
         let error
         try {
           switch (message.command) {
+            case 'executeCommand': {
+              const { command, args } = message.data
+              data = await vscode.commands.executeCommand(command, ...args)
+              break
+            }
             case 'hidePanel': {
               vscode.commands.executeCommand('workbench.action.closePanel')
               break
