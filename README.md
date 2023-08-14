@@ -28,17 +28,3 @@ AskCodebase is not merely an innovation, but a vision for the future of coding. 
 Through either traditional commands or natural language instructions, AskCodebase allows developers to guide the AI to write, refactor, and organize the codebase. We aim to augment the existing practice of consulting ChatGPT and pasting code into the IDE, allowing developers to interact more fluidly with the codebase.
 
 Deeply integrated with VSCode, AskCodebase harnesses VSCode's features like Code Symbols, Source code FileTree, and Call Graph via Language Server Protocol for comprehensive understanding and interaction with your codebase.
-
-## Develop
-
-```bash
-npm run dev # develop client
-npm run watch # develop backend
-npm run pub # bump version and publish to marketplace
-```
-
-<kbd>F5</kbd> start the extension
-
-## Resources
-
-1. [Monaco Editor APIs](https://microsoft.github.io/monaco-editor/docs.html)
