@@ -1,7 +1,7 @@
 {
   "name": "askcodebase",
   "displayName": "AskCodebase AI",
-  "description": "Your AI Programming Autopilot",
+  "description": "Your AI programming autopilot",
   "version": "0.28.0",
   "engines": {
     "vscode": "^1.70.0"
@@ -9,7 +9,7 @@
   "icon": "media/logo.png",
   "publisher": "JipitiAI",
   "pricing": "Free",
-  "repository": "https://github.com/jipitiai/vscode-ask-codebase",
+  "repository": "https://github.com/jipitiai/askcodebase-community",
   "license": "UNLICENSED",
   "categories": [
     "Programming Languages",
