@@ -1,8 +1,8 @@
 {
   "name": "askcodebase",
   "displayName": "AskCodebase AI",
-  "description": "AI-first Code Chat Copilot",
-  "version": "0.27.0",
+  "description": "Your AI Programming Autopilot",
+  "version": "0.28.0",
   "engines": {
     "vscode": "^1.70.0"
   },

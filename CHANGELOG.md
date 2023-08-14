@@ -2,6 +2,12 @@
 
 All notable changes to the "ask-codebase" extension will be documented in this file.
 
+## [0.28.0 (2023-08-14) 🥳](https://marketplace.visualstudio.com/items/JipitiAI.askcodebase/changelog)
+
+### 🐛 Bug Fixes
+
+1. Fix wrong padding in WelcomeScreen examples component
+
 ## [0.19.0 (2023-08-11) 🥳](https://marketplace.visualstudio.com/items/JipitiAI.askcodebase/changelog)
 
 ### 🧹 Chore
