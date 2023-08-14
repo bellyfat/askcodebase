@@ -8,7 +8,6 @@ Given a one-line requirement, return a fully functional codebase.
 
 **[Install AskCodebase in VSCode →](https://marketplace.visualstudio.com/items?itemName=JipitiAI.askcodebase)**
 
-
 ## Usage
 
 1. Click <kbd>Open AskCodebase</kbd> button in the status bar.
@@ -33,8 +32,12 @@ Deeply integrated with VSCode, AskCodebase harnesses VSCode's features like Code
 ## Develop
 
 ```bash
+npm run dev # develop client
+npm run watch # develop backend
 npm run pub # bump version and publish to marketplace
 ```
+
+<kbd>F5</kbd> start the extension
 
 ## Resources
 
