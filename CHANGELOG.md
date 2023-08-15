@@ -2,6 +2,12 @@
 
 All notable changes to the "ask-codebase" extension will be documented in this file.
 
+## [0.31.0 (2023-08-16) 🥳](https://marketplace.visualstudio.com/items/JipitiAI.askcodebase/changelog)
+
+### 🧹 Chore
+
+1. Fix known issues
+
 ## [0.30.0 (2023-08-15) 🥳](https://marketplace.visualstudio.com/items/JipitiAI.askcodebase/changelog)
 
 ### 🎉 Features
