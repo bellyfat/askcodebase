@@ -59,6 +59,14 @@ export class WebViewProvider implements vscode.WebviewViewProvider {
         let error
         try {
           switch (message.command) {
+            case 'getSystemInfo': {
+              data = {
+                platform: process.platform,
+                arch: process.arch,
+                vscodeVersion: vscode.version,
+              }
+              break
+            }
             case 'executeCommand': {
               const { command, args } = message.data
               data = await vscode.commands.executeCommand(command, ...args)

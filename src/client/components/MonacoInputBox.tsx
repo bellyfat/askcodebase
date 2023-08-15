@@ -105,7 +105,8 @@ export const MonacoInputBox: FC<ChatInputProps> = ({
       }
 
       const currentContent = editor.getValue()
-      if (!getUserRefValue()) {
+      const user = getUserRefValue()
+      if (!user) {
         setShowLoginModal(true)
         return
       }

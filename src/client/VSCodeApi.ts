@@ -84,6 +84,10 @@ class VSCodeApiClass {
     }
   }
 
+  public async getSystemInfo(): Promise<{ vscodeVersion: string; platform: string; arch: string }> {
+    return this._postMessage('getSystemInfo')
+  }
+
   public async executeCommand<T = any>(command: string, ...args: any[]): Promise<T> {
     return this._postMessage('executeCommand', { command, args })
   }

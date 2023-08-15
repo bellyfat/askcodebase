@@ -8,6 +8,9 @@ import { userAtom } from '~/client/store'
 import IconGithub from '~/assets/github.svg'
 import IconGoogle from '~/assets/google.svg'
 import { showLoginModalAtom } from '~/client/store/showLoginModal'
+import { useEffect, useRef } from 'react'
+import { useTrace } from '~/client/hooks'
+import { TraceID } from '~/client/hooks/useTrace'
 
 let countdown = 2 * 5 * 60 // 2 minutes
 let timer: NodeJS.Timer | undefined = undefined
@@ -15,9 +18,16 @@ let timer: NodeJS.Timer | undefined = undefined
 export function LoginModal() {
   const setUserState = useSetAtom(userAtom)
   const setShowLoginModal = useSetAtom(showLoginModalAtom)
+  const isSuccess = useRef<boolean>(false)
+  const trace = useTrace()
+
+  useEffect(() => {
+    trace({ id: TraceID.Client_Login_Expose })
+  }, [])
 
   const loginWithGitHub = async () => {
     const state = randomString()
+    trace({ id: TraceID.Client_Login_Click, blobs: [state, 'GitHub'] })
     await VSCodeApi.openLink(`https://askcodebase.com/api/login/github?state=${state}`)
 
     clearInterval(timer)
@@ -50,6 +60,11 @@ export function LoginModal() {
           clearInterval(timer!)
           timer = undefined
 
+          if (!isSuccess.current) {
+            isSuccess.current = true
+            trace({ id: TraceID.Client_Login_Success, blobs: [state, 'GitHub'] })
+          }
+
           const deletion = await fetch(`https://askcodebase.com/api/user?state=${state}`, {
             method: 'DELETE',
           })
@@ -64,6 +79,8 @@ export function LoginModal() {
   }
 
   const loginWithGoogle = () => {
+    const state = randomString()
+    trace({ id: TraceID.Client_Login_Click, blobs: [state, 'Google'] })
     VSCodeApi.showInformationMessage('Coming soon, use GitHub for now.')
   }
 

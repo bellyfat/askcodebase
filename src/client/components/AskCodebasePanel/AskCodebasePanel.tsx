@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'react'
 import { VSCodeApi } from '~/client/VSCodeApi'
 import { colorToRGBString } from '~/client/utils'
 import { ChatInputComponent } from '~/client/components'
-import { useAtom, useAtomValue } from 'jotai'
+import { useAtom, useAtomValue, useSetAtom } from 'jotai'
 import { activeConversationAtom, themeColorsAtom, userAtom } from '~/client/store'
 import { useAtomRefValue, useCommandBlocks } from '~/client/hooks'
 import { ReactStreamChat } from '~/client/components/ReactStreamChat'
@@ -12,9 +12,11 @@ import { Message } from '~/client/types/chat'
 import { LoginModal } from '~/client/components'
 import { showLoginModalAtom } from '~/client/store/showLoginModal'
 import { getThemeColors } from '~/client/store/themeColorsAtom'
+import { systemInfoAtom } from '~/client/store/systemInfoAtom'
 
 export function AskCodebasePanel() {
   const [themeColors, setThemeColors] = useAtom(themeColorsAtom)
+  const setSystemInfo = useSetAtom(systemInfoAtom)
   const showLoginModal = useAtomValue(showLoginModalAtom)
   const activeConversation = useAtomValue(activeConversationAtom)
   const [user, getUser] = useAtomRefValue(userAtom)
@@ -23,6 +25,7 @@ export function AskCodebasePanel() {
 
   useEffect(() => {
     VSCodeApi.onColorThemeChanged(() => setThemeColors(getThemeColors()))
+    VSCodeApi.getSystemInfo().then(systemInfo => setSystemInfo(systemInfo))
   }, [])
 
   const colors = {
@@ -74,7 +77,7 @@ export function AskCodebasePanel() {
       body: JSON.stringify({
         project_id: activeConversation.id,
         message: message.content,
-      })
+      }),
     })
     if (!(resp.body instanceof ReadableStream)) {
       throw new Error('Network Error')
