@@ -43,11 +43,18 @@ export function LoginModal() {
           return
         }
 
+        // success!
         if (user != null) {
           setUserState(user)
           setShowLoginModal(false)
           clearInterval(timer!)
           timer = undefined
+
+          const deletion = await fetch(`https://askcodebase.com/api/user?state=${state}`, {
+            method: 'DELETE',
+          })
+          console.log('Login Success! Delete state', deletion)
+
           return
         }
       } catch (error) {
