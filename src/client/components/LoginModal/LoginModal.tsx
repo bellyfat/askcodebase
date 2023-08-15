@@ -9,8 +9,8 @@ import IconGithub from '~/assets/github.svg'
 import IconGoogle from '~/assets/google.svg'
 import { showLoginModalAtom } from '~/client/store/showLoginModal'
 
-let countdown = 2 * 60 // 2 minutes
-let timer: NodeJS.Timer | null = null
+let countdown = 2 * 5 * 60 // 2 minutes
+let timer: NodeJS.Timer | undefined = undefined
 
 export function LoginModal() {
   const setUserState = useSetAtom(userAtom)
@@ -20,39 +20,40 @@ export function LoginModal() {
     const state = randomString()
     await VSCodeApi.openLink(`https://askcodebase.com/api/login/github?state=${state}`)
 
-    if (timer == null) {
-      timer = setInterval(async () => {
-        countdown--
+    clearInterval(timer)
+    timer = undefined
 
-        if (countdown <= 0) {
+    timer = setInterval(async () => {
+      countdown--
+
+      if (countdown <= 0) {
+        clearInterval(timer!)
+        timer = undefined
+        return
+      }
+
+      try {
+        const resp = await fetch(`https://askcodebase.com/api/user?state=${state}`)
+        const { data: user, error, errcode } = (await resp.json()) as JsonResp<IUser>
+
+        if (errcode > 0 && errcode !== ErrorUserNull.code) {
+          VSCodeApi.showErrorMessage(error!)
           clearInterval(timer!)
-          timer = null
+          timer = undefined
           return
         }
 
-        try {
-          const resp = await fetch(`https://askcodebase.com/api/user?state=${state}`)
-          const { data: user, error, errcode } = (await resp.json()) as JsonResp<IUser>
-
-          if (errcode > 0 && errcode !== ErrorUserNull.code) {
-            VSCodeApi.showErrorMessage(error!)
-            clearInterval(timer!)
-            timer = null
-            return
-          }
-
-          if (user != null) {
-            setUserState(user)
-            setShowLoginModal(false)
-            clearInterval(timer!)
-            timer = null
-            return
-          }
-        } catch (error) {
-          console.error(error)
+        if (user != null) {
+          setUserState(user)
+          setShowLoginModal(false)
+          clearInterval(timer!)
+          timer = undefined
+          return
         }
-      }, 1000)
-    }
+      } catch (error) {
+        console.error(error)
+      }
+    }, 200)
   }
 
   const loginWithGoogle = () => {
