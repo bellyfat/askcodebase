@@ -162,7 +162,7 @@ export const MonacoInputBox: FC<ChatInputProps> = ({
       <div className={cx('codicon codicon-debug-console-evaluation-prompt', styles.prompt)}></div>
       <Editor
         className={styles.input}
-        defaultLanguage='shell'
+        defaultLanguage='markdown'
         theme='ask-codebase'
         options={{
           glyphMargin: false,

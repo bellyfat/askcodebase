@@ -209,6 +209,7 @@
     "remark-gfm": "^3.0.1",
     "remark-math": "^5.1.1",
     "semver-compare": "^1.0.0",
+    "strip-ansi": "^7.1.0",
     "uuid": "^9.0.0",
     "xterm": "^5.2.1",
     "xterm-addon-canvas": "^0.4.0",

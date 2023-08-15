@@ -117,6 +117,12 @@ export function activate(context: vscode.ExtensionContext) {
       `${EXTENSION_ID}#${WALKTHROUGH_ID}#select-layout`,
     )
   })
+
+  console.log({ isNeedUpdate, extensionVersion, localVersion, isFirstInstall })
+  if (isNeedUpdate) {
+    context.globalState.update(STORAGE_KEYS.localVersion, extensionVersion)
+    vscode.commands.executeCommand('ask-codebase.focus')
+  }
 }
 
 function updateStatusBarItem(statusBarItem: vscode.StatusBarItem, isWebviewVisible: () => boolean) {
