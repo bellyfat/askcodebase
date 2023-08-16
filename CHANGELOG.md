@@ -2,6 +2,12 @@
 
 All notable changes to the "ask-codebase" extension will be documented in this file.
 
+## [0.32.0 (2023-08-17) 🥳](https://marketplace.visualstudio.com/items/JipitiAI.askcodebase/changelog)
+
+### 🎉 Features
+
+1. Add `askcodebase.layout` to support customizing the layout
+
 ## [0.31.0 (2023-08-16) 🥳](https://marketplace.visualstudio.com/items/JipitiAI.askcodebase/changelog)
 
 ### 🧹 Chore
@@ -34,7 +40,7 @@ All notable changes to the "ask-codebase" extension will be documented in this f
 
 ### 🧹 Chore
 
-1. Update README.md 
+1. Update README.md
 2. Delay `Open Walkthrough` after extension was updated
 
 ## [0.18.0 (2023-08-11) 🥳](https://marketplace.visualstudio.com/items/JipitiAI.askcodebase/changelog)
