@@ -3,6 +3,7 @@ import { ExtensionMode, Uri } from 'vscode'
 import type { IPty } from 'node-pty'
 import fetch from 'node-fetch'
 import { requireVSCodeModule } from '~/extensions'
+import { trace } from './trace'
 
 const { spawn } = requireVSCodeModule<typeof import('node-pty')>('node-pty')
 const shell = process.platform === 'win32' ? 'powershell.exe' : 'bash'
@@ -45,6 +46,9 @@ export class WebViewProvider implements vscode.WebviewViewProvider {
     webviewView.onDidChangeVisibility(e => {
       this.visible = webviewView.visible
       this._updateStatusBarItem()
+      if (this.visible) {
+        this._updateLayout()
+      }
       webview.postMessage({ event: 'onDidChangeVisibility', data: webviewView.visible })
     })
 
@@ -59,11 +63,22 @@ export class WebViewProvider implements vscode.WebviewViewProvider {
         let error
         try {
           switch (message.command) {
+            case 'trace': {
+              const { id, blobs, doubles } = message.data
+              data = await trace(this._context, { id, blobs, doubles })
+              break
+            }
+            case 'setGlobalState': {
+              const { key, value } = message.data
+              data = await this._context.globalState.update(key, value)
+              break
+            }
             case 'getSystemInfo': {
               data = {
                 platform: process.platform,
                 arch: process.arch,
                 vscodeVersion: vscode.version,
+                deviceID: this._context.globalState.get('deviceID'),
               }
               break
             }
@@ -146,6 +161,29 @@ export class WebViewProvider implements vscode.WebviewViewProvider {
 
     this._updateStatusBarItem()
     this._shellPrompt = await this._getShellPrompt(cwd)
+  }
+
+  private async _updateLayout() {
+    const option = vscode.workspace.getConfiguration('askcodebase').get('layout')
+    const options = {
+      left: 'left',
+      right: 'right',
+      bottom: 'bottom',
+    }
+    switch (option) {
+      case options.left: {
+        await vscode.commands.executeCommand('workbench.action.positionPanelLeft')
+        break
+      }
+      case options.bottom: {
+        await vscode.commands.executeCommand('workbench.action.positionPanelBottom')
+        break
+      }
+      case options.right: {
+        await vscode.commands.executeCommand('workbench.action.positionPanelRight')
+        break
+      }
+    }
   }
 
   private _getShellPrompt(cwd: string): Promise<string> {

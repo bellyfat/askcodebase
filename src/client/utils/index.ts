@@ -1,2 +1,2 @@
 export * from './colorToRGBString'
-export * from './randomString'
+export * from '../../common/randomString'

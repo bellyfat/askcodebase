@@ -1,6 +1,9 @@
 import * as vscode from 'vscode'
 import { WebViewProvider } from './WebViewProvider'
 import semverCompare = require('semver-compare')
+import { randomString } from './common/randomString'
+import { trace } from './trace'
+import { TraceID } from './common/traceTypes'
 
 function registerStatusBarItem(context: vscode.ExtensionContext) {
   let statusBarItem = vscode.window.createStatusBarItem(
@@ -41,6 +44,8 @@ export function activate(context: vscode.ExtensionContext) {
 
   context.subscriptions.push(disposable)
   updateStatusBar()
+  setDeviceIdIfNotExist(context)
+  trace(context, { id: TraceID.Client_OnExtensionActive })
 
   vscode.commands.registerCommand('askcodebase.toggleAskCodebase', async () => {
     if (isWebviewVisible()) {
@@ -86,14 +91,23 @@ export function activate(context: vscode.ExtensionContext) {
       await vscode.commands.executeCommand('ask-codebase.focus')
       switch (option) {
         case options.center: {
+          vscode.workspace
+            .getConfiguration('askcodebase')
+            .update('layout', 'left', vscode.ConfigurationTarget.Global)
           await vscode.commands.executeCommand('workbench.action.positionPanelLeft')
           break
         }
         case options.bottom: {
+          vscode.workspace
+            .getConfiguration('askcodebase')
+            .update('layout', 'bottom', vscode.ConfigurationTarget.Global)
           await vscode.commands.executeCommand('workbench.action.positionPanelBottom')
           break
         }
         case options.right: {
+          vscode.workspace
+            .getConfiguration('askcodebase')
+            .update('layout', 'right', vscode.ConfigurationTarget.Global)
           await vscode.commands.executeCommand('workbench.action.positionPanelRight')
           break
         }
@@ -122,6 +136,14 @@ export function activate(context: vscode.ExtensionContext) {
   if (isNeedUpdate) {
     context.globalState.update(STORAGE_KEYS.localVersion, extensionVersion)
     vscode.commands.executeCommand('ask-codebase.focus')
+  }
+}
+
+function setDeviceIdIfNotExist(context: vscode.ExtensionContext) {
+  let deviceId = context.globalState.get<string>('deviceID')
+  if (deviceId === undefined) {
+    deviceId = randomString()
+    context.globalState.update('deviceID', deviceId)
   }
 }
 

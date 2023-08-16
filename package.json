@@ -35,6 +35,21 @@
   ],
   "main": "./dist/extension.js",
   "contributes": {
+    "configuration": {
+      "title": "AskCodebase Settings",
+      "properties": {
+        "askcodebase.layout": {
+          "type": "string",
+          "default": "left",
+          "enum": [
+            "left",
+            "right",
+            "bottom"
+          ],
+          "description": "Place AskCodebase AI panel on the left, right or bottom."
+        }
+      }
+    },
     "walkthroughs": [
       {
         "id": "askcodebase-walkthrough",

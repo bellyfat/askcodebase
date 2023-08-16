@@ -1,7 +1,6 @@
 import styles from './MonacoInputBox.module.scss'
 import * as cx from 'classnames'
 import Editor, { Monaco, useMonaco, loader } from '@monaco-editor/react'
-import * as monaco from 'monaco-editor'
 import { FC, useContext, useEffect, useRef } from 'react'
 import { ChatInputProps } from './Chat/Chat'
 import { ReactStreamChatContext } from './ReactStreamChat/context'
@@ -11,8 +10,7 @@ import { showLoginModalAtom } from '../store/showLoginModal'
 import { useAtomRefValue } from '../hooks'
 import { VSCodeApi, globalEventEmitter } from '../VSCodeApi'
 
-loader.config({ monaco })
-const placeholder = 'Type a command or a message'
+const placeholder = 'Type a message to start autopilot coding'
 
 export const MonacoInputBox: FC<ChatInputProps> = ({
   onSend,

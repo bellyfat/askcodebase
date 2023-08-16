@@ -1,6 +1,7 @@
 import { Deferred, deferred } from '~/common/Deferred'
 import { Process } from './Process'
 import { EventEmitter } from 'events'
+import { TraceID } from '~/common/traceTypes'
 
 interface MessagePromise {
   resolve: (value: unknown) => void
@@ -84,7 +85,20 @@ class VSCodeApiClass {
     }
   }
 
-  public async getSystemInfo(): Promise<{ vscodeVersion: string; platform: string; arch: string }> {
+  public async trace(payload: { id: TraceID; blobs?: string[]; doubles?: number[] }) {
+    return this._postMessage('trace', payload)
+  }
+
+  public async setGlobalState(key: string, value: any): Promise<void> {
+    return this._postMessage('setGlobalState', { key, value })
+  }
+
+  public async getSystemInfo(): Promise<{
+    vscodeVersion: string
+    platform: string
+    arch: string
+    deviceID: string
+  }> {
     return this._postMessage('getSystemInfo')
   }
 

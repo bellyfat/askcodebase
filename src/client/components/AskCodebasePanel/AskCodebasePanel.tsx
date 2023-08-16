@@ -13,6 +13,7 @@ import { LoginModal } from '~/client/components'
 import { showLoginModalAtom } from '~/client/store/showLoginModal'
 import { getThemeColors } from '~/client/store/themeColorsAtom'
 import { systemInfoAtom } from '~/client/store/systemInfoAtom'
+import { TraceID } from '~/common/traceTypes'
 
 export function AskCodebasePanel() {
   const [themeColors, setThemeColors] = useAtom(themeColorsAtom)
@@ -26,6 +27,9 @@ export function AskCodebasePanel() {
   useEffect(() => {
     VSCodeApi.onColorThemeChanged(() => setThemeColors(getThemeColors()))
     VSCodeApi.getSystemInfo().then(systemInfo => setSystemInfo(systemInfo))
+    VSCodeApi.setGlobalState('user', localStorage.getItem('user')).then(async () => {
+      await VSCodeApi.trace({ id: TraceID.Client_OnShow })
+    })
   }, [])
 
   const colors = {
