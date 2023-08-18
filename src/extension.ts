@@ -7,8 +7,7 @@ import { TraceID } from './common/traceTypes'
 import { EXTENSION_ID, WALKTHROUGH_ID } from './constants'
 import { recommendExtension } from './recommendExtension'
 import { STORAGE_KEYS } from './STORAGE_KEYS'
-import { updateLayout } from './utils'
-import { openChangelog } from './openChangelog'
+import { updateLayout, openChangelog } from './utils'
 
 function registerStatusBarItem(context: vscode.ExtensionContext) {
   let statusBarItem = vscode.window.createStatusBarItem(
