@@ -6,6 +6,7 @@ import { trace } from './trace'
 import { TraceID } from './common/traceTypes'
 import { EXTENSION_ID, WALKTHROUGH_ID } from './constants'
 import { recommendExtension } from './recommendExtension'
+import { STORAGE_KEYS } from './STORAGE_KEYS'
 
 function registerStatusBarItem(context: vscode.ExtensionContext) {
   let statusBarItem = vscode.window.createStatusBarItem(
@@ -20,11 +21,6 @@ function registerStatusBarItem(context: vscode.ExtensionContext) {
   statusBarItem.show()
 
   return statusBarItem
-}
-
-const STORAGE_KEYS = {
-  localVersion: 'localVersion',
-  isDefaultPanelPositionSet: 'isDefaultPanelPositionSet',
 }
 
 export function activate(context: vscode.ExtensionContext) {
@@ -42,6 +38,7 @@ export function activate(context: vscode.ExtensionContext) {
     webviewOptions: { retainContextWhenHidden: true },
   })
 
+  context.globalState.update(STORAGE_KEYS.extensionVersion, extensionVersion)
   context.subscriptions.push(disposable)
   updateStatusBar()
   setDeviceIdIfNotExist(context)

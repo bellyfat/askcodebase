@@ -1,5 +1,5 @@
-## Welcome to [0.32.0 (2023-08-17) 🥳](https://marketplace.visualstudio.com/items/JipitiAI.askcodebase/changelog)!
+## Welcome to [0.33.0 (2023-08-17) 🥳](https://marketplace.visualstudio.com/items/JipitiAI.askcodebase/changelog)!
 
-### 🎉 Features
+### 🐛 Bug Fixes
 
-1. Add `askcodebase.layout` to support customizing the layout
+1. Fix known issues

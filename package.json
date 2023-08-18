@@ -2,7 +2,7 @@
   "name": "askcodebase",
   "displayName": "AskCodebase AI",
   "description": "Your AI programming autopilot",
-  "version": "0.32.0",
+  "version": "0.33.0",
   "engines": {
     "vscode": "^1.70.0"
   },
