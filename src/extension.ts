@@ -7,6 +7,7 @@ import { TraceID } from './common/traceTypes'
 import { EXTENSION_ID, WALKTHROUGH_ID } from './constants'
 import { recommendExtension } from './recommendExtension'
 import { STORAGE_KEYS } from './STORAGE_KEYS'
+import { updateLayout } from './utils'
 
 function registerStatusBarItem(context: vscode.ExtensionContext) {
   let statusBarItem = vscode.window.createStatusBarItem(
@@ -44,6 +45,7 @@ export function activate(context: vscode.ExtensionContext) {
   setDeviceIdIfNotExist(context)
   trace(context, { id: TraceID.Client_OnExtensionActive })
   recommendExtension(context)
+  updateLayout()
 
   vscode.commands.registerCommand('askcodebase.toggleAskCodebase', async () => {
     if (isWebviewVisible()) {
@@ -133,7 +135,7 @@ export function activate(context: vscode.ExtensionContext) {
   console.log({ isNeedUpdate, extensionVersion, localVersion, isFirstInstall })
   if (isNeedUpdate) {
     context.globalState.update(STORAGE_KEYS.localVersion, extensionVersion)
-    vscode.commands.executeCommand('ask-codebase.focus')
+    // execute update logic
   }
 }
 

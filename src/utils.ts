@@ -1,0 +1,24 @@
+import * as vscode from 'vscode'
+
+export async function updateLayout() {
+  const option = vscode.workspace.getConfiguration('askcodebase').get('layout')
+  const options = {
+    left: 'left',
+    right: 'right',
+    bottom: 'bottom',
+  }
+  switch (option) {
+    case options.left: {
+      await vscode.commands.executeCommand('workbench.action.positionPanelLeft')
+      break
+    }
+    case options.bottom: {
+      await vscode.commands.executeCommand('workbench.action.positionPanelBottom')
+      break
+    }
+    case options.right: {
+      await vscode.commands.executeCommand('workbench.action.positionPanelRight')
+      break
+    }
+  }
+}

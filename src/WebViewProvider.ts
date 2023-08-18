@@ -4,6 +4,7 @@ import type { IPty } from 'node-pty'
 import fetch from 'node-fetch'
 import { requireVSCodeModule } from '~/extensions'
 import { trace } from './trace'
+import { updateLayout } from './utils'
 
 const { spawn } = requireVSCodeModule<typeof import('node-pty')>('node-pty')
 const shell = process.platform === 'win32' ? 'powershell.exe' : 'bash'
@@ -47,7 +48,7 @@ export class WebViewProvider implements vscode.WebviewViewProvider {
       this.visible = webviewView.visible
       this._updateStatusBarItem()
       if (this.visible) {
-        this._updateLayout()
+        updateLayout()
       }
       webview.postMessage({ event: 'onDidChangeVisibility', data: webviewView.visible })
     })
@@ -161,29 +162,6 @@ export class WebViewProvider implements vscode.WebviewViewProvider {
 
     this._updateStatusBarItem()
     this._shellPrompt = await this._getShellPrompt(cwd)
-  }
-
-  private async _updateLayout() {
-    const option = vscode.workspace.getConfiguration('askcodebase').get('layout')
-    const options = {
-      left: 'left',
-      right: 'right',
-      bottom: 'bottom',
-    }
-    switch (option) {
-      case options.left: {
-        await vscode.commands.executeCommand('workbench.action.positionPanelLeft')
-        break
-      }
-      case options.bottom: {
-        await vscode.commands.executeCommand('workbench.action.positionPanelBottom')
-        break
-      }
-      case options.right: {
-        await vscode.commands.executeCommand('workbench.action.positionPanelRight')
-        break
-      }
-    }
   }
 
   private _getShellPrompt(cwd: string): Promise<string> {
