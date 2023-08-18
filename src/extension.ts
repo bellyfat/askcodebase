@@ -8,6 +8,7 @@ import { EXTENSION_ID, WALKTHROUGH_ID } from './constants'
 import { recommendExtension } from './recommendExtension'
 import { STORAGE_KEYS } from './STORAGE_KEYS'
 import { updateLayout } from './utils'
+import { openChangelog } from './openChangelog'
 
 function registerStatusBarItem(context: vscode.ExtensionContext) {
   let statusBarItem = vscode.window.createStatusBarItem(
@@ -75,6 +76,10 @@ export function activate(context: vscode.ExtensionContext) {
     )
   })
 
+  vscode.commands.registerCommand('askcodebase.changelog', async () => {
+    openChangelog(context)
+  })
+
   vscode.commands.registerCommand('askcodebase.joinDiscord', async () => {
     const discordLink = 'https://discord.gg/5Ny6UuNKVD'
     await vscode.commands.executeCommand('vscode.open', vscode.Uri.parse(discordLink))
@@ -116,16 +121,6 @@ export function activate(context: vscode.ExtensionContext) {
   })
 
   vscode.commands.registerCommand('askcodebase.readWhatsNew', async () => {
-    if (isFirstInstall) {
-      return vscode.commands.executeCommand(
-        'walkthroughs.selectStep',
-        `${EXTENSION_ID}#${WALKTHROUGH_ID}#open-askcodebase`,
-      )
-    }
-    return vscode.commands.executeCommand('workbench.action.closeActiveEditor')
-  })
-
-  vscode.commands.registerCommand('askcodebase.readOpenAskCodebase', async () => {
     return vscode.commands.executeCommand(
       'walkthroughs.selectStep',
       `${EXTENSION_ID}#${WALKTHROUGH_ID}#select-layout`,

@@ -247,6 +247,14 @@ export const Chat = memo(({ stopConversationRef, CustomChatInput, getResponseStr
     )
   }
   const handleBuiltinCommands = (command: string) => {
+    if (command === 'version' || command === 'changelog') {
+      VSCodeApi.executeCommand('askcodebase.changelog')
+      return true
+    }
+    if (command === 'help') {
+      VSCodeApi.executeCommand('askcodebase.openWalkthrough')
+      return true
+    }
     if (command === 'clear') {
       setActiveConversation({
         ...getActiveConversation(),

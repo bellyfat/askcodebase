@@ -10,7 +10,7 @@ import { showLoginModalAtom } from '../store/showLoginModal'
 import { useAtomRefValue } from '../hooks'
 import { VSCodeApi, globalEventEmitter } from '../VSCodeApi'
 
-const placeholder = 'Type a message to start autopilot coding'
+const placeholder = 'Type a message to start coding with autopilot'
 
 export const MonacoInputBox: FC<ChatInputProps> = ({
   onSend,

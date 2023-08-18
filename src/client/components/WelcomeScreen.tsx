@@ -15,6 +15,8 @@ export function WelcomeScreen() {
           <div className={styles.block}>
             <div className={styles.head}>Built-in Commands:</div>
             <div className={styles.example}>clear</div>
+            <div className={styles.example}>changelog</div>
+            <div className={styles.example}>help</div>
           </div>
           {/* Need to re-introduce it later. */}
           {/* <div className={styles.block}>

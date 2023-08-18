@@ -61,16 +61,7 @@
             "title": "What's New",
             "description": "Get to know our latest features to improve your productivity.\n[Got it](command:askcodebase.readWhatsNew)",
             "media": {
-              "markdown": "media/whats-new.md"
-            }
-          },
-          {
-            "id": "open-askcodebase",
-            "title": "Open AskCodebase",
-            "description": "Click \"Open Askcodebase\" button in the status bar to open AskCodebase AI panel.\n[Next](command:askcodebase.readOpenAskCodebase)",
-            "media": {
-              "image": "media/openAskCodebase.png",
-              "altText": "Open AskCodebase"
+              "markdown": "CHANGELOG.md"
             }
           },
           {
@@ -117,6 +108,10 @@
       {
         "command": "askcodebase.joinDiscord",
         "title": "AskCodebase: Join Discord"
+      },
+      {
+        "command": "askcodebase.changelog",
+        "title": "AskCodebase: Show Changelog"
       },
       {
         "command": "askcodebase.openWalkthrough",
