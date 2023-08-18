@@ -84,8 +84,10 @@ export function AskCodebasePanel() {
       }),
     })
     if (!(resp.body instanceof ReadableStream)) {
+      VSCodeApi.trace({ id: TraceID.Client_OnChatResponseFailure })
       throw new Error('Network Error')
     }
+    VSCodeApi.trace({ id: TraceID.Client_OnChatResponseSuccess })
     return resp.body
   }
 

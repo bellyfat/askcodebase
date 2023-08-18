@@ -10,6 +10,7 @@ import { MonacoInputBox } from '../MonacoInputBox'
 import { useAtomRefValue } from '~/client/hooks'
 import { VSCodeApi } from '~/client/VSCodeApi'
 import { ProcessEvent } from '~/client/Process'
+import { TraceID } from '~/common/traceTypes'
 
 export interface ChatInputProps {
   stopConversationRef: MutableRefObject<boolean>
@@ -110,6 +111,7 @@ export const Chat = memo(({ stopConversationRef, CustomChatInput, getResponseStr
 
     let stream
     try {
+      VSCodeApi.trace({ id: TraceID.Client_OnChatRequest })
       stream = await getResponseStream(message)
     } catch (e) {
       stream = new ReadableStream({
@@ -247,12 +249,14 @@ export const Chat = memo(({ stopConversationRef, CustomChatInput, getResponseStr
     )
   }
   const handleBuiltinCommands = (command: string) => {
-    if (command === 'version' || command === 'changelog') {
+    if (command === 'changelog') {
       VSCodeApi.executeCommand('askcodebase.changelog')
+      VSCodeApi.trace({ id: TraceID.Client_CommandChangelog })
       return true
     }
     if (command === 'help') {
       VSCodeApi.executeCommand('askcodebase.openWalkthrough')
+      VSCodeApi.trace({ id: TraceID.Client_CommandHelp })
       return true
     }
     if (command === 'clear') {
@@ -260,6 +264,7 @@ export const Chat = memo(({ stopConversationRef, CustomChatInput, getResponseStr
         ...getActiveConversation(),
         messages: [],
       })
+      VSCodeApi.trace({ id: TraceID.Client_CommandClear })
       return true
     }
     return false

@@ -25,9 +25,18 @@ export async function trace(
   const deviceIDAsBlob3 = context.globalState.get('deviceID') as string
   const archAsBlob4 = process.arch
   const vscodeVersionAsBlob5 = vscode.version
+  const vscodeThemeAsBlob6 =
+    (vscode.workspace.getConfiguration('workbench').get('colorTheme') as string) ?? ''
   const data: AnalyticsEngineDataPoint = {
     indexes: [id],
-    blobs: [useridAsBlob1, platformAsBlob2, deviceIDAsBlob3, archAsBlob4, vscodeVersionAsBlob5],
+    blobs: [
+      useridAsBlob1,
+      platformAsBlob2,
+      deviceIDAsBlob3,
+      archAsBlob4,
+      vscodeVersionAsBlob5,
+      vscodeThemeAsBlob6,
+    ],
   }
   if (Array.isArray(blobs)) {
     data.blobs = data.blobs!.concat(blobs)
