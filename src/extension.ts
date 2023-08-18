@@ -4,6 +4,8 @@ import semverCompare = require('semver-compare')
 import { randomString } from './common/randomString'
 import { trace } from './trace'
 import { TraceID } from './common/traceTypes'
+import { EXTENSION_ID, WALKTHROUGH_ID } from './constants'
+import { recommendExtension } from './recommendExtension'
 
 function registerStatusBarItem(context: vscode.ExtensionContext) {
   let statusBarItem = vscode.window.createStatusBarItem(
@@ -24,8 +26,6 @@ const STORAGE_KEYS = {
   localVersion: 'localVersion',
   isDefaultPanelPositionSet: 'isDefaultPanelPositionSet',
 }
-const EXTENSION_ID = 'JipitiAI.askcodebase'
-const WALKTHROUGH_ID = 'askcodebase-walkthrough'
 
 export function activate(context: vscode.ExtensionContext) {
   const extension = vscode.extensions.getExtension(EXTENSION_ID)
@@ -46,6 +46,7 @@ export function activate(context: vscode.ExtensionContext) {
   updateStatusBar()
   setDeviceIdIfNotExist(context)
   trace(context, { id: TraceID.Client_OnExtensionActive })
+  recommendExtension(context)
 
   vscode.commands.registerCommand('askcodebase.toggleAskCodebase', async () => {
     if (isWebviewVisible()) {
