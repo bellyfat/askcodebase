@@ -4,7 +4,7 @@
 
 ### Your AI Programming Autopilot
 
-Given a one-line requirement, return a fully functional codebase.
+Transform coders into solution designers and problem solvers.
 
 ![](https://images.askcodebase.com/vscode.png)
 
