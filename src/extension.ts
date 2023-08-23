@@ -25,6 +25,7 @@ function registerStatusBarItem(context: vscode.ExtensionContext) {
 }
 
 export function activate(context: vscode.ExtensionContext) {
+  console.log('-- registerInteractiveEditorSessionProvider', vscode.interactive.registerInteractiveEditorSessionProvider)
   const extension = vscode.extensions.getExtension(EXTENSION_ID)
   const extensionVersion = extension?.packageJSON.version ?? '0.0.0'
   const localVersion = context.globalState.get<string>(STORAGE_KEYS.localVersion, '0.0.0')

@@ -33,8 +33,27 @@
   "activationEvents": [
     "*"
   ],
+  "enabledApiProposals": [
+    "interactive",
+    "interactiveUserActions",
+    "terminalContextMenu",
+    "terminalDataWriteEvent",
+    "terminalSelection",
+    "terminalQuickFixProvider",
+    "semanticSimilarity",
+    "handleIssueUri",
+    "chatSlashCommands",
+    "chatVariables"
+  ],
   "main": "./dist/extension.js",
   "contributes": {
+    "interactiveSession": [
+      {
+        "label": "AskCodebase",
+        "id": "askcodebase",
+        "icon": ""
+      }
+    ],
     "configuration": {
       "title": "AskCodebase Settings",
       "properties": {
