@@ -16,11 +16,10 @@ function registerStatusBarItem(context: vscode.ExtensionContext) {
   )
 
   statusBarItem.command = 'askcodebase.toggleAskCodebase'
-  statusBarItem.text = '$(layout-panel) Open AskCodebase'
+  statusBarItem.text = '$(askcodebase-logo) Open AskCodebase'
   statusBarItem.tooltip = 'Toggle AskCodebase Panel'
   context.subscriptions.push(statusBarItem)
   statusBarItem.show()
-
   return statusBarItem
 }
 
@@ -144,9 +143,9 @@ function setDeviceIdIfNotExist(context: vscode.ExtensionContext) {
 
 function updateStatusBarItem(statusBarItem: vscode.StatusBarItem, isWebviewVisible: () => boolean) {
   if (isWebviewVisible()) {
-    statusBarItem.text = '$(layout-panel) Hide AskCodebase'
+    statusBarItem.text = '$(askcodebase-logo) Hide AskCodebase'
   } else {
-    statusBarItem.text = '$(layout-panel) Open AskCodebase'
+    statusBarItem.text = '$(askcodebase-logo) Open AskCodebase'
   }
 }
 

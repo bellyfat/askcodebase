@@ -47,6 +47,15 @@
   ],
   "main": "./dist/extension.js",
   "contributes": {
+    "icons": {
+      "askcodebase-logo": {
+        "description": "AskCodebase Logo",
+        "default": {
+          "fontPath": "media/icons/icons.woff",
+          "fontCharacter": "\\f101"
+        }
+      }
+    },
     "interactiveSession": [
       {
         "label": "AskCodebase",
