@@ -10,22 +10,18 @@ import { showLoginModalAtom } from '../store/showLoginModal'
 import { useAtomRefValue } from '../hooks'
 import { VSCodeApi, globalEventEmitter } from '../VSCodeApi'
 
-const placeholder = 'Type a message to start coding with autopilot'
+const placeholder = 'Type a message'
 
 export const MonacoInputBox: FC<ChatInputProps> = ({
   onSend,
-  onRegenerate,
   onScrollDownClick,
   stopConversationRef,
-  textareaRef,
-  showScrollDownButton,
 }) => {
   const {
-    state: { selectedConversation, messageIsStreaming },
+    state: { messageIsStreaming },
   } = useContext(ReactStreamChatContext)
   const inputBox$ = useRef<HTMLDivElement | null>()
   const editor$ = useRef<any | null>(null)
-  const monaco = useMonaco()
   const setShowLoginModal = useSetAtom(showLoginModalAtom)
   const [user, getUserRefValue] = useAtomRefValue(userAtom)
 
@@ -42,14 +38,8 @@ export const MonacoInputBox: FC<ChatInputProps> = ({
     onScrollDownClick()
   }
 
-  const handleStopConversation = () => {
-    stopConversationRef.current = true
-    setTimeout(() => {
-      stopConversationRef.current = false
-    }, 1000)
-  }
 
-  const handleEditorOnChange = (value: string | undefined, ev: any) => {
+  const handleEditorOnChange = (value: string | undefined) => {
     let placeholder = document.querySelector('.monaco-placeholder') as HTMLElement | null
     if (!value) {
       placeholder!.style.display = 'block'

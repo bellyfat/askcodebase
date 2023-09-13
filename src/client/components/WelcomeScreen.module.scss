@@ -20,6 +20,8 @@
     justify-content: center;
     max-width: 896px;
     .title {
+      color: var(--vscode-foreground);
+      filter: brightness(15%);
       justify-content: center;
       align-items: center;
       font-size: 30px;
@@ -28,7 +30,8 @@
     .description {
       margin-top: 2rem;
       font-size: 16px;
-      filter: brightness(95%);
+      color: var(--vscode-foreground);
+      filter: brightness(10%);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -49,6 +52,8 @@
         align-items: center;
         flex-wrap: wrap;
         .head {
+          color: var(--vscode-foreground);
+          filter: brightness(15%);
           font-size: 14px;
           margin-right: 10px;
           display: flex;
@@ -61,6 +66,8 @@
         .subTitle {
           font-size: 16px;
           font-weight: bold;
+          color: var(--vscode-foreground);
+          filter: brightness(15%);
         }
         .example {
           display: flex;

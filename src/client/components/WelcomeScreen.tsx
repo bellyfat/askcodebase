@@ -18,15 +18,6 @@ export function WelcomeScreen() {
             <div className={styles.example}>changelog</div>
             <div className={styles.example}>help</div>
           </div>
-          {/* Need to re-introduce it later. */}
-          {/* <div className={styles.block}>
-            <div className={styles.head}>Shell Commands:</div>
-            <div className={styles.example}>ls -la</div>
-            <div className={styles.example}>npm install</div>
-            <div className={styles.example}>npm run dev</div>
-            <div className={styles.example}>git log</div>
-            <div className={styles.example}>pwd</div>
-          </div> */}
           <div className={styles.block}>
             <div className={styles.head}>Codebase Commands:</div>
             <div className={styles.example}>explain the codebase</div>

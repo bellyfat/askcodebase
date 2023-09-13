@@ -5,7 +5,6 @@ import { randomString } from './common/randomString'
 import { trace } from './trace'
 import { TraceID } from './common/traceTypes'
 import { EXTENSION_ID, WALKTHROUGH_ID } from './constants'
-import { recommendExtension } from './recommendExtension'
 import { STORAGE_KEYS } from './STORAGE_KEYS'
 import { updateLayout, openChangelog } from './utils'
 
@@ -16,16 +15,14 @@ function registerStatusBarItem(context: vscode.ExtensionContext) {
   )
 
   statusBarItem.command = 'askcodebase.toggleAskCodebase'
-  statusBarItem.text = '$(layout-panel) Open AskCodebase'
+  statusBarItem.text = '$(askcodebase-logo) Open AskCodebase'
   statusBarItem.tooltip = 'Toggle AskCodebase Panel'
   context.subscriptions.push(statusBarItem)
   statusBarItem.show()
-
   return statusBarItem
 }
 
 export function activate(context: vscode.ExtensionContext) {
-  console.log('-- registerInteractiveEditorSessionProvider', vscode.interactive.registerInteractiveEditorSessionProvider)
   const extension = vscode.extensions.getExtension(EXTENSION_ID)
   const extensionVersion = extension?.packageJSON.version ?? '0.0.0'
   const localVersion = context.globalState.get<string>(STORAGE_KEYS.localVersion, '0.0.0')
@@ -45,7 +42,6 @@ export function activate(context: vscode.ExtensionContext) {
   updateStatusBar()
   setDeviceIdIfNotExist(context)
   trace(context, { id: TraceID.Client_OnExtensionActive })
-  recommendExtension(context)
   updateLayout()
 
   vscode.commands.registerCommand('askcodebase.toggleAskCodebase', async () => {
@@ -58,7 +54,7 @@ export function activate(context: vscode.ExtensionContext) {
       )
       if (!isDefaultPanelPositionSet) {
         context.globalState.update(STORAGE_KEYS.isDefaultPanelPositionSet, true)
-        await vscode.commands.executeCommand('workbench.action.positionPanelLeft')
+        await vscode.commands.executeCommand('workbench.action.positionPanelRight')
       }
       await vscode.commands.executeCommand('ask-codebase.focus')
     }
@@ -87,14 +83,21 @@ export function activate(context: vscode.ExtensionContext) {
 
   vscode.commands.registerCommand('askcodebase.selectLayout', async () => {
     const options = {
-      center: '$(layout-centered) Position Centered (Recommended)',
+      center: '$(layout-centered) Position Centered',
       bottom: '$(layout-panel) Position Bottom',
-      right: '$(layout-sidebar-right) Position Right',
+      right: '$(layout-sidebar-right) Position Right (Recommended)',
     }
     const option = await vscode.window.showQuickPick(Object.values(options))
     if (option != null) {
       await vscode.commands.executeCommand('ask-codebase.focus')
       switch (option) {
+        case options.right: {
+          vscode.workspace
+            .getConfiguration('askcodebase')
+            .update('layout', 'right', vscode.ConfigurationTarget.Global)
+          await vscode.commands.executeCommand('workbench.action.positionPanelRight')
+          break
+        }
         case options.center: {
           vscode.workspace
             .getConfiguration('askcodebase')
@@ -107,13 +110,6 @@ export function activate(context: vscode.ExtensionContext) {
             .getConfiguration('askcodebase')
             .update('layout', 'bottom', vscode.ConfigurationTarget.Global)
           await vscode.commands.executeCommand('workbench.action.positionPanelBottom')
-          break
-        }
-        case options.right: {
-          vscode.workspace
-            .getConfiguration('askcodebase')
-            .update('layout', 'right', vscode.ConfigurationTarget.Global)
-          await vscode.commands.executeCommand('workbench.action.positionPanelRight')
           break
         }
       }
@@ -130,7 +126,6 @@ export function activate(context: vscode.ExtensionContext) {
   console.log({ isNeedUpdate, extensionVersion, localVersion, isFirstInstall })
   if (isNeedUpdate) {
     context.globalState.update(STORAGE_KEYS.localVersion, extensionVersion)
-    // execute update logic
   }
 }
 
@@ -144,9 +139,9 @@ function setDeviceIdIfNotExist(context: vscode.ExtensionContext) {
 
 function updateStatusBarItem(statusBarItem: vscode.StatusBarItem, isWebviewVisible: () => boolean) {
   if (isWebviewVisible()) {
-    statusBarItem.text = '$(layout-panel) Hide AskCodebase'
+    statusBarItem.text = '$(askcodebase-logo) Hide AskCodebase'
   } else {
-    statusBarItem.text = '$(layout-panel) Open AskCodebase'
+    statusBarItem.text = '$(askcodebase-logo) Open AskCodebase'
   }
 }
 

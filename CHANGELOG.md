@@ -1,4 +1,15 @@
-# Welcome to AskCodebase AI 0.34.0 (2023-08-18) 🎉
+# Welcome to AskCodebase AI 0.35.0 (2023-09-13) 🎉
+
+### [0.35.0 (2023-09-13) 🥳](https://marketplace.visualstudio.com/items/JipitiAI.askcodebase)
+
+### 🎉 Features
+
+1. AskCodebase AI custom icon font
+
+#### 🧹 Chore
+
+1. Remove extension recommendations
+2. Make AskCodebase AI default position to right
 
 ### [0.34.0 (2023-08-18) 🥳](https://marketplace.visualstudio.com/items/JipitiAI.askcodebase)
 
