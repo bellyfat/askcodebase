@@ -51,7 +51,7 @@
       "askcodebase-logo": {
         "description": "AskCodebase Logo",
         "default": {
-          "fontPath": "media/icons/icons.woff",
+          "fontPath": "media/fonts/askcodebase.woff",
           "fontCharacter": "\\f101"
         }
       }
@@ -68,7 +68,7 @@
       "properties": {
         "askcodebase.layout": {
           "type": "string",
-          "default": "left",
+          "default": "right",
           "enum": [
             "left",
             "right",
