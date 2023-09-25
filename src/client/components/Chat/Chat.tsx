@@ -120,7 +120,7 @@ export const Chat = memo(({ stopConversationRef, CustomChatInput, getResponseStr
           const details = (e as Error)?.message as string
           const output =
             `Something went wrong. Error: "${details}". ` +
-            'Please fire an issue on our [GitHub](https://github.com/jipitiai/vscode-askcodebase/issues/new). contact support@askcodebase.com if you need help.'
+            'Please fire an issue on our [GitHub](https://github.com/jipitiai/askcodebase-community/issues/new). contact support@askcodebase.com if you need help.'
           const error = encoder.encode(output)
           controller.enqueue(error)
           controller.close()
