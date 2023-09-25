@@ -1,7 +1,7 @@
 {
   "name": "askcodebase",
   "displayName": "AskCodebase AI",
-  "description": "Your AI programming autopilot",
+  "description": "Your AI Programming Collaborator",
   "version": "0.35.0",
   "engines": {
     "vscode": "^1.70.0"
@@ -19,7 +19,7 @@
     "Education"
   ],
   "keywords": [
-    "AI",
+    "ai",
     "CodeChat",
     "Code Chat",
     "AI Code Assistant",
@@ -132,6 +132,10 @@
       {
         "command": "askcodebase.openWalkthrough",
         "title": "AskCodebase: Open Walkthrough"
+      },
+      {
+        "command": "askcodebase.searchSymbols",
+        "title": "AskCodebase: Search Symbols"
       }
     ],
     "viewsContainers": {

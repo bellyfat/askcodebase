@@ -30,3 +30,14 @@ export async function updateLayout() {
     }
   }
 }
+
+export function getUserJWT(context: vscode.ExtensionContext) {
+  let jwt = ''
+
+  try {
+    const user = JSON.parse(context.globalState.get('user') ?? '')
+    jwt = user?.jwt ?? ''
+  } catch (e) {}
+
+  return jwt
+}
