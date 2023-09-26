@@ -59,7 +59,7 @@ export interface TypeChatJsonTranslator<T extends object> {
      * @param request The natural language request.
      * @returns A promise for the resulting object.
      */
-    translate(request: string): Promise<Result<T>>;
+    translate(request: string, onChunk: (data: string) => void): Promise<Result<T>>;
 }
 
 /**
@@ -99,11 +99,11 @@ export function createJsonTranslator<T extends object>(model: TypeChatLanguageMo
             `The following is a revised JSON object:\n`;
     }
 
-    async function translate(request: string) {
+    async function translate(request: string, onChunk: (chunk: string) => void) {
         let prompt = typeChat.createRequestPrompt(request);
         let attemptRepair = typeChat.attemptRepair;
         while (true) {
-            const response = await model.complete(prompt);
+            const response = await model.complete(prompt, onChunk);
             if (!response.success) {
                 return response;
             }

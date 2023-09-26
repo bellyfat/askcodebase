@@ -22,7 +22,7 @@ export interface TypeChatLanguageModel {
    * Obtains a completion from the language model for the given prompt.
    * @param prompt The prompt string.
    */
-  complete(prompt: string): Promise<Result<string>>
+  complete(prompt: string, onChunk: (chunk: string) => void): Promise<Result<string>>
 }
 
 /**
@@ -46,43 +46,51 @@ export function createLanguageModel(context: vscode.ExtensionContext): TypeChatL
   }
   return model
 
-  async function complete(prompt: string) {
-    let retryCount = 0
-    const retryMaxAttempts = model.retryMaxAttempts ?? 3
-    const retryPauseMs = model.retryPauseMs ?? 1000
-    while (true) {
-      const params = {
-        prompt,
-        temperature: 0,
-        n: 1,
-        max_tokens: 2000,
-        stream: false,
-      }
-      const resp = await fetch('https://askcodebase.com/api/instruct', {
-        method: 'POST',
-        headers: {
-          Authorization: getUserJWT(context),
-        },
-        body: JSON.stringify(params),
-      })
-      const data = (await resp.json()) as { choices: { text: string }[] }
-      const result = { data, status: resp.status, statusText: resp.statusText }
-      const output = result.data.choices[0].text
-
-      console.log({
-        prompt,
-        output,
-      })
-
-      if (result.status === 200) {
-        return success(output ?? '')
-      }
-      if (!isTransientHttpError(result.status) || retryCount >= retryMaxAttempts) {
-        return error(`REST API error ${result.status}: ${result.statusText}`)
-      }
-      await sleep(retryPauseMs)
-      retryCount++
+  async function complete(prompt: string, onChunk: (chunk: string) => void) {
+    const params = {
+      prompt,
+      temperature: 0.2,
+      n: 1,
+      max_tokens: 15000
     }
+    const resp = await fetch('https://askcodebase.com/api/instruct', {
+      method: 'POST',
+      headers: {
+        Authorization: getUserJWT(context),
+      },
+      body: JSON.stringify(params),
+    })
+    const body = resp.body as unknown as ReadableStream<Uint8Array>
+    if (resp.body && typeof body.getReader === 'function') {
+      console.log("readable stream")
+    } else {
+      console.log("not readable stream")
+    }
+
+    const reader = (resp.body! as unknown as ReadableStream<Uint8Array>).getReader()
+    const decoder = new TextDecoder()
+
+    let done = false
+    let isFirst = true
+    let output = ''
+    while (!done) {
+      const { value, done: doneReading } = await reader.read()
+      done = doneReading
+      const chunkValue = decoder.decode(value)
+
+      if (typeof onChunk === 'function') {
+        onChunk(chunkValue)
+      }
+
+      output += chunkValue
+      if (isFirst) {
+        isFirst = false
+        console.log(chunkValue)
+      } else {
+        console.log(output)
+      }
+    }
+    return success(output)
   }
 }
 

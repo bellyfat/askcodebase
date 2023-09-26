@@ -1,32 +1,18 @@
 import * as vscode from 'vscode'
-import {
-  createLanguageModel,
-  createProgramTranslator,
-  evaluateJsonProgram,
-  getData,
-} from './typechat'
-import { schema } from './schema'
+import { createJsonTranslator, createLanguageModel } from './typechat'
+import { Actions, schema } from './schema'
 
 export async function askcodebase(context: vscode.ExtensionContext, input: string) {
   const model = createLanguageModel(context)
-  const translator = createProgramTranslator(model, schema)
+  const translator = createJsonTranslator<Actions>(model, schema, 'Actions')
 
-  const response = await translator.translate(input)
+  const response = await translator.translate(input, (data: string) => {
+    console.log('[chunk]', data)
+  })
   if (!response.success) {
     console.log(response.message)
     return
   }
-  const program = response.data
-  console.log(getData(translator.validator.createModuleTextFromJson(program)))
-  console.log('Running program:')
-  const result = await evaluateJsonProgram(program, handleCall)
-  console.log(`Result: ${typeof result === 'number' ? result : 'Error'}`)
-
-  async function handleCall(func: string, args: any[]) {
-    console.log(
-      `${func}(${args
-        .map(arg => (typeof arg === 'number' ? arg : JSON.stringify(arg, undefined, 2)))
-        .join(', ')})`,
-    )
-  }
+  const cart = response.data
+  console.log(JSON.stringify(cart, undefined, 2))
 }
