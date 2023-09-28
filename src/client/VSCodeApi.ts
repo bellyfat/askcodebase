@@ -2,6 +2,7 @@ import { Deferred, deferred } from '~/common/Deferred'
 import { Process } from './Process'
 import { EventEmitter } from 'events'
 import { TraceID } from '~/common/traceTypes'
+import { TextDocument } from './components/AskCodebasePanel/prompt'
 
 interface MessagePromise {
   resolve: (value: unknown) => void
@@ -108,6 +109,14 @@ class VSCodeApiClass {
 
   public async openLink(url: string) {
     return this._postMessage('openLink', { url })
+  }
+
+  public async getFileTree(): Promise<string> {
+    return await this._postMessage('getFileTree')
+  }
+
+  public async getActiveTextDocument(): Promise<TextDocument | null> {
+    return await this._postMessage('getActiveTextDocument')
   }
 
   public async hidePanel() {

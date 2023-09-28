@@ -7,7 +7,7 @@ import { TraceID } from './common/traceTypes'
 import { EXTENSION_ID, WALKTHROUGH_ID } from './constants'
 import { STORAGE_KEYS } from './STORAGE_KEYS'
 import { updateLayout, openChangelog } from './utils'
-import { askcodebase } from './core'
+import { getFileTree } from './getFileTree'
 
 function registerStatusBarItem(context: vscode.ExtensionContext) {
   let statusBarItem = vscode.window.createStatusBarItem(
@@ -74,18 +74,12 @@ export function activate(context: vscode.ExtensionContext) {
   })
 
   vscode.commands.registerCommand('askcodebase.searchSymbols', async () => {
-    const query = (await vscode.window.showInputBox({})) as string
-    async function searchSymbols() {
-      const symbols = await vscode.commands.executeCommand<vscode.SymbolInformation[]>(
-        'vscode.executeWorkspaceSymbolProvider',
-        query,
-      )
-      for (const symbol of symbols) {
-        console.log(symbol.name, symbol.kind, symbol.location)
-      }
+    try {
+      const fileTree = await getFileTree()
+      console.log(fileTree)
+    } catch (error) {
+      console.error(error)
     }
-    askcodebase(context, query)
-    // searchSymbols()
   })
 
   vscode.commands.registerCommand('askcodebase.changelog', async () => {

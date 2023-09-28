@@ -225,6 +225,7 @@
     "@vscode/webview-ui-toolkit": "^1.2.2",
     "classnames": "^2.3.2",
     "events": "^3.3.0",
+    "ignore": "^5.2.4",
     "jotai": "^2.2.2",
     "jotai-devtools": "^0.6.0",
     "monaco-editor": "^0.39.0",

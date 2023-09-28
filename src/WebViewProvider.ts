@@ -5,6 +5,7 @@ import fetch from 'node-fetch'
 import { requireVSCodeModule } from '~/extensions'
 import { trace } from './trace'
 import { updateLayout } from './utils'
+import { getFileTree } from './getFileTree'
 
 const { spawn } = requireVSCodeModule<typeof import('node-pty')>('node-pty')
 const shell = process.platform === 'win32' ? 'powershell.exe' : 'bash'
@@ -64,6 +65,22 @@ export class WebViewProvider implements vscode.WebviewViewProvider {
         let error
         try {
           switch (message.command) {
+            case 'getActiveTextDocument': {
+              const document = await vscode.window.activeTextEditor?.document
+              if (document != null) {
+                data = {
+                  relativeUrl: vscode.workspace.asRelativePath(document.uri),
+                  text: document.getText(),
+                }
+              } else {
+                data = null
+              }
+              break
+            }
+            case 'getFileTree': {
+              data = await getFileTree()
+              break
+            }
             case 'trace': {
               const { id, blobs, doubles } = message.data
               data = await trace(this._context, { id, blobs, doubles })

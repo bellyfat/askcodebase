@@ -14,6 +14,7 @@ import { showLoginModalAtom } from '~/client/store/showLoginModal'
 import { getThemeColors } from '~/client/store/themeColorsAtom'
 import { systemInfoAtom } from '~/client/store/systemInfoAtom'
 import { TraceID } from '~/common/traceTypes'
+import { generatePrompt } from './prompt'
 
 export function AskCodebasePanel() {
   const [themeColors, setThemeColors] = useAtom(themeColorsAtom)
@@ -72,7 +73,13 @@ export function AskCodebasePanel() {
   } as unknown as React.CSSProperties
 
   const getResponseStream = async (message: Message) => {
-    const resp = await fetch('https://askcodebase.com/api/chat', {
+    const prompt = generatePrompt(
+      await VSCodeApi.getActiveTextDocument(),
+      await VSCodeApi.getFileTree(),
+      message.content,
+    )
+    console.log(prompt)
+    const resp = await fetch('https://askcodebase.com/api/instruct', {
       headers: {
         'Content-Type': 'application/json',
         Authorization: 'Bearer ' + getUser()?.jwt,
@@ -80,7 +87,8 @@ export function AskCodebasePanel() {
       method: 'POST',
       body: JSON.stringify({
         project_id: activeConversation.id,
-        message: message.content,
+        messages: [{ role: 'system', content: prompt }],
+        max_tokens: 1024,
       }),
     })
     if (!(resp.body instanceof ReadableStream)) {
