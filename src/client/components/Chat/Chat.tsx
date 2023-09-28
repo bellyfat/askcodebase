@@ -144,6 +144,40 @@ export const Chat = memo(({ stopConversationRef, CustomChatInput, getResponseStr
       done = doneReading
       const chunkValue = decoder.decode(value)
       text += chunkValue
+
+      const askcmdRegexp = /<askcmd[^>]*>(.+)<\/askcmd>/g
+      const askcodeStreamRegexp = /<askcode[^>]*>([^<]+)/g
+      const askcodeRegexp = /<askcode[^>]*>(.+)<\/askcode>/g
+
+      const commandMatch = text.match(askcmdRegexp)
+      if (commandMatch != null) {
+        text = text.replace(askcmdRegexp, '<div class="askcmd">$1</div>')
+        let json = commandMatch[0].replace(askcmdRegexp, '$1')
+        let command = {}
+        try {
+          json = json.replace(/```[^\n]./g, '')
+          command = JSON.parse(json)
+        } catch (e) {}
+        console.log('executeCommand', command)
+      }
+      const decodeHtmlEntities = (input: string) => {
+        const e = document.createElement('textarea')
+        e.innerHTML = input
+        return e.childNodes.length === 0 ? '' : e.childNodes[0].nodeValue
+      }
+      const codeStreamMatch = text.match(askcodeStreamRegexp)
+      if (codeStreamMatch != null) {
+        const codeStream = codeStreamMatch[0].replace(askcodeStreamRegexp, '$1')
+        const stream = codeStream.replace(/```[^\n]./g, '')
+        console.log(decodeHtmlEntities(codeStreamMatch[0]))
+      }
+      const codeMatch = text.match(askcodeRegexp)
+      if (codeMatch != null) {
+        text = text.replace(askcodeRegexp, '$1')
+        const code = codeMatch[0].replace(askcodeRegexp, '$1')
+        console.log('codeStreamFinished:\n', decodeHtmlEntities(code))
+      }
+
       if (isFirst) {
         isFirst = false
         const updatedMessages: Message[] = [

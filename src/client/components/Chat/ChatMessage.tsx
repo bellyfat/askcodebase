@@ -22,6 +22,15 @@ export interface Props {
   messageIndex: number
 }
 
+declare global {
+  namespace JSX {
+    interface IntrinsicElements {
+      askcmd: {}
+      askcode: {}
+    }
+  }
+}
+
 export const ChatMessage: FC<Props> = memo(({ message, messageIndex }) => {
   const [user, setUserState] = useAtom(userAtom)
   const {
@@ -75,6 +84,12 @@ export const ChatMessage: FC<Props> = memo(({ message, messageIndex }) => {
               remarkPlugins={[remarkGfm, remarkMath]}
               rehypePlugins={[rehypeMathjax]}
               components={{
+                askcmd() {
+                  return <p>askcmd</p>
+                },
+                askcode() {
+                  return <div className='bg-gray-200 dark:bg-gray-800 p-2 rounded-md'>askcode</div>
+                },
                 code({ node, inline, className, children, ...props }) {
                   if (children.length) {
                     if (children[0] == '▍') {
