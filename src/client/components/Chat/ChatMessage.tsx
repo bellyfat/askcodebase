@@ -84,8 +84,20 @@ export const ChatMessage: FC<Props> = memo(({ message, messageIndex }) => {
                   if (Array.isArray(node!.children) && node!.children.length) {
                     const { start, end } = node!.children[0].position!
                     const startOffset = start ? start.offset ?? 0 : 0
-                    const endOffset = end ? end.offset : startOffset + 1
-                    const code = decodeHtmlEntities(message.content.slice(startOffset, endOffset))
+                    const endOffset = end ? end.offset : message.content.length
+                    const endIndex = message.content.indexOf('</askcode>')
+                    // console.log({
+                    //   startOffset,
+                    //   endOffset,
+                    //   start,
+                    //   end,
+                    //   content: message.content,
+                    //   children,
+                    //   endIndex,
+                    // })
+                    const code = decodeHtmlEntities(
+                      message.content.slice(startOffset, Math.max(endOffset!, endIndex)),
+                    )
 
                     const match = /language-(\w+)/.exec(className || '')
                     return (

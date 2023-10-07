@@ -18,7 +18,7 @@ export const generatePrompt = (
       ${currentActiveDocument.text
         .trim()
         .split('\n')
-        .map((line, index) => `${index + 1} ${line}`)
+        .map((line, index) => `${index + 1}. ${line}`)
         .join('\n')}`.trim()
     }
     return `There's no activeTextDocument.`
@@ -35,6 +35,8 @@ export const generatePrompt = (
 - Avoid plain code generated. Double check and make sure code after <askcmd> is wrapped inside <askcode> tags with an 'id' attribute and 'class' attribute should inlcude language-[lang].
 ---
 Following are the available commands, represented in TypeScript schema:
+- If only answering questions, avoid call any commands.
+- Avoid output line numbers in the response.
 interface CreateFileCommand { cmd:'createFile'; uri:string }
 interface MoveFileCommand { cmd:'moveFile'; old_uri:string; new_uri:string }
 interface RemoveFileCommand { cmd:'removeFile'; uri:string }
@@ -47,7 +49,7 @@ interface InsertCodeCommand { cmd:'insertCode'; line: number }
 interface MoveCodeCommand { cmd:'moveCode'; old_lines: [number, number], new_lines: [number, number] }
 interface ReplaceCodeCommand { cmd:'replaceCode'; lines: [number, number] }
 interface RemoveCodeCommand { cmd:'removeCode'; lines: [number, number] }
-interface NavigateToFileCommand { cmd:'navigateToFile'; location:Location }
+interface NavigateToFileCommand { cmd:'navigateToFile'; uri: string; line: number }
 type Command = (CreateFileCommand | MoveFileCommand | RemoveFileCommand | RenameFileCommand | CreateFolderCommand | RenameFolderCommand
   | MoveFolderCommand | RemoveFolderCommand | InsertCodeCommand | MoveCodeCommand | RefactorCodeCommand | RemoveCodeCommand
   |  NavigateToFileCommand | NavigateToFileCommand) & { id: string }

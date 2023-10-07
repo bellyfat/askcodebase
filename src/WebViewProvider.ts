@@ -10,10 +10,18 @@ import { getFileTree } from './getFileTree'
 const { spawn } = requireVSCodeModule<typeof import('node-pty')>('node-pty')
 const shell = process.platform === 'win32' ? 'powershell.exe' : 'bash'
 
+interface IEditorEditAction {
+  cmd: string
+  id: string
+  lines?: [number, number]
+  code?: string
+}
+
 export class WebViewProvider implements vscode.WebviewViewProvider {
   public static readonly viewType = 'ask-codebase'
   private _ptyProcesses: IPty[] = []
   private _shellPrompt: string = ''
+  private _commands: IEditorEditAction[] = []
   public visible = false
 
   constructor(
@@ -66,7 +74,39 @@ export class WebViewProvider implements vscode.WebviewViewProvider {
         try {
           switch (message.command) {
             case 'executeEditorAction': {
-              // console.log('[executeEditorAction]\n', message.data)
+              try {
+                const command = message.data.payload
+                const isStreamingCommand = (cmd: string) =>
+                  ['codeStreaming', 'codeStreamingEnd'].includes(cmd)
+
+                if (!isStreamingCommand(command.cmd)) {
+                  this._commands = [command]
+
+                  // Remove first.
+                  const { cmd, lines } = this._commands[0]
+                  const activeEditor = vscode.window.activeTextEditor
+                  if (activeEditor != null && Array.isArray(lines)) {
+                    let document = activeEditor.document
+                    let edit = new vscode.WorkspaceEdit()
+                    let startLine = Math.max(lines[0] - 1, 0)
+                    let endLine = lines[1] + 1
+                    let textRange = new vscode.Range(startLine, 0, endLine, Number.MAX_SAFE_INTEGER)
+                    edit.replace(document.uri, textRange, '')
+                    vscode.workspace.applyEdit(edit)
+                  }
+                } else {
+                  const lastCommand = this._commands[this._commands.length - 1]
+                  let chunk = command.code
+                  if (isStreamingCommand(lastCommand.cmd)) {
+                    chunk = command.code.replace(lastCommand.code, '')
+                  }
+                  this._commands.push(command)
+                }
+              } catch (e) {
+                console.error(e)
+              }
+
+              data = null
               break
             }
             case 'getActiveTextDocument': {

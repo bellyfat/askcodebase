@@ -29,6 +29,8 @@ interface Props {
   CustomChatInput?: ChatInputComponent
 }
 
+const askcmds = new Set()
+
 export const Chat = memo(({ stopConversationRef, CustomChatInput, getResponseStream }: Props) => {
   const { dispatch } = useContext(ReactStreamChatContext)
   const setActiveConversation = useSetAtom(activeConversationAtom)
@@ -131,7 +133,9 @@ export const Chat = memo(({ stopConversationRef, CustomChatInput, getResponseStr
       const chunkValue = decoder.decode(value)
       text += chunkValue
 
-      console.log(text)
+      // debug raw response if needed
+      // console.log(text)
+
       const askcmdRegexp = /<askcmd[^>]*>(.+)<\/askcmd>/g
       const askcodeStreamRegexp = /<askcode[^>]*>([^<]+)/g
       const askcodeRegexp = /<askcode[^>]*>(.+)<\/askcode>/g
@@ -139,14 +143,18 @@ export const Chat = memo(({ stopConversationRef, CustomChatInput, getResponseStr
       const commandMatch = text.match(askcmdRegexp)
       if (commandMatch != null) {
         let json = commandMatch[0].replace(askcmdRegexp, '$1')
-        let command = {}
+        let command = {} as { id: string }
         try {
           json = json.replace(/```[^\n]./g, '')
           command = JSON.parse(json)
         } catch (e) {}
         const payload = Object.assign(command, { respSessionId })
-        console.log('executeCommand', payload)
-        VSCodeApi.executeEditorAction(payload)
+        const commandUID = `${respSessionId}_${command.id}`
+        if (!askcmds.has(commandUID)) {
+          askcmds.add(commandUID)
+          // console.log('executeCommand', payload)
+          VSCodeApi.executeEditorAction(payload)
+        }
       }
       const decodeHtmlEntities = (input: string) => {
         const e = document.createElement('textarea')
@@ -156,11 +164,11 @@ export const Chat = memo(({ stopConversationRef, CustomChatInput, getResponseStr
       const codeStreamMatch = text.match(askcodeStreamRegexp)
       if (codeStreamMatch != null) {
         const codeStream = codeStreamMatch[0].replace(askcodeStreamRegexp, '$1')
-        // const stream = codeStream.replace(/```[^\n]./g, '')
+        const stream = codeStream.replace(/```[^\n]./g, '')
         VSCodeApi.executeEditorAction({
           cmd: 'codeStreaming',
           respSessionId,
-          code: decodeHtmlEntities(codeStream)!,
+          code: decodeHtmlEntities(stream)!,
         })
       }
       const codeMatch = text.match(askcodeRegexp)
