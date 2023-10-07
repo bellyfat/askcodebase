@@ -31,7 +31,6 @@ declare global {
   namespace JSX {
     interface IntrinsicElements {
       askcmd: { children: string; index: number }
-      askcode: { children: string; className: string }
     }
   }
 }
@@ -70,18 +69,25 @@ export const ChatMessage: FC<Props> = memo(({ message, messageIndex }) => {
   const renderMessage = (message: Message) => {
     switch (message.role) {
       case 'assistant': {
+        console.log('rendering assistant message', message.content)
         return (
           <div className='flex flex-row grow'>
             <MemoizedReactMarkdown
               className={cx('dark:prose-invert flex-1', styles.messageContent)}
               remarkPlugins={[remarkGfm, remarkMath]}
               rehypePlugins={[rehypeMathjax, rehypeRaw]}
+              skipHtml={true}
               components={{
                 askcmd({ children, node }) {
                   return <MemoizedAskCmd children={children as string} />
                 },
-                askcode({ node, children, className }) {
-                  if (Array.isArray(node!.children) && node!.children.length) {
+                div(props) {
+                  const { node, children, className } = props
+                  if (
+                    className?.includes('askcode') &&
+                    Array.isArray(node!.children) &&
+                    node!.children.length
+                  ) {
                     const { start, end } = node!.children[0].position!
                     const startOffset = start ? start.offset ?? 0 : 0
                     const endOffset = end ? end.offset : message.content.length
@@ -108,7 +114,7 @@ export const ChatMessage: FC<Props> = memo(({ message, messageIndex }) => {
                       />
                     )
                   }
-                  return children
+                  return <div {...props}>{children}</div>
                 },
                 code({ node, className, children, ...props }) {
                   if (Array.isArray(children) && children.length) {

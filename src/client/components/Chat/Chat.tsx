@@ -175,6 +175,7 @@ export const Chat = memo(({ stopConversationRef, CustomChatInput, getResponseStr
       if (codeMatch != null) {
         text = text.replace(askcodeRegexp, '$1')
         const code = codeMatch[0].replace(askcodeRegexp, '$1')
+        text = text.replace(askcodeRegexp, '<div class="askcode">$1</div>')
         VSCodeApi.executeEditorAction({
           cmd: 'codeStreamingEnd',
           respSessionId,
