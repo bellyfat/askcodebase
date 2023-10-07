@@ -15,6 +15,9 @@
         color: var(--vscode-commandCenter-foreground);
         user-select: none;
     }
+    &.streaming .action {
+        color: var(--vscode-foreground);
+    }
     &.collapsed .askcode {
         display: none;
     }

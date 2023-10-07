@@ -1,4 +1,4 @@
-import { FC, memo, useContext, useState } from 'react'
+import { FC, memo, useContext, useEffect, useState } from 'react'
 import { Message } from '~/client/types/chat'
 import { ReactStreamChatContext } from '~/client/components/ReactStreamChat/context'
 import { CodeBlock } from '../Markdown/CodeBlock'
@@ -13,7 +13,8 @@ import { userAtom } from '~/client/store'
 import React = require('react')
 import rehypeRaw from 'rehype-raw'
 import askcodeStyles from './AskCode.module.scss'
-import { AskCmd } from './AskCmd'
+import { MemoizedAskCmd } from './AskCmd'
+import { globalEventEmitter } from '~/client/VSCodeApi'
 
 export function decodeHtmlEntities(html: string) {
   const e = document.createElement('textarea')
@@ -29,7 +30,7 @@ export interface Props {
 declare global {
   namespace JSX {
     interface IntrinsicElements {
-      askcmd: { children: string }
+      askcmd: { children: string; index: number }
       askcode: { children: string; className: string }
     }
   }
@@ -76,8 +77,8 @@ export const ChatMessage: FC<Props> = memo(({ message, messageIndex }) => {
               remarkPlugins={[remarkGfm, remarkMath]}
               rehypePlugins={[rehypeMathjax, rehypeRaw]}
               components={{
-                askcmd({ children }) {
-                  return <AskCmd children={children as string} />
+                askcmd({ children, node }) {
+                  return <MemoizedAskCmd children={children as string} />
                 },
                 askcode({ node, children, className }) {
                   if (Array.isArray(node!.children) && node!.children.length) {
@@ -85,15 +86,10 @@ export const ChatMessage: FC<Props> = memo(({ message, messageIndex }) => {
                     const startOffset = start ? start.offset ?? 0 : 0
                     const endOffset = end ? end.offset : startOffset + 1
                     const code = decodeHtmlEntities(message.content.slice(startOffset, endOffset))
-                    console.log({
-                      children: children,
-                      message: message.content,
-                    })
 
                     const match = /language-(\w+)/.exec(className || '')
                     return (
                       <CodeBlock
-                        key={Math.random()}
                         language={(match && match[1]) || ''}
                         value={String(code).trim()}
                         className={cx('askcode', askcodeStyles.askcode)}

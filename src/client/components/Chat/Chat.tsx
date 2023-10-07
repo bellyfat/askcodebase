@@ -169,6 +169,7 @@ export const Chat = memo(({ stopConversationRef, CustomChatInput, getResponseStr
           json = json.replace(/```[^\n]./g, '')
           command = JSON.parse(json)
         } catch (e) {}
+        globalEventEmitter.emit('actionStreaming')
         console.log('executeCommand', command)
       }
       const decodeHtmlEntities = (input: string) => {
@@ -180,6 +181,7 @@ export const Chat = memo(({ stopConversationRef, CustomChatInput, getResponseStr
       if (codeStreamMatch != null) {
         const codeStream = codeStreamMatch[0].replace(askcodeStreamRegexp, '$1')
         const stream = codeStream.replace(/```[^\n]./g, '')
+        globalEventEmitter.emit('actionStreaming')
         // console.log(decodeHtmlEntities(codeStreamMatch[0]))
       }
       const codeMatch = text.match(askcodeRegexp)
@@ -187,6 +189,7 @@ export const Chat = memo(({ stopConversationRef, CustomChatInput, getResponseStr
         text = text.replace(askcodeRegexp, '$1')
         const code = codeMatch[0].replace(askcodeRegexp, '$1')
         console.log('codeStreamFinished:\n', decodeHtmlEntities(code))
+        globalEventEmitter.emit('actionStreamingEnd')
       }
 
       if (isFirst) {

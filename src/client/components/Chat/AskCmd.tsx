@@ -1,14 +1,14 @@
 import askcodeStyles from './AskCode.module.scss'
 import * as cx from 'classnames'
 import { CodeBlock } from '../Markdown/CodeBlock'
-import { useState } from 'react'
+import { FC, memo, useEffect, useRef, useState } from 'react'
 import { globalEventEmitter } from '~/client/VSCodeApi'
 
 interface AskCmdProps {
   children: string
 }
 
-export const AskCmd: React.FC<AskCmdProps> = ({ children }) => {
+const AskCmd: React.FC<AskCmdProps> = ({ children }) => {
   const [collapsed, setCollapsed] = useState(true)
 
   if (typeof children === 'string') {
@@ -29,7 +29,7 @@ export const AskCmd: React.FC<AskCmdProps> = ({ children }) => {
           }
         }}
       >
-        <div className={askcodeStyles.action}>
+        <div className={cx(askcodeStyles.action)}>
           <div className='action-name'>{match ? match[1] : 'Thinking...'}</div>
           {collapsed ? (
             <div className='codicon codicon-chevron-down '></div>
@@ -48,3 +48,8 @@ export const AskCmd: React.FC<AskCmdProps> = ({ children }) => {
   }
   return children
 }
+
+export const MemoizedAskCmd: FC<AskCmdProps> = memo(
+  AskCmd,
+  (prevProps, nextProps) => prevProps.children === nextProps.children,
+)
