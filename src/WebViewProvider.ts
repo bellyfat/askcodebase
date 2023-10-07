@@ -17,15 +17,37 @@ interface IEditorEditAction {
   code?: string
 }
 
+class AskCodebaseCursor {
+  private _uri: vscode.Uri | null = null
+  private _position: vscode.Position = new vscode.Position(0, 0)
+
+  setUri(uri: vscode.Uri): AskCodebaseCursor {
+    this._uri = uri
+    return this
+  }
+
+  public setPosition(line: number, col: number) {
+    this._position = new vscode.Position(line, col)
+    this._updateCursorPosition(this._position)
+  }
+
+  public getPosition() {
+    return this._position
+  }
+
+  private _updateCursorPosition(position: vscode.Position) {
+    const range = new vscode.Range(position, position)
+    updateAskCodebaseCursorPosition(range)
+  }
+}
+
 export class WebViewProvider implements vscode.WebviewViewProvider {
   public static readonly viewType = 'ask-codebase'
   private _ptyProcesses: IPty[] = []
   private _shellPrompt: string = ''
   private _commands: IEditorEditAction[] = []
-  private _cursorLocation: { uri: vscode.Uri | null; position: vscode.Position } = {
-    uri: null,
-    position: new vscode.Position(0, 0),
-  }
+  private _cursor: AskCodebaseCursor = new AskCodebaseCursor()
+  private _chunkQueue: Array<{ id: number; chunk: string }> = []
   public visible = false
 
   constructor(
@@ -83,6 +105,13 @@ export class WebViewProvider implements vscode.WebviewViewProvider {
                 const isStreamingCommand = (cmd: string) =>
                   ['codeStreaming', 'codeStreamingEnd'].includes(cmd)
 
+                if (command.cmd === 'codeStreamingEnd') {
+                  vscode.window.activeTextEditor?.document.save()
+                  setTimeout(() => {
+                    cleanCollabCursorAndBadge()
+                  }, 1500)
+                }
+
                 const activeEditor = vscode.window.activeTextEditor
                 if (activeEditor != null) {
                   let document = activeEditor.document
@@ -104,37 +133,36 @@ export class WebViewProvider implements vscode.WebviewViewProvider {
                       )
 
                       // Reset cursor position
-                      this._cursorLocation = {
-                        uri: document.uri,
-                        position: new vscode.Position(startLine, 0),
-                      }
+                      this._cursor.setUri(document.uri).setPosition(startLine - 1, 0)
 
                       edit.replace(document.uri, textRange, '')
                       vscode.workspace.applyEdit(edit)
                     }
                   } else {
-                    const lastCommand = this._commands[this._commands.length - 1]
-                    let chunk = command.code
-                    const chunkLines = chunk.split('\n')
-                    const chunkLastLine = chunkLines[chunkLines.length - 1]
+                    // Streaming command
+                    if (command.code != null) {
+                      this._chunkQueue.push({ id: command.id, chunk: command.code })
+                      const lastCommand = this._commands[this._commands.length - 1]
+                      let chunk = command.code
 
-                    if (isStreamingCommand(lastCommand.cmd)) {
-                      chunk = command.code.replace(lastCommand.code, '')
+                      const chunkLines = chunk.split('\n')
+                      const chunkLastLine = chunkLines[chunkLines.length - 1]
+
+                      if (isStreamingCommand(lastCommand.cmd)) {
+                        chunk = command.code.replace(lastCommand.code, '')
+                      }
+
+                      // insert chunk
+                      let edit = new vscode.WorkspaceEdit()
+
+                      edit.insert(document.uri, this._cursor.getPosition(), chunk)
+                      await vscode.workspace.applyEdit(edit)
+
+                      // update cursor position
+                      const line = this._cursor.getPosition().line + chunkLines.length - 1
+                      this._cursor.setPosition(line, document.lineAt(line).range.end.character)
+                      this._commands.push(command)
                     }
-
-                    // insert chunk
-                    console.log('insert chunk', chunk)
-                    let edit = new vscode.WorkspaceEdit()
-                    edit.insert(document.uri, this._cursorLocation.position, chunk)
-                    vscode.workspace.applyEdit(edit)
-
-                    // update cursor position
-                    this._cursorLocation.position = new vscode.Position(
-                      this._cursorLocation.position.line + chunkLines,
-                      chunkLastLine.length,
-                    )
-
-                    this._commands.push(command)
                   }
                 }
               } catch (e) {
@@ -323,5 +351,77 @@ export class WebViewProvider implements vscode.WebviewViewProvider {
       })
       return html
     }
+  }
+}
+
+function updateAskCodebaseCursorPosition(range: vscode.Range) {
+  setCollabCursorAndBadge(range, '#aa96fb', 'AskCodebase AI')
+}
+
+let cursorType: vscode.TextEditorDecorationType
+let selectionType: vscode.TextEditorDecorationType
+let badgeType: vscode.TextEditorDecorationType
+
+function cleanCollabCursorAndBadge() {
+  // dispose
+  cursorType && cursorType.dispose()
+  selectionType && selectionType.dispose()
+  badgeType && badgeType.dispose()
+
+  const activeTextEditor = vscode.window.activeTextEditor
+
+  if (activeTextEditor != null) {
+    activeTextEditor.setDecorations(cursorType, [])
+    activeTextEditor.setDecorations(selectionType, [])
+    activeTextEditor.setDecorations(badgeType, [])
+  }
+}
+
+function setCollabCursorAndBadge(range: vscode.Range, cursorColor: string, badgeName: string) {
+  // Cursor decoration
+  const cursorDecoration = {
+    rangeBehavior: vscode.DecorationRangeBehavior.ClosedClosed,
+    before: {
+      contentText: 'ᛙ',
+      textDecoration: `text-shadow: 1px 0px 0px ${cursorColor}, -1px 0px 0px ${cursorColor}; position: absolute; display: inline-block; z-index: 9999; color: ${cursorColor}; font-weight: bold; top: -5px; font-size: 230%`,
+      margin: '0px 0px 0px -0.3ch',
+    },
+  }
+
+  // Selection decoration
+  const selectionDecoration = {
+    rangeBehavior: vscode.DecorationRangeBehavior.ClosedClosed,
+    backgroundColor: cursorColor + '44',
+  }
+
+  // Badge decoration
+  let topOffset =
+    range && range.end.line === range.start.line ? 'calc(-1 * (1rem + 3px))' : 'calc(1rem + 3px)'
+  const css = `none; position: absolute; display: inline-block; top: ${topOffset}; margin: 0px 0px 0px 0px; font-weight: bold; z-index: 9998; border-radius: 0.2rem; pointer-event: none; color: black; background: ${cursorColor}; padding: 1px 3px 1px 3px;`
+  const badgeDecoration = {
+    rangeBehavior: vscode.DecorationRangeBehavior.ClosedClosed,
+    after: {
+      contentText: badgeName,
+      textDecoration: css,
+    },
+  }
+
+  // dispose
+  cursorType && cursorType.dispose()
+  selectionType && selectionType.dispose()
+  badgeType && badgeType.dispose()
+
+  // Create and return the decorations
+  cursorType = vscode.window.createTextEditorDecorationType(cursorDecoration)
+  selectionType = vscode.window.createTextEditorDecorationType(selectionDecoration)
+  badgeType = vscode.window.createTextEditorDecorationType(badgeDecoration)
+
+  const activeTextEditor = vscode.window.activeTextEditor
+
+  if (activeTextEditor != null) {
+    const cursorRange = new vscode.Range(range.end, range.end)
+    activeTextEditor.setDecorations(cursorType, [cursorRange])
+    activeTextEditor.setDecorations(selectionType, [range])
+    activeTextEditor.setDecorations(badgeType, [range])
   }
 }

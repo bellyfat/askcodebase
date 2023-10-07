@@ -121,6 +121,8 @@ export const Chat = memo(({ stopConversationRef, CustomChatInput, getResponseStr
     let done = false
     let isFirst = true
     let text = ''
+    let lastStreamingCode = ''
+    let chunkId = 0
     const respSessionId = randomString()
 
     while (!done) {
@@ -137,8 +139,8 @@ export const Chat = memo(({ stopConversationRef, CustomChatInput, getResponseStr
       // console.log(text)
 
       const askcmdRegexp = /<askcmd[^>]*>(.+)<\/askcmd>/g
-      const askcodeStreamRegexp = /<askcode[^>]*>([^<]+)/g
-      const askcodeRegexp = /<askcode[^>]*>(.+)<\/askcode>/g
+      const askcodeStreamRegexp = /<div class="askcode[^>]*>([^<]+)/g
+      const askcodeRegexp = /<div class="askcode[^>]*>([^<]+)<\/div>/g
 
       const commandMatch = text.match(askcmdRegexp)
       if (commandMatch != null) {
@@ -165,21 +167,22 @@ export const Chat = memo(({ stopConversationRef, CustomChatInput, getResponseStr
       if (codeStreamMatch != null) {
         const codeStream = codeStreamMatch[0].replace(askcodeStreamRegexp, '$1')
         const stream = codeStream.replace(/```[^\n]./g, '')
+        const code = decodeHtmlEntities(stream)!
+        const chunk = code.replace(lastStreamingCode, '')
         VSCodeApi.executeEditorAction({
           cmd: 'codeStreaming',
           respSessionId,
-          code: decodeHtmlEntities(stream)!,
+          code: chunk,
+          id: chunkId++,
         })
+        lastStreamingCode = code
       }
+      console.log(text)
       const codeMatch = text.match(askcodeRegexp)
       if (codeMatch != null) {
-        text = text.replace(askcodeRegexp, '$1')
-        const code = codeMatch[0].replace(askcodeRegexp, '$1')
-        text = text.replace(askcodeRegexp, '<div class="askcode">$1</div>')
         VSCodeApi.executeEditorAction({
           cmd: 'codeStreamingEnd',
           respSessionId,
-          code: decodeHtmlEntities(code)!,
         })
       }
 
