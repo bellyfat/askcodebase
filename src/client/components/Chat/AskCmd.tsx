@@ -31,7 +31,11 @@ export const AskCmd: React.FC<AskCmdProps> = ({ children }) => {
       >
         <div className={askcodeStyles.action}>
           <div className='action-name'>{match ? match[1] : 'Thinking...'}</div>
-          <div className='codicon codicon-chevron-down '></div>
+          {collapsed ? (
+            <div className='codicon codicon-chevron-down '></div>
+          ) : (
+            <div className='codicon codicon-chevron-up '></div>
+          )}
         </div>
         <CodeBlock
           key={Math.random()}

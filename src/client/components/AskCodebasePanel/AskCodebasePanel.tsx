@@ -86,6 +86,7 @@ export function AskCodebasePanel() {
       },
       method: 'POST',
       body: JSON.stringify({
+        temperature: 0.2,
         project_id: activeConversation.id,
         messages: [{ role: 'system', content: prompt }],
         max_tokens: 1024,
