@@ -101,9 +101,10 @@ export const ChatMessage: FC<Props> = memo(({ message, messageIndex }) => {
                     //   children,
                     //   endIndex,
                     // })
-                    const code = decodeHtmlEntities(
+                    let code = decodeHtmlEntities(
                       message.content.slice(startOffset, Math.max(endOffset!, endIndex)),
                     )
+                    code = code!.replace(/<\/div>$/, '')
 
                     const match = /language-(\w+)/.exec(className || '')
                     return (
