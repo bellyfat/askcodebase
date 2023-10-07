@@ -1,6 +1,6 @@
 .askcmd {
     &.collapsed {
-        margin-bottom: -35px;
+        margin-bottom: -20px;
     }
     .action {
         display: flex;
@@ -21,8 +21,4 @@
     &.collapsed .askcode {
         display: none;
     }
-}
-
-.collapsed.askcmd ~ .askcode {
-    display: none;
 }

@@ -65,6 +65,10 @@ export class WebViewProvider implements vscode.WebviewViewProvider {
         let error
         try {
           switch (message.command) {
+            case 'executeEditorAction': {
+              // console.log('[executeEditorAction]\n', message.data)
+              break
+            }
             case 'getActiveTextDocument': {
               const document = await vscode.window.activeTextEditor?.document
               if (document != null) {

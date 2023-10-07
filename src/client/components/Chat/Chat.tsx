@@ -11,6 +11,7 @@ import { useAtomRefValue } from '~/client/hooks'
 import { VSCodeApi, globalEventEmitter } from '~/client/VSCodeApi'
 import { ProcessEvent } from '~/client/Process'
 import { TraceID } from '~/common/traceTypes'
+import { randomString } from '~/common/randomString'
 
 export interface ChatInputProps {
   stopConversationRef: MutableRefObject<boolean>
@@ -43,9 +44,7 @@ export const Chat = memo(({ stopConversationRef, CustomChatInput, getResponseStr
 
   // handle scrollToBottom event
   useEffect(() => {
-    console.log(' -- scrollToBottom')
     globalEventEmitter.on('scrollToBottom', () => {
-      console.log(' -- scrollToBottom')
       handleScrollDown()
     })
     return () => {
@@ -70,33 +69,6 @@ export const Chat = memo(({ stopConversationRef, CustomChatInput, getResponseStr
       messages: updatedMessages,
     }
     setActiveConversation(updatedConversation)
-    return updatedConversation
-  }
-
-  const updateLastConversationMessage = (updatedConversation: Conversation, text: string) => {
-    const updatedMessages: Message[] = updatedConversation.messages.map((message, index) => {
-      if (index === updatedConversation.messages.length - 1) {
-        return {
-          ...message,
-          content: text,
-        }
-      }
-      return message
-    })
-    updatedConversation = {
-      ...updatedConversation,
-      messages: updatedMessages,
-    }
-    setActiveConversation(updatedConversation)
-    return updatedConversation
-  }
-
-  const getClonedActiveConversation = () => {
-    let updatedConversation = getActiveConversation()
-    updatedConversation = {
-      ...updatedConversation,
-      messages: [...updatedConversation.messages],
-    }
     return updatedConversation
   }
 
@@ -147,6 +119,8 @@ export const Chat = memo(({ stopConversationRef, CustomChatInput, getResponseStr
     let done = false
     let isFirst = true
     let text = ''
+    const respSessionId = randomString()
+
     while (!done) {
       if (stopConversationRef.current === true) {
         done = true
@@ -157,6 +131,7 @@ export const Chat = memo(({ stopConversationRef, CustomChatInput, getResponseStr
       const chunkValue = decoder.decode(value)
       text += chunkValue
 
+      console.log(text)
       const askcmdRegexp = /<askcmd[^>]*>(.+)<\/askcmd>/g
       const askcodeStreamRegexp = /<askcode[^>]*>([^<]+)/g
       const askcodeRegexp = /<askcode[^>]*>(.+)<\/askcode>/g
@@ -169,8 +144,9 @@ export const Chat = memo(({ stopConversationRef, CustomChatInput, getResponseStr
           json = json.replace(/```[^\n]./g, '')
           command = JSON.parse(json)
         } catch (e) {}
-        globalEventEmitter.emit('actionStreaming')
-        console.log('executeCommand', command)
+        const payload = Object.assign(command, { respSessionId })
+        console.log('executeCommand', payload)
+        VSCodeApi.executeEditorAction(payload)
       }
       const decodeHtmlEntities = (input: string) => {
         const e = document.createElement('textarea')
@@ -180,16 +156,22 @@ export const Chat = memo(({ stopConversationRef, CustomChatInput, getResponseStr
       const codeStreamMatch = text.match(askcodeStreamRegexp)
       if (codeStreamMatch != null) {
         const codeStream = codeStreamMatch[0].replace(askcodeStreamRegexp, '$1')
-        const stream = codeStream.replace(/```[^\n]./g, '')
-        globalEventEmitter.emit('actionStreaming')
-        // console.log(decodeHtmlEntities(codeStreamMatch[0]))
+        // const stream = codeStream.replace(/```[^\n]./g, '')
+        VSCodeApi.executeEditorAction({
+          cmd: 'codeStreaming',
+          respSessionId,
+          code: decodeHtmlEntities(codeStream)!,
+        })
       }
       const codeMatch = text.match(askcodeRegexp)
       if (codeMatch != null) {
         text = text.replace(askcodeRegexp, '$1')
         const code = codeMatch[0].replace(askcodeRegexp, '$1')
-        console.log('codeStreamFinished:\n', decodeHtmlEntities(code))
-        globalEventEmitter.emit('actionStreamingEnd')
+        VSCodeApi.executeEditorAction({
+          cmd: 'codeStreamingEnd',
+          respSessionId,
+          code: decodeHtmlEntities(code)!,
+        })
       }
 
       if (isFirst) {

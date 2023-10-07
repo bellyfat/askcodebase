@@ -89,7 +89,7 @@ export function AskCodebasePanel() {
         temperature: 0.2,
         project_id: activeConversation.id,
         messages: [{ role: 'system', content: prompt }],
-        max_tokens: 1024,
+        max_tokens: 2048,
       }),
     })
     if (!(resp.body instanceof ReadableStream)) {

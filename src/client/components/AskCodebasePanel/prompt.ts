@@ -18,7 +18,7 @@ export const generatePrompt = (
       ${currentActiveDocument.text
         .trim()
         .split('\n')
-        .map((line, index) => `${index + 1}. ${line}`)
+        .map((line, index) => `${index + 1} ${line}`)
         .join('\n')}`.trim()
     }
     return `There's no activeTextDocument.`
