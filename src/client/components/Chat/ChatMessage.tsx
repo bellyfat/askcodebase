@@ -69,7 +69,7 @@ export const ChatMessage: FC<Props> = memo(({ message, messageIndex }) => {
   const renderMessage = (message: Message) => {
     switch (message.role) {
       case 'assistant': {
-        console.log('rendering assistant message', message.content)
+        // console.log('rendering assistant message', message.content)
         return (
           <div className='flex flex-row grow'>
             <MemoizedReactMarkdown

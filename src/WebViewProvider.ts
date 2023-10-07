@@ -22,6 +22,10 @@ export class WebViewProvider implements vscode.WebviewViewProvider {
   private _ptyProcesses: IPty[] = []
   private _shellPrompt: string = ''
   private _commands: IEditorEditAction[] = []
+  private _cursorLocation: { uri: vscode.Uri | null; position: vscode.Position } = {
+    uri: null,
+    position: new vscode.Position(0, 0),
+  }
   public visible = false
 
   constructor(
@@ -79,28 +83,59 @@ export class WebViewProvider implements vscode.WebviewViewProvider {
                 const isStreamingCommand = (cmd: string) =>
                   ['codeStreaming', 'codeStreamingEnd'].includes(cmd)
 
-                if (!isStreamingCommand(command.cmd)) {
-                  this._commands = [command]
+                const activeEditor = vscode.window.activeTextEditor
+                if (activeEditor != null) {
+                  let document = activeEditor.document
+                  // If not streaming command, reset commands.
+                  if (!isStreamingCommand(command.cmd)) {
+                    this._commands = [command]
 
-                  // Remove first.
-                  const { cmd, lines } = this._commands[0]
-                  const activeEditor = vscode.window.activeTextEditor
-                  if (activeEditor != null && Array.isArray(lines)) {
-                    let document = activeEditor.document
+                    // Remove first.
+                    const { cmd, lines } = this._commands[0]
+                    if (Array.isArray(lines)) {
+                      let edit = new vscode.WorkspaceEdit()
+                      let startLine = Math.max(lines[0] - 1, 0)
+                      let endLine = lines[1] + 1
+                      let textRange = new vscode.Range(
+                        startLine,
+                        0,
+                        endLine,
+                        Number.MAX_SAFE_INTEGER,
+                      )
+
+                      // Reset cursor position
+                      this._cursorLocation = {
+                        uri: document.uri,
+                        position: new vscode.Position(startLine, 0),
+                      }
+
+                      edit.replace(document.uri, textRange, '')
+                      vscode.workspace.applyEdit(edit)
+                    }
+                  } else {
+                    const lastCommand = this._commands[this._commands.length - 1]
+                    let chunk = command.code
+                    const chunkLines = chunk.split('\n')
+                    const chunkLastLine = chunkLines[chunkLines.length - 1]
+
+                    if (isStreamingCommand(lastCommand.cmd)) {
+                      chunk = command.code.replace(lastCommand.code, '')
+                    }
+
+                    // insert chunk
+                    console.log('insert chunk', chunk)
                     let edit = new vscode.WorkspaceEdit()
-                    let startLine = Math.max(lines[0] - 1, 0)
-                    let endLine = lines[1] + 1
-                    let textRange = new vscode.Range(startLine, 0, endLine, Number.MAX_SAFE_INTEGER)
-                    edit.replace(document.uri, textRange, '')
+                    edit.insert(document.uri, this._cursorLocation.position, chunk)
                     vscode.workspace.applyEdit(edit)
+
+                    // update cursor position
+                    this._cursorLocation.position = new vscode.Position(
+                      this._cursorLocation.position.line + chunkLines,
+                      chunkLastLine.length,
+                    )
+
+                    this._commands.push(command)
                   }
-                } else {
-                  const lastCommand = this._commands[this._commands.length - 1]
-                  let chunk = command.code
-                  if (isStreamingCommand(lastCommand.cmd)) {
-                    chunk = command.code.replace(lastCommand.code, '')
-                  }
-                  this._commands.push(command)
                 }
               } catch (e) {
                 console.error(e)
