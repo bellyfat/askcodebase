@@ -1,0 +1,25 @@
+.askcmd {
+    &.collapsed {
+        margin-bottom: -35px;
+    }
+    .action {
+        display: flex;
+        background-color: var(--vscode-commandCenter-background);
+        width: 30%;
+        justify-content: space-between;
+        padding: 5px 10px;
+        border-radius: 5px;
+        cursor: pointer;
+        border: 1px solid var(--vscode-commandCenter-border);
+        margin-bottom: 15px;
+        color: var(--vscode-commandCenter-foreground);
+        user-select: none;
+    }
+    &.collapsed .askcode {
+        display: none;
+    }
+}
+
+.collapsed.askcmd ~ .askcode {
+    display: none;
+}

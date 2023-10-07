@@ -11,9 +11,10 @@ import styles from './CodeBlock.module.scss'
 interface Props {
   language: string
   value: string
+  className?: string
 }
 
-export const CodeBlock: FC<Props> = memo(({ language, value }) => {
+export const CodeBlock: FC<Props> = memo(({ language, value, className = '' }) => {
   const [isCopied, setIsCopied] = useState<Boolean>(false)
 
   const copyToClipboard = () => {
@@ -31,7 +32,7 @@ export const CodeBlock: FC<Props> = memo(({ language, value }) => {
   }
 
   return (
-    <div className={cx('codeblock relative font-sans text-[13px]', styles.codeblock)}>
+    <div className={cx('codeblock relative font-sans text-[13px]', styles.codeblock, className)}>
       <div className={cx('flex items-center justify-between py-1.5 px-4', styles.header)}>
         <span className={cx('text-xs lowercase', styles.language)}>{language}</span>
 

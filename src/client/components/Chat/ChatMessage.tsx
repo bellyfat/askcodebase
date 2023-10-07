@@ -1,7 +1,3 @@
-// @ts-ignore
-import IconCheck from '@tabler/icons-react/dist/esm/icons/IconCheck'
-// @ts-ignore
-import IconCopy from '@tabler/icons-react/dist/esm/icons/IconCopy'
 import { FC, memo, useContext, useState } from 'react'
 import { Message } from '~/client/types/chat'
 import { ReactStreamChatContext } from '~/client/components/ReactStreamChat/context'
@@ -15,7 +11,15 @@ import styles from './ChatMessage.module.scss'
 import { useAtom } from 'jotai'
 import { userAtom } from '~/client/store'
 import React = require('react')
-import rehypeRaw from "rehype-raw";
+import rehypeRaw from 'rehype-raw'
+import askcodeStyles from './AskCode.module.scss'
+import { AskCmd } from './AskCmd'
+
+export function decodeHtmlEntities(html: string) {
+  const e = document.createElement('textarea')
+  e.innerHTML = html
+  return e.childNodes.length === 0 ? '' : e.childNodes[0].nodeValue
+}
 
 export interface Props {
   message: Message
@@ -25,8 +29,8 @@ export interface Props {
 declare global {
   namespace JSX {
     interface IntrinsicElements {
-      askcmd: {}
-      askcode: {}
+      askcmd: { children: string }
+      askcode: { children: string; className: string }
     }
   }
 }
@@ -36,18 +40,6 @@ export const ChatMessage: FC<Props> = memo(({ message, messageIndex }) => {
   const {
     state: { selectedConversation, messageIsStreaming },
   } = useContext(ReactStreamChatContext)
-
-  const [messagedCopied, setMessageCopied] = useState(false)
-  const copyOnClick = () => {
-    if (!navigator.clipboard) return
-
-    navigator.clipboard.writeText(message.content).then(() => {
-      setMessageCopied(true)
-      setTimeout(() => {
-        setMessageCopied(false)
-      }, 2000)
-    })
-  }
 
   const renderHead = (message: Message) => {
     switch (message.role) {
@@ -83,11 +75,33 @@ export const ChatMessage: FC<Props> = memo(({ message, messageIndex }) => {
               className={cx('dark:prose-invert flex-1', styles.messageContent)}
               remarkPlugins={[remarkGfm, remarkMath]}
               rehypePlugins={[rehypeMathjax, rehypeRaw]}
-              allowElement={element => {
-                console.log('--- render element', element, message.content)
-                return true
-              }}
               components={{
+                askcmd({ children }) {
+                  return <AskCmd children={children as string} />
+                },
+                askcode({ node, children, className }) {
+                  if (Array.isArray(node!.children) && node!.children.length) {
+                    const { start, end } = node!.children[0].position!
+                    const startOffset = start ? start.offset ?? 0 : 0
+                    const endOffset = end ? end.offset : startOffset + 1
+                    const code = decodeHtmlEntities(message.content.slice(startOffset, endOffset))
+                    console.log({
+                      children: children,
+                      message: message.content,
+                    })
+
+                    const match = /language-(\w+)/.exec(className || '')
+                    return (
+                      <CodeBlock
+                        key={Math.random()}
+                        language={(match && match[1]) || ''}
+                        value={String(code).trim()}
+                        className={cx('askcode', askcodeStyles.askcode)}
+                      />
+                    )
+                  }
+                  return children
+                },
                 code({ node, className, children, ...props }) {
                   if (Array.isArray(children) && children.length) {
                     if (children[0] == '▍') {
@@ -149,30 +163,13 @@ export const ChatMessage: FC<Props> = memo(({ message, messageIndex }) => {
                 },
               }}
             >
-              {`
-              Hello the following is a div element:
-              <div class='custom'>Hello</div>
-              `.trim()}
-              {/* {`${message.content}${
+              {`${message.content}${
                 messageIsStreaming &&
                 messageIndex == (selectedConversation?.messages.length ?? 0) - 1
                   ? '`▍`'
                   : ''
-              }`} */}
+              }`}
             </MemoizedReactMarkdown>
-
-            <div className='md:-mr-8 ml-1 md:ml-0 flex flex-col md:flex-row gap-4 md:gap-1 items-center md:items-start justify-end md:justify-start pr-4'>
-              {messagedCopied ? (
-                <IconCheck size={20} className='text-green-500 dark:text-green-400' />
-              ) : (
-                <button
-                  className='invisible group-hover:visible focus:visible text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'
-                  onClick={copyOnClick}
-                >
-                  <IconCopy size={20} />
-                </button>
-              )}
-            </div>
           </div>
         )
       }

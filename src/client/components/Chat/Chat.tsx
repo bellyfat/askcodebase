@@ -8,7 +8,7 @@ import { useSetAtom } from 'jotai'
 import { activeConversationAtom } from '~/client/store'
 import { MonacoInputBox } from '../MonacoInputBox'
 import { useAtomRefValue } from '~/client/hooks'
-import { VSCodeApi } from '~/client/VSCodeApi'
+import { VSCodeApi, globalEventEmitter } from '~/client/VSCodeApi'
 import { ProcessEvent } from '~/client/Process'
 import { TraceID } from '~/common/traceTypes'
 
@@ -40,6 +40,18 @@ export const Chat = memo(({ stopConversationRef, CustomChatInput, getResponseStr
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const chatContainerRef = useRef<HTMLDivElement>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
+
+  // handle scrollToBottom event
+  useEffect(() => {
+    console.log(' -- scrollToBottom')
+    globalEventEmitter.on('scrollToBottom', () => {
+      console.log(' -- scrollToBottom')
+      handleScrollDown()
+    })
+    return () => {
+      globalEventEmitter.off('scrollToBottom', handleScrollDown)
+    }
+  }, [])
 
   const pushMessageToConversation = (
     updatedConversation: Conversation,
@@ -151,7 +163,6 @@ export const Chat = memo(({ stopConversationRef, CustomChatInput, getResponseStr
 
       const commandMatch = text.match(askcmdRegexp)
       if (commandMatch != null) {
-        text = text.replace(askcmdRegexp, '<div class="askcmd">$1</div>')
         let json = commandMatch[0].replace(askcmdRegexp, '$1')
         let command = {}
         try {
@@ -169,7 +180,7 @@ export const Chat = memo(({ stopConversationRef, CustomChatInput, getResponseStr
       if (codeStreamMatch != null) {
         const codeStream = codeStreamMatch[0].replace(askcodeStreamRegexp, '$1')
         const stream = codeStream.replace(/```[^\n]./g, '')
-        console.log(decodeHtmlEntities(codeStreamMatch[0]))
+        // console.log(decodeHtmlEntities(codeStreamMatch[0]))
       }
       const codeMatch = text.match(askcodeRegexp)
       if (codeMatch != null) {
