@@ -174,10 +174,11 @@ export const Chat = memo(({ stopConversationRef, CustomChatInput, getResponseStr
           respSessionId,
           code: chunk,
           id: chunkId++,
+          firstChunk: lastStreamingCode === '',
         })
         lastStreamingCode = code
       }
-      console.log(text)
+      // console.log(text)
       const codeMatch = text.match(askcodeRegexp)
       if (codeMatch != null) {
         VSCodeApi.executeEditorAction({

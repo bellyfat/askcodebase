@@ -103,7 +103,7 @@ class VSCodeApiClass {
     return this._postMessage('getSystemInfo')
   }
 
-  public async executeEditorAction(payload: Record<string, string | number>) {
+  public async executeEditorAction(payload: Record<string, string | number | boolean>) {
     return this._postMessage('executeEditorAction', { payload })
   }
 

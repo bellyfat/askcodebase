@@ -58,9 +58,9 @@ export async function trace(
     headers,
     body: JSON.stringify(data),
   })
-  console.log('[fetch]', {
-    data,
-    resp: await resp.json(),
-  })
+  // console.log('[fetch]', {
+  //   data,
+  //   resp: await resp.json(),
+  // })
   return resp
 }

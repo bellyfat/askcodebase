@@ -15,6 +15,7 @@ interface IEditorEditAction {
   id: string
   lines?: [number, number]
   code?: string
+  firstChunk?: boolean
 }
 
 class AskCodebaseCursor {
@@ -141,22 +142,27 @@ export class WebViewProvider implements vscode.WebviewViewProvider {
                       }
                     }
                   } else {
+                    // Then, insert
                     // Streaming command
                     if (command.code != null) {
                       this._chunkQueue.push({ id: command.id, chunk: command.code })
-                      const lastCommand = this._commands[this._commands.length - 1]
-                      let chunk = command.code
+                      let { code: chunk, firstChunk } = command
 
                       const chunkLines = chunk.split('\n')
-                      const chunkLastLine = chunkLines[chunkLines.length - 1]
 
-                      if (isStreamingCommand(lastCommand.cmd)) {
-                        chunk = command.code.replace(lastCommand.code, '')
+                      // remove leading \n in first chunk
+                      if (firstChunk) {
+                        console.log('Remove leading \n in first chunk')
+                        chunk.replace(/^\n/, '')
                       }
 
                       // insert chunk
                       let edit = new vscode.WorkspaceEdit()
-
+                      console.log(
+                        'cursor:',
+                        this._cursor.getPosition().line,
+                        this._cursor.getPosition().character,
+                      )
                       edit.insert(document.uri, this._cursor.getPosition(), chunk)
                       await vscode.workspace.applyEdit(edit)
 

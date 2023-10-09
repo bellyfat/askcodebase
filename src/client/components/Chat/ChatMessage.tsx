@@ -117,6 +117,12 @@ export const ChatMessage: FC<Props> = memo(({ message, messageIndex }) => {
                   }
                   return <div {...props}>{children}</div>
                 },
+                p({ children }) {
+                  if (typeof children !== 'string') {
+                    return children as React.ReactElement
+                  }
+                  return <p>{children}</p>
+                },
                 code({ node, className, children, ...props }) {
                   if (Array.isArray(children) && children.length) {
                     if (children[0] == '▍') {
