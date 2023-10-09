@@ -47,9 +47,7 @@ interface RemoveFolderCommand { cmd:'removeFolder'; uri:string }
 interface RenameFolderCommand { cmd:'renameFolder'; uri:string; new_name:string }
 // keep the insertation at one time, avoid insertation in multiple times.
 interface InsertCodeCommand { cmd:'insertCode'; lines: [number, number] }
-interface MoveCodeCommand { cmd:'moveCode'; old_lines: [number, number], new_lines: [number, number] }
-// lines: [replaceStartLine, replaceEndLine], make sure the replace lines range are correct and replacement is minimal.
-interface ReplaceCodeCommand { cmd:'replaceCode'; lines: [number, number] }
+interface ReplaceCodeCommand { cmd:'replaceCode'; lines: [number, number]; }
 interface RemoveCodeCommand { cmd:'removeCode'; lines: [number, number] }
 interface NavigateToFileCommand { cmd:'navigateToFile'; uri: string; line: number }
 type Command = (CreateFileCommand | MoveFileCommand | RemoveFileCommand | RenameFileCommand | CreateFolderCommand | RenameFolderCommand

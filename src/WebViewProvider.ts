@@ -6,6 +6,7 @@ import { requireVSCodeModule } from '~/extensions'
 import { trace } from './trace'
 import { updateLayout } from './utils'
 import { getFileTree } from './getFileTree'
+import { copySync } from 'fs-extra'
 
 const { spawn } = requireVSCodeModule<typeof import('node-pty')>('node-pty')
 const shell = process.platform === 'win32' ? 'powershell.exe' : 'bash'
@@ -48,13 +49,14 @@ export class WebViewProvider implements vscode.WebviewViewProvider {
   private _shellPrompt: string = ''
   private _commands: IEditorEditAction[] = []
   private _cursor: AskCodebaseCursor = new AskCodebaseCursor()
+  private _editingRange: vscode.Range = new vscode.Range(0, 0, 0, 0)
   private _chunkQueue: Array<{ id: number; chunk: string }> = []
   public visible = false
 
   constructor(
     private readonly _context: vscode.ExtensionContext,
     private readonly _updateStatusBarItem: () => void,
-  ) {}
+  ) { }
 
   public isWebviewVisible = () => {
     return this.visible
@@ -100,14 +102,25 @@ export class WebViewProvider implements vscode.WebviewViewProvider {
         let error
         try {
           switch (message.command) {
+            // 1. remove lines [startLine -1, endLine - 1]
             case 'executeEditorAction': {
               try {
                 const command = message.data.payload
                 const isStreamingCommand = (cmd: string) =>
                   ['codeStreaming', 'codeStreamingEnd'].includes(cmd)
 
+                // Done.
                 if (command.cmd === 'codeStreamingEnd') {
-                  vscode.window.activeTextEditor?.document.save()
+                  const document = vscode.window.activeTextEditor?.document
+
+                  // format and save
+                  const range = new vscode.Range(this._editingRange.start.line + 1, 0, this._editingRange.end.line, Number.MAX_SAFE_INTEGER)
+                  console.log('format:', {
+                    uri: document?.uri, range,
+                  })
+                  await vscode.commands.executeCommand('vscode.executeDocumentSymbolProvider', document?.uri, range)
+                  document?.save()
+
                   setTimeout(() => {
                     cleanCollabCursorAndBadge()
                   }, 1500)
@@ -124,7 +137,7 @@ export class WebViewProvider implements vscode.WebviewViewProvider {
                     if (Array.isArray(lines)) {
                       let edit = new vscode.WorkspaceEdit()
                       let startLine = Math.max(lines[0] - 1, 0)
-                      let endLine = lines[1] + 1
+                      let endLine = Math.max(lines[1] - 1, 0)
                       let textRange = new vscode.Range(
                         startLine,
                         0,
@@ -133,10 +146,12 @@ export class WebViewProvider implements vscode.WebviewViewProvider {
                       )
 
                       // Reset cursor position
-                      this._cursor.setUri(document.uri).setPosition(startLine - 1, 0)
+                      this._editingRange = textRange
+                      this._cursor.setUri(document.uri).setPosition(startLine, 0)
 
                       // Remove fist.
                       if (cmd === 'replaceCode') {
+                        console.log('remove lines', textRange.start.line, textRange.end.line)
                         edit.replace(document.uri, textRange, '')
                         vscode.workspace.applyEdit(edit)
                       }
@@ -150,24 +165,29 @@ export class WebViewProvider implements vscode.WebviewViewProvider {
 
                       const chunkLines = chunk.split('\n')
 
-                      // remove leading \n in first chunk
+                      // Remove leading '\n' in the first chunk
                       if (firstChunk) {
-                        console.log('Remove leading \n in first chunk')
-                        chunk.replace(/^\n/, '')
+                        console.log('before', chunk)
+                        chunk = chunk.replace(/^\n/, '')
+                        console.log('after', chunk)
                       }
 
                       // insert chunk
                       let edit = new vscode.WorkspaceEdit()
                       console.log(
-                        'cursor:',
+                        'insertion_cursor:',
                         this._cursor.getPosition().line,
                         this._cursor.getPosition().character,
+                        JSON.stringify(chunk)
                       )
                       edit.insert(document.uri, this._cursor.getPosition(), chunk)
                       await vscode.workspace.applyEdit(edit)
 
                       // update cursor position
-                      const line = this._cursor.getPosition().line + chunkLines.length - 1
+                      let line = this._cursor.getPosition().line
+                      if (chunk !== "") {
+                        line += chunkLines.length - 1
+                      }
                       this._cursor.setPosition(line, document.lineAt(line).range.end.character)
                       this._commands.push(command)
                     }
