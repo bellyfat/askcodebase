@@ -1,8 +1,9 @@
 .askcmd {
     &.collapsed {
-        margin-bottom: -20px;
+        margin-bottom: -10px;
     }
     .action {
+        margin-top: 15px;
         display: flex;
         background-color: var(--vscode-commandCenter-background);
         width: 40%;

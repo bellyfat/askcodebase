@@ -16,10 +16,10 @@ export const generatePrompt = (
     if (currentActiveDocument != null) {
       return `This is active textDocument (${currentActiveDocument.relativeUrl}):
       ${currentActiveDocument.text
-        .trim()
-        .split('\n')
-        .map((line, index) => `${index + 1}. ${line}`)
-        .join('\n')}`.trim()
+          .trim()
+          .split('\n')
+          .map((line, index) => `${index + 1}. ${line}`)
+          .join('\n')}`.trim()
     }
     return `There's no activeTextDocument.`
   }
@@ -47,6 +47,7 @@ interface RemoveFolderCommand { cmd:'removeFolder'; uri:string }
 interface RenameFolderCommand { cmd:'renameFolder'; uri:string; new_name:string }
 // keep the insertation at one time, avoid insertation in multiple times.
 interface InsertCodeCommand { cmd:'insertCode'; lines: [number, number] }
+interface MoveCodeCommand { cmd:'moveCode'; lines: [number, number] }
 interface ReplaceCodeCommand { cmd:'replaceCode'; lines: [number, number]; }
 // The is no <div class="askcode"></div> follows removeCode action.
 interface RemoveCodeCommand { cmd:'removeCode'; lines: [number, number] }
