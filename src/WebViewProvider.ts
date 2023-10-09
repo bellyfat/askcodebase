@@ -119,7 +119,6 @@ export class WebViewProvider implements vscode.WebviewViewProvider {
                   if (!isStreamingCommand(command.cmd)) {
                     this._commands = [command]
 
-                    // Remove first.
                     const { cmd, lines } = this._commands[0]
                     if (Array.isArray(lines)) {
                       let edit = new vscode.WorkspaceEdit()
@@ -135,8 +134,11 @@ export class WebViewProvider implements vscode.WebviewViewProvider {
                       // Reset cursor position
                       this._cursor.setUri(document.uri).setPosition(startLine - 1, 0)
 
-                      edit.replace(document.uri, textRange, '')
-                      vscode.workspace.applyEdit(edit)
+                      // Remove fist.
+                      if (cmd === 'replaceCode') {
+                        edit.replace(document.uri, textRange, '')
+                        vscode.workspace.applyEdit(edit)
+                      }
                     }
                   } else {
                     // Streaming command
