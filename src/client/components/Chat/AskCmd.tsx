@@ -12,7 +12,7 @@ const AskCmd: React.FC<AskCmdProps> = ({ children }) => {
   const [collapsed, setCollapsed] = useState(true)
 
   if (typeof children === 'string') {
-    const match = children.match(/cmd":"([^"]+)/)
+    const match = children.match(/cmd":\s*"([^"]+)/)
     return (
       <div
         className={cx(
