@@ -150,16 +150,32 @@ export class WebViewProvider implements vscode.WebviewViewProvider {
                       this._cursor.setUri(document.uri).setPosition(startLine, 0)
 
                       // Remove fist.
-                      if (cmd === 'replaceCode') {
-                        console.log('remove lines', textRange.start.line, textRange.end.line)
-                        edit.replace(document.uri, textRange, '')
-                        vscode.workspace.applyEdit(edit)
+                      if (['replaceCode', 'removeCode'].includes(cmd)) {
+                        if (startLine === endLine) {
+                          const textRange = new vscode.Range(
+                            startLine,
+                            0,
+                            endLine + 1,
+                            Number.MAX_SAFE_INTEGER,
+                          )
+                          const nextLineText = document.lineAt(endLine + 1).text
+                          edit.replace(document.uri, textRange, nextLineText)
+                          await vscode.workspace.applyEdit(edit)
+
+                          if (cmd === 'removeCode') {
+                            await document.save()
+                          }
+                        } else {
+                          edit.delete(document.uri, textRange)
+                          vscode.workspace.applyEdit(edit)
+                        }
                       }
                     }
                   } else {
                     // Then, insert
                     // Streaming command
-                    if (command.code != null) {
+                    const { cmd } = this._commands[0]
+                    if (['insertCode', 'replaceCode'].includes(cmd) && command.code != null) {
                       this._chunkQueue.push({ id: command.id, chunk: command.code })
                       let { code: chunk, firstChunk } = command
 
@@ -451,5 +467,9 @@ function setCollabCursorAndBadge(range: vscode.Range, cursorColor: string, badge
     activeTextEditor.setDecorations(cursorType, [cursorRange])
     activeTextEditor.setDecorations(selectionType, [range])
     activeTextEditor.setDecorations(badgeType, [range])
+
+    setTimeout(() => {
+      cleanCollabCursorAndBadge()
+    }, 1500)
   }
 }
