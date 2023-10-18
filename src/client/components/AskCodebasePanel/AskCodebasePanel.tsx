@@ -75,7 +75,6 @@ export function AskCodebasePanel() {
   const getResponseStream = async (message: Message) => {
     const prompt = generatePrompt(
       await VSCodeApi.getActiveTextDocument(),
-      await VSCodeApi.getFileTree(),
       message.content,
     )
     console.log(prompt)
@@ -86,6 +85,7 @@ export function AskCodebasePanel() {
       },
       method: 'POST',
       body: JSON.stringify({
+        model: 'gpt-4',
         temperature: 0.2,
         project_id: activeConversation.id,
         messages: [{ role: 'system', content: prompt }],

@@ -19,7 +19,7 @@ export async function trace(
     const user = JSON.parse(context.globalState.get('user') ?? '')
     useridAsBlob1 = user?.userID
     jwt = user?.jwt ?? ''
-  } catch (e) {}
+  } catch (e) { }
 
   const platformAsBlob2 = process.platform
   const deviceIDAsBlob3 = context.globalState.get('deviceID') as string

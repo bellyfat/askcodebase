@@ -6,7 +6,6 @@ import { requireVSCodeModule } from '~/extensions'
 import { trace } from './trace'
 import { updateLayout } from './utils'
 import { getFileTree } from './getFileTree'
-import { copySync } from 'fs-extra'
 
 const { spawn } = requireVSCodeModule<typeof import('node-pty')>('node-pty')
 const shell = process.platform === 'win32' ? 'powershell.exe' : 'bash'
@@ -472,4 +471,5 @@ function setCollabCursorAndBadge(range: vscode.Range, cursorColor: string, badge
       cleanCollabCursorAndBadge()
     }, 1500)
   }
+
 }
