@@ -103,6 +103,10 @@ class VSCodeApiClass {
     return this._postMessage('getSystemInfo')
   }
 
+  public async executeEditorAction(payload: Record<string, string | number | boolean>) {
+    return this._postMessage('executeEditorAction', { payload })
+  }
+
   public async executeCommand<T = any>(command: string, ...args: any[]): Promise<T> {
     return this._postMessage('executeCommand', { command, args })
   }

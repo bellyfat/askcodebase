@@ -8,9 +8,10 @@ import { useSetAtom } from 'jotai'
 import { activeConversationAtom } from '~/client/store'
 import { MonacoInputBox } from '../MonacoInputBox'
 import { useAtomRefValue } from '~/client/hooks'
-import { VSCodeApi } from '~/client/VSCodeApi'
+import { VSCodeApi, globalEventEmitter } from '~/client/VSCodeApi'
 import { ProcessEvent } from '~/client/Process'
 import { TraceID } from '~/common/traceTypes'
+import { randomString } from '~/common/randomString'
 
 export interface ChatInputProps {
   stopConversationRef: MutableRefObject<boolean>
@@ -28,6 +29,8 @@ interface Props {
   CustomChatInput?: ChatInputComponent
 }
 
+const askcmds = new Set()
+
 export const Chat = memo(({ stopConversationRef, CustomChatInput, getResponseStream }: Props) => {
   const { dispatch } = useContext(ReactStreamChatContext)
   const setActiveConversation = useSetAtom(activeConversationAtom)
@@ -40,6 +43,16 @@ export const Chat = memo(({ stopConversationRef, CustomChatInput, getResponseStr
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const chatContainerRef = useRef<HTMLDivElement>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
+
+  // handle scrollToBottom event
+  useEffect(() => {
+    globalEventEmitter.on('scrollToBottom', () => {
+      handleScrollDown()
+    })
+    return () => {
+      globalEventEmitter.off('scrollToBottom', handleScrollDown)
+    }
+  }, [])
 
   const pushMessageToConversation = (
     updatedConversation: Conversation,
@@ -58,33 +71,6 @@ export const Chat = memo(({ stopConversationRef, CustomChatInput, getResponseStr
       messages: updatedMessages,
     }
     setActiveConversation(updatedConversation)
-    return updatedConversation
-  }
-
-  const updateLastConversationMessage = (updatedConversation: Conversation, text: string) => {
-    const updatedMessages: Message[] = updatedConversation.messages.map((message, index) => {
-      if (index === updatedConversation.messages.length - 1) {
-        return {
-          ...message,
-          content: text,
-        }
-      }
-      return message
-    })
-    updatedConversation = {
-      ...updatedConversation,
-      messages: updatedMessages,
-    }
-    setActiveConversation(updatedConversation)
-    return updatedConversation
-  }
-
-  const getClonedActiveConversation = () => {
-    let updatedConversation = getActiveConversation()
-    updatedConversation = {
-      ...updatedConversation,
-      messages: [...updatedConversation.messages],
-    }
     return updatedConversation
   }
 
@@ -135,6 +121,10 @@ export const Chat = memo(({ stopConversationRef, CustomChatInput, getResponseStr
     let done = false
     let isFirst = true
     let text = ''
+    let lastStreamingCode = ''
+    let chunkId = 0
+    const respSessionId = randomString()
+
     while (!done) {
       if (stopConversationRef.current === true) {
         done = true
@@ -145,20 +135,28 @@ export const Chat = memo(({ stopConversationRef, CustomChatInput, getResponseStr
       const chunkValue = decoder.decode(value)
       text += chunkValue
 
+      // debug raw response if needed
+      // console.log(text)
+
       const askcmdRegexp = /<askcmd[^>]*>(.+)<\/askcmd>/g
-      const askcodeStreamRegexp = /<askcode[^>]*>([^<]+)/g
-      const askcodeRegexp = /<askcode[^>]*>(.+)<\/askcode>/g
+      const askcodeStreamRegexp = /<div class="askcode[^>]*>([^<]+)/g
+      const askcodeRegexp = /<div class="askcode[^>]*>([^<]+)<\/div>/g
 
       const commandMatch = text.match(askcmdRegexp)
       if (commandMatch != null) {
-        text = text.replace(askcmdRegexp, '<div class="askcmd">$1</div>')
         let json = commandMatch[0].replace(askcmdRegexp, '$1')
-        let command = {}
+        let command = {} as { id: string }
         try {
           json = json.replace(/```[^\n]./g, '')
           command = JSON.parse(json)
         } catch (e) {}
-        console.log('executeCommand', command)
+        const payload = Object.assign(command, { respSessionId })
+        const commandUID = `${respSessionId}_${command.id}`
+        if (!askcmds.has(commandUID)) {
+          askcmds.add(commandUID)
+          // console.log('executeCommand', payload)
+          VSCodeApi.executeEditorAction(payload)
+        }
       }
       const decodeHtmlEntities = (input: string) => {
         const e = document.createElement('textarea')
@@ -169,13 +167,24 @@ export const Chat = memo(({ stopConversationRef, CustomChatInput, getResponseStr
       if (codeStreamMatch != null) {
         const codeStream = codeStreamMatch[0].replace(askcodeStreamRegexp, '$1')
         const stream = codeStream.replace(/```[^\n]./g, '')
-        console.log(decodeHtmlEntities(codeStreamMatch[0]))
+        const code = decodeHtmlEntities(stream)!
+        const chunk = code.replace(lastStreamingCode, '')
+        VSCodeApi.executeEditorAction({
+          cmd: 'codeStreaming',
+          respSessionId,
+          code: chunk,
+          id: chunkId++,
+          firstChunk: lastStreamingCode === '',
+        })
+        lastStreamingCode = code
       }
+      // console.log(text)
       const codeMatch = text.match(askcodeRegexp)
       if (codeMatch != null) {
-        text = text.replace(askcodeRegexp, '$1')
-        const code = codeMatch[0].replace(askcodeRegexp, '$1')
-        console.log('codeStreamFinished:\n', decodeHtmlEntities(code))
+        VSCodeApi.executeEditorAction({
+          cmd: 'codeStreamingEnd',
+          respSessionId,
+        })
       }
 
       if (isFirst) {

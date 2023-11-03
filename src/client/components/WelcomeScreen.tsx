@@ -7,7 +7,7 @@ export function WelcomeScreen() {
         <div className={styles.title}>
           <span>AskCodebase AI</span>
         </div>
-        <div className={styles.description}>Your AI Programming Autopilot</div>
+        <div className={styles.description}>Build Codebase with Conversations</div>
         <div className={styles.examples}>
           <div className={styles.block}>
             <div className={styles.subTitle}>Examples:</div>

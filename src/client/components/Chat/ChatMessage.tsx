@@ -1,21 +1,26 @@
-// @ts-ignore
-import IconCheck from '@tabler/icons-react/dist/esm/icons/IconCheck'
-// @ts-ignore
-import IconCopy from '@tabler/icons-react/dist/esm/icons/IconCopy'
-import { FC, memo, useContext, useState } from 'react'
+import { FC, memo, useContext, useEffect, useState } from 'react'
 import { Message } from '~/client/types/chat'
 import { ReactStreamChatContext } from '~/client/components/ReactStreamChat/context'
 import { CodeBlock } from '../Markdown/CodeBlock'
 import { MemoizedReactMarkdown } from '../Markdown/MemoizedReactMarkdown'
-import rehypeMathjax from 'rehype-mathjax'
+import rehypeMathjax from 'rehype-mathjax/browser'
 import remarkGfm from 'remark-gfm'
 import remarkMath from 'remark-math'
 import * as cx from 'classnames'
 import styles from './ChatMessage.module.scss'
 import { useAtom } from 'jotai'
 import { userAtom } from '~/client/store'
-import { XtermMessage } from './XtermMessage'
 import React = require('react')
+import rehypeRaw from 'rehype-raw'
+import askcodeStyles from './AskCode.module.scss'
+import { MemoizedAskCmd } from './AskCmd'
+import { globalEventEmitter } from '~/client/VSCodeApi'
+
+export function decodeHtmlEntities(html: string) {
+  const e = document.createElement('textarea')
+  e.innerHTML = html
+  return e.childNodes.length === 0 ? '' : e.childNodes[0].nodeValue
+}
 
 export interface Props {
   message: Message
@@ -25,8 +30,7 @@ export interface Props {
 declare global {
   namespace JSX {
     interface IntrinsicElements {
-      askcmd: {}
-      askcode: {}
+      askcmd: { children: string; index: number }
     }
   }
 }
@@ -36,18 +40,6 @@ export const ChatMessage: FC<Props> = memo(({ message, messageIndex }) => {
   const {
     state: { selectedConversation, messageIsStreaming },
   } = useContext(ReactStreamChatContext)
-
-  const [messagedCopied, setMessageCopied] = useState(false)
-  const copyOnClick = () => {
-    if (!navigator.clipboard) return
-
-    navigator.clipboard.writeText(message.content).then(() => {
-      setMessageCopied(true)
-      setTimeout(() => {
-        setMessageCopied(false)
-      }, 2000)
-    })
-  }
 
   const renderHead = (message: Message) => {
     switch (message.role) {
@@ -77,21 +69,62 @@ export const ChatMessage: FC<Props> = memo(({ message, messageIndex }) => {
   const renderMessage = (message: Message) => {
     switch (message.role) {
       case 'assistant': {
+        // console.log('rendering assistant message', message.content)
         return (
           <div className='flex flex-row grow'>
             <MemoizedReactMarkdown
               className={cx('dark:prose-invert flex-1', styles.messageContent)}
               remarkPlugins={[remarkGfm, remarkMath]}
-              rehypePlugins={[rehypeMathjax]}
+              rehypePlugins={[rehypeMathjax, rehypeRaw]}
+              skipHtml={true}
               components={{
-                askcmd() {
-                  return <p>askcmd</p>
+                askcmd({ children, node }) {
+                  return <MemoizedAskCmd children={children as string} />
                 },
-                askcode() {
-                  return <div className='bg-gray-200 dark:bg-gray-800 p-2 rounded-md'>askcode</div>
+                div(props) {
+                  const { node, children, className } = props
+                  if (
+                    className?.includes('askcode') &&
+                    Array.isArray(node!.children) &&
+                    node!.children.length
+                  ) {
+                    const { start, end } = node!.children[0].position!
+                    const startOffset = start ? start.offset ?? 0 : 0
+                    const endOffset = end ? end.offset : message.content.length
+                    const endIndex = message.content.indexOf('</askcode>')
+                    // console.log({
+                    //   startOffset,
+                    //   endOffset,
+                    //   start,
+                    //   end,
+                    //   content: message.content,
+                    //   children,
+                    //   endIndex,
+                    // })
+                    let code = decodeHtmlEntities(
+                      message.content.slice(startOffset, Math.max(endOffset!, endIndex)),
+                    )
+                    code = code!.replace(/<\/div>$/, '')
+
+                    const match = /language-(\w+)/.exec(className || '')
+                    return (
+                      <CodeBlock
+                        language={(match && match[1]) || ''}
+                        value={String(code).trim()}
+                        className={cx('askcode', askcodeStyles.askcode)}
+                      />
+                    )
+                  }
+                  return <div {...props}>{children}</div>
                 },
-                code({ node, inline, className, children, ...props }) {
-                  if (children.length) {
+                p({ children }) {
+                  if (typeof children !== 'string') {
+                    return children as React.ReactElement
+                  }
+                  return <p>{children}</p>
+                },
+                code({ node, className, children, ...props }) {
+                  if (Array.isArray(children) && children.length) {
                     if (children[0] == '▍') {
                       return <span className='animate-pulse cursor-default mt-1'>▍</span>
                     }
@@ -101,7 +134,7 @@ export const ChatMessage: FC<Props> = memo(({ message, messageIndex }) => {
 
                   const match = /language-(\w+)/.exec(className || '')
 
-                  return !inline ? (
+                  return match ? (
                     <CodeBlock
                       key={Math.random()}
                       language={(match && match[1]) || ''}
@@ -158,19 +191,6 @@ export const ChatMessage: FC<Props> = memo(({ message, messageIndex }) => {
                   : ''
               }`}
             </MemoizedReactMarkdown>
-
-            <div className='md:-mr-8 ml-1 md:ml-0 flex flex-col md:flex-row gap-4 md:gap-1 items-center md:items-start justify-end md:justify-start pr-4'>
-              {messagedCopied ? (
-                <IconCheck size={20} className='text-green-500 dark:text-green-400' />
-              ) : (
-                <button
-                  className='invisible group-hover:visible focus:visible text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'
-                  onClick={copyOnClick}
-                >
-                  <IconCopy size={20} />
-                </button>
-              )}
-            </div>
           </div>
         )
       }
@@ -187,9 +207,6 @@ export const ChatMessage: FC<Props> = memo(({ message, messageIndex }) => {
             </div>
           </div>
         )
-      }
-      case 'terminal': {
-        return <XtermMessage message={message} />
       }
     }
   }

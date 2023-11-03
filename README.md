@@ -2,7 +2,7 @@
 
 > [0.35.0 (2023-09-13)](https://marketplace.visualstudio.com/items/JipitiAI.askcodebase/changelog) has been released! 🎉
 
-### Your AI Programming Autopilot
+### Build Codebase with Conversations
 
 Transform coders into solution designers and problem solvers.
 
