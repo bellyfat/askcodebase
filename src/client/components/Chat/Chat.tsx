@@ -11,7 +11,11 @@ import { useAtomRefValue } from '~/client/hooks'
 import { VSCodeApi, globalEventEmitter } from '~/client/VSCodeApi'
 import { TraceID } from '~/common/traceTypes'
 import OpenAI from 'openai'
-import { ChatCompletionContentPart, ChatCompletionMessageParam } from 'openai/resources'
+import {
+  ChatCompletionContentPart,
+  ChatCompletionMessageParam,
+  ChatCompletionToolMessageParam,
+} from 'openai/resources'
 
 let baseURL = 'https://api.askcodebase.com/openai'
 if (process.env.NODE_ENV === 'development') {
@@ -22,6 +26,7 @@ const openai = new OpenAI({
   apiKey: Math.random().toString(),
   baseURL,
   dangerouslyAllowBrowser: true,
+  fetch,
 })
 
 export interface ChatInputProps {
@@ -115,9 +120,17 @@ export const Chat = memo(({ stopConversationRef }: Props) => {
           'You are a helpful weather assistant AI to help users get latest weather information. ',
       },
       ...updatedConversation.messages,
-    ] as ChatCompletionMessageParam[]
+    ].filter(message => {
+      if (
+        message.role === 'tool' &&
+        (message as ChatCompletionToolMessageParam).tool_call_id === 'error'
+      ) {
+        return false
+      }
+      return true
+    }) as ChatCompletionMessageParam[]
 
-    pushMessageToConversation(updatedConversation, {
+    updatedConversation = pushMessageToConversation(updatedConversation, {
       role: 'assistant',
       content: 'Thinking...',
     })
@@ -128,46 +141,53 @@ export const Chat = memo(({ stopConversationRef }: Props) => {
 
     VSCodeApi.trace({ id: TraceID.Client_OnChatRequest })
 
-    console.log(messages.length, messages)
-    const completion = await openai.chat.completions.create({
-      model: 'gpt-4-1106-preview',
-      messages,
-      functions: [
-        {
-          name: 'get_weather',
-          description: 'Determine weather in my location',
-          parameters: {
-            type: 'object',
-            properties: {
-              location: {
-                type: 'string',
-                description: 'The city and state e.g. San Francisco, CA',
+    try {
+      const completion = await openai.chat.completions.create({
+        model: 'gpt-4-1106-preview',
+        messages,
+        functions: [
+          {
+            name: 'get_weather',
+            description: 'Determine weather in my location',
+            parameters: {
+              type: 'object',
+              properties: {
+                location: {
+                  type: 'string',
+                  description: 'The city and state e.g. San Francisco, CA',
+                },
+                unit: {
+                  type: 'string',
+                  enum: ['c', 'f'],
+                },
               },
-              unit: {
-                type: 'string',
-                enum: ['c', 'f'],
-              },
+              required: ['location'],
             },
-            required: ['location'],
           },
-        },
-      ],
-      stream: true,
-    })
+        ],
+        stream: true,
+      })
 
-    let content = ''
-    // updatedConversation = appendEmptyMessage(updatedConversation)
-    setMessageIsStreaming(true)
-    for await (const chunk of completion) {
-      const delta = chunk.choices[0].delta
-      if (delta.content) {
-        content += delta.content
+      let content = ''
+      setMessageIsStreaming(true)
+      for await (const chunk of completion) {
+        const delta = chunk.choices[0].delta
+        if (delta.content) {
+          content += delta.content
+        }
+        updatedConversation = updateLastMessage(updatedConversation, { role: 'assistant', content })
+        setActiveConversation(updatedConversation)
       }
-      updatedConversation = updateLastMessage(updatedConversation, { role: 'assistant', content })
+      setMessageIsStreaming(false)
+    } catch (error) {
+      updatedConversation = updateLastMessage(updatedConversation, {
+        role: 'tool',
+        content: 'Network error. Please try again.',
+        tool_call_id: 'error',
+      })
       setActiveConversation(updatedConversation)
+      return
     }
-
-    setMessageIsStreaming(false)
   }
 
   const handleScroll = () => {

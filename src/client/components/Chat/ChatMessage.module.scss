@@ -5,7 +5,7 @@
     background-color: var(--vscode-chat-requestBackground);
     color: var(--vscode-interactive-input-foreground);
     border-radius: 5px;
-    border: 1px solid var(--vscode-input-border, transparent);
+    box-shadow: 0 0 1px 0 var(--vscode-input-border);;
     @media (max-width: 896px) {
       border-radius: 0;
       border-left: none;
@@ -74,5 +74,9 @@
   }
   .messageContent {
     color: var(--vscode-foreground);
+  }
+  .errorMessage {
+    color: var(--vscode-errorForeground);
+    border-radius: 5px;
   }
 }
