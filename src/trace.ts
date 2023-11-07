@@ -19,7 +19,7 @@ export async function trace(
     const user = JSON.parse(context.globalState.get('user') ?? '')
     useridAsBlob1 = user?.userID
     jwt = user?.jwt ?? ''
-  } catch (e) { }
+  } catch (e) {}
 
   const platformAsBlob2 = process.platform
   const deviceIDAsBlob3 = context.globalState.get('deviceID') as string
@@ -53,14 +53,9 @@ export async function trace(
     headers['Authorization'] = `Bearer ${jwt}`
   }
 
-  const resp = await fetch('https://askcodebase.com/api/trace', {
+  return fetch('https://askcodebase.com/api/trace', {
     method: 'POST',
     headers,
     body: JSON.stringify(data),
   })
-  // console.log('[fetch]', {
-  //   data,
-  //   resp: await resp.json(),
-  // })
-  return resp
 }

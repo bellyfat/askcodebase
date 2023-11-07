@@ -39,21 +39,10 @@ interface Props {
   CustomChatInput?: ChatInputComponent
 }
 
-function appendEmptyMessage(conversation: Conversation): Conversation {
-  const updatedMessages = [...conversation.messages, { role: 'assistant', content: '' }]
-  return {
-    ...conversation,
-    messages: updatedMessages as ChatCompletionMessageParam[],
-  }
-}
-
-function handleMessageStreaming(conversation: Conversation, content: string) {
+function updateLastMessage(conversation: Conversation, update: ChatCompletionMessageParam) {
   const updatedMessages = conversation.messages.map((message, index) => {
     if (index === conversation.messages.length - 1) {
-      return {
-        ...message,
-        content,
-      }
+      return update
     }
     return message
   })
@@ -118,16 +107,7 @@ export const Chat = memo(({ stopConversationRef }: Props) => {
       })
     }
 
-    pushMessageToConversation(updatedConversation, {
-      role: 'assistant',
-      content: 'Thinking...',
-    })
-
-    // fixme: this is a hack to make sure the scroll down
-    // happens after the message is rendered
-    setTimeout(handleScrollDown, 500)
-
-    VSCodeApi.trace({ id: TraceID.Client_OnChatRequest })
+    // Setup messages
     const messages = [
       {
         role: 'system',
@@ -135,11 +115,20 @@ export const Chat = memo(({ stopConversationRef }: Props) => {
           'You are a helpful weather assistant AI to help users get latest weather information. ',
       },
       ...updatedConversation.messages,
-      { role: 'user', content: message.content },
     ] as ChatCompletionMessageParam[]
 
-    console.log(messages.length, messages)
+    pushMessageToConversation(updatedConversation, {
+      role: 'assistant',
+      content: 'Thinking...',
+    })
 
+    // NOTE: this is a hack to make sure the scroll down
+    // happens after the message is rendered
+    setTimeout(handleScrollDown, 500)
+
+    VSCodeApi.trace({ id: TraceID.Client_OnChatRequest })
+
+    console.log(messages.length, messages)
     const completion = await openai.chat.completions.create({
       model: 'gpt-4-1106-preview',
       messages,
@@ -166,20 +155,15 @@ export const Chat = memo(({ stopConversationRef }: Props) => {
       stream: true,
     })
 
-    const output =
-      `Something went wrong.` +
-      'Please fire an issue on our [GitHub](https://github.com/askcodebase/askcodebase/issues/new). contact support@askcodebase.com if you need help.'
-
     let content = ''
-    updatedConversation = appendEmptyMessage(updatedConversation)
+    // updatedConversation = appendEmptyMessage(updatedConversation)
     setMessageIsStreaming(true)
     for await (const chunk of completion) {
-      console.log(chunk)
       const delta = chunk.choices[0].delta
       if (delta.content) {
         content += delta.content
       }
-      updatedConversation = handleMessageStreaming(updatedConversation, content)
+      updatedConversation = updateLastMessage(updatedConversation, { role: 'assistant', content })
       setActiveConversation(updatedConversation)
     }
 
