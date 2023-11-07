@@ -66,7 +66,6 @@ export const ChatMessage: FC<Props> = memo(({ message, messageIndex }) => {
     switch (message.role) {
       case 'system':
       case 'assistant': {
-        console.log('rendering assistant message', message.content)
         return (
           <div className='flex flex-row grow'>
             <MemoizedReactMarkdown
@@ -120,18 +119,7 @@ export const ChatMessage: FC<Props> = memo(({ message, messageIndex }) => {
                   )
                 },
                 li({ children }) {
-                  const childrenArray = React.Children.toArray(children)
-                  const firstChild = childrenArray.find(element => typeof element !== 'string')
-
-                  if (React.isValidElement(firstChild) && firstChild.type === 'p') {
-                    return <li className='mb-5'>{children}</li>
-                  } else {
-                    return (
-                      <li>
-                        <p>{children}</p>
-                      </li>
-                    )
-                  }
+                  return <li className='my-2'>{children}</li>
                 },
                 td({ children }) {
                   return (

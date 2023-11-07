@@ -57,5 +57,5 @@ export async function trace(
     method: 'POST',
     headers,
     body: JSON.stringify(data),
-  })
+  }).catch(err => console.error('trace error:', err))
 }
