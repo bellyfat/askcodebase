@@ -1,6 +1,4 @@
-import { FC, memo, useContext, useEffect, useState } from 'react'
-import { Message } from '~/client/types/chat'
-import { ReactStreamChatContext } from '~/client/components/ReactStreamChat/context'
+import { FC, memo } from 'react'
 import { CodeBlock } from '../Markdown/CodeBlock'
 import { MemoizedReactMarkdown } from '../Markdown/MemoizedReactMarkdown'
 import rehypeMathjax from 'rehype-mathjax/browser'
@@ -12,9 +10,8 @@ import { useAtom, useAtomValue } from 'jotai'
 import { activeConversationAtom, messageIsStreamingAtom, userAtom } from '~/client/store'
 import React = require('react')
 import rehypeRaw from 'rehype-raw'
-import askcodeStyles from './AskCode.module.scss'
-import { MemoizedAskCmd } from './AskCmd'
-import { globalEventEmitter } from '~/client/VSCodeApi'
+import { ChatCompletionMessageParam } from 'openai/resources'
+import { renderContent } from './utils'
 
 export function decodeHtmlEntities(html: string) {
   const e = document.createElement('textarea')
@@ -23,7 +20,7 @@ export function decodeHtmlEntities(html: string) {
 }
 
 export interface Props {
-  message: Message
+  message: ChatCompletionMessageParam
   messageIndex: number
 }
 
@@ -40,9 +37,8 @@ export const ChatMessage: FC<Props> = memo(({ message, messageIndex }) => {
   const messageIsStreaming = useAtomValue(messageIsStreamingAtom)
   const activeConversation = useAtomValue(activeConversationAtom)
 
-  const renderHead = (message: Message) => {
+  const renderHead = (message: ChatCompletionMessageParam) => {
     switch (message.role) {
-      case 'terminal':
       case 'assistant':
       case 'user': {
         return (
@@ -65,7 +61,7 @@ export const ChatMessage: FC<Props> = memo(({ message, messageIndex }) => {
     }
   }
 
-  const renderMessage = (message: Message) => {
+  const renderMessage = (message: ChatCompletionMessageParam) => {
     switch (message.role) {
       case 'assistant': {
         // console.log('rendering assistant message', message.content)
@@ -77,45 +73,6 @@ export const ChatMessage: FC<Props> = memo(({ message, messageIndex }) => {
               rehypePlugins={[rehypeMathjax, rehypeRaw]}
               skipHtml={true}
               components={{
-                askcmd({ children, node }) {
-                  return <MemoizedAskCmd children={children as string} />
-                },
-                div(props) {
-                  const { node, children, className } = props
-                  if (
-                    className?.includes('askcode') &&
-                    Array.isArray(node!.children) &&
-                    node!.children.length
-                  ) {
-                    const { start, end } = node!.children[0].position!
-                    const startOffset = start ? start.offset ?? 0 : 0
-                    const endOffset = end ? end.offset : message.content.length
-                    const endIndex = message.content.indexOf('</askcode>')
-                    // console.log({
-                    //   startOffset,
-                    //   endOffset,
-                    //   start,
-                    //   end,
-                    //   content: message.content,
-                    //   children,
-                    //   endIndex,
-                    // })
-                    let code = decodeHtmlEntities(
-                      message.content.slice(startOffset, Math.max(endOffset!, endIndex)),
-                    )
-                    code = code!.replace(/<\/div>$/, '')
-
-                    const match = /language-(\w+)/.exec(className || '')
-                    return (
-                      <CodeBlock
-                        language={(match && match[1]) || ''}
-                        value={String(code).trim()}
-                        className={cx('askcode', askcodeStyles.askcode)}
-                      />
-                    )
-                  }
-                  return <div {...props}>{children}</div>
-                },
                 p({ children }) {
                   if (typeof children !== 'string') {
                     return children as React.ReactElement
@@ -201,7 +158,7 @@ export const ChatMessage: FC<Props> = memo(({ message, messageIndex }) => {
                 styles.messageContent,
               )}
             >
-              {message.content}
+              {renderContent(message.content)}
             </div>
           </div>
         )

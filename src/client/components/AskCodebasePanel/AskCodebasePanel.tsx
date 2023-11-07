@@ -8,13 +8,11 @@ import { useAtom, useAtomValue, useSetAtom } from 'jotai'
 import { activeConversationAtom, themeColorsAtom, userAtom } from '~/client/store'
 import { useAtomRefValue, useCommandBlocks } from '~/client/hooks'
 import { ReactStreamChat } from '~/client/components/ReactStreamChat'
-import { Message } from '~/client/types/chat'
 import { LoginModal } from '~/client/components'
 import { showLoginModalAtom } from '~/client/store/showLoginModal'
 import { getThemeColors } from '~/client/store/themeColorsAtom'
 import { systemInfoAtom } from '~/client/store/systemInfoAtom'
 import { TraceID } from '~/common/traceTypes'
-import { generatePrompt } from './prompt'
 
 export function AskCodebasePanel() {
   const [themeColors, setThemeColors] = useAtom(themeColorsAtom)

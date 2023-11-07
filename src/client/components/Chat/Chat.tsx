@@ -1,6 +1,6 @@
 import { MutableRefObject, memo, useContext, useEffect, useRef, useState } from 'react'
 import { throttle } from '~/client/utils/data/throttle'
-import { Conversation, Message, Role } from '~/client/types/chat'
+import { Conversation } from '~/client/types/chat'
 import { ReactStreamChatContext } from '~/client/components/ReactStreamChat/context'
 import { MemoizedChatMessage } from './MemoizedChatMessage'
 import { WelcomeScreen } from '../WelcomeScreen'
@@ -11,6 +11,7 @@ import { useAtomRefValue } from '~/client/hooks'
 import { VSCodeApi, globalEventEmitter } from '~/client/VSCodeApi'
 import { TraceID } from '~/common/traceTypes'
 import OpenAI from 'openai'
+import { ChatCompletionContentPart, ChatCompletionMessageParam } from 'openai/resources'
 
 let baseURL = 'https://api.askcodebase.com/openai'
 if (process.env.NODE_ENV === 'development') {
@@ -26,7 +27,7 @@ const openai = new OpenAI({
 export interface ChatInputProps {
   stopConversationRef: MutableRefObject<boolean>
   textareaRef: MutableRefObject<HTMLTextAreaElement | null>
-  onSend: (message: Message) => void
+  onSend: (message: ChatCompletionMessageParam) => void
   onScrollDownClick: () => void
   onRegenerate: () => void
   showScrollDownButton: boolean
@@ -42,7 +43,7 @@ function appendEmptyMessage(conversation: Conversation): Conversation {
   const updatedMessages = [...conversation.messages, { role: 'assistant', content: '' }]
   return {
     ...conversation,
-    messages: updatedMessages as Message[],
+    messages: updatedMessages as ChatCompletionMessageParam[],
   }
 }
 
@@ -68,7 +69,7 @@ export const Chat = memo(({ stopConversationRef }: Props) => {
   const [activeConversation, getActiveConversation] = useAtomRefValue(activeConversationAtom)
   const setMessageIsStreaming = useSetAtom(messageIsStreamingAtom)
 
-  const [currentMessage, setCurrentMessage] = useState<Message>()
+  const [currentMessage, setCurrentMessage] = useState<ChatCompletionMessageParam>()
   const [autoScrollEnabled, setAutoScrollEnabled] = useState<boolean>(true)
   const [showScrollDownButton, setShowScrollDownButton] = useState<boolean>(false)
 
@@ -88,16 +89,9 @@ export const Chat = memo(({ stopConversationRef }: Props) => {
 
   const pushMessageToConversation = (
     updatedConversation: Conversation,
-    role: Role = 'assistant',
-    text: string,
+    message: ChatCompletionMessageParam,
   ) => {
-    const updatedMessages: Message[] = [
-      ...updatedConversation.messages,
-      {
-        role,
-        content: text,
-      },
-    ]
+    const updatedMessages: ChatCompletionMessageParam[] = [...updatedConversation.messages, message]
     updatedConversation = {
       ...updatedConversation,
       messages: updatedMessages,
@@ -106,7 +100,7 @@ export const Chat = memo(({ stopConversationRef }: Props) => {
     return updatedConversation
   }
 
-  const handleSend = async (message: Message, deleteCount = 0) => {
+  const handleSend = async (message: ChatCompletionMessageParam, deleteCount = 0) => {
     let updatedConversation = getActiveConversation()
     if (deleteCount > 0) {
       const updatedMessages = [...updatedConversation.messages]
@@ -118,24 +112,56 @@ export const Chat = memo(({ stopConversationRef }: Props) => {
         messages: [...updatedMessages, message],
       }
     } else {
-      updatedConversation = pushMessageToConversation(updatedConversation, 'user', message.content)
+      updatedConversation = pushMessageToConversation(updatedConversation, {
+        role: 'user',
+        content: message.content,
+      })
     }
 
-    pushMessageToConversation(updatedConversation, 'assistant', 'Thinking...')
+    pushMessageToConversation(updatedConversation, {
+      role: 'assistant',
+      content: 'Thinking...',
+    })
 
     // fixme: this is a hack to make sure the scroll down
     // happens after the message is rendered
     setTimeout(handleScrollDown, 500)
 
     VSCodeApi.trace({ id: TraceID.Client_OnChatRequest })
+    const messages = [
+      {
+        role: 'system',
+        content:
+          'You are a helpful weather assistant AI to help users get latest weather information. ',
+      },
+      ...updatedConversation.messages,
+      { role: 'user', content: message.content },
+    ] as ChatCompletionMessageParam[]
+
+    console.log(messages.length, messages)
+
     const completion = await openai.chat.completions.create({
       model: 'gpt-4-1106-preview',
-      messages: [
+      messages,
+      functions: [
         {
-          role: 'system',
-          content: 'You are a personal math tutor. Write and run code to answer math questions.',
+          name: 'get_weather',
+          description: 'Determine weather in my location',
+          parameters: {
+            type: 'object',
+            properties: {
+              location: {
+                type: 'string',
+                description: 'The city and state e.g. San Francisco, CA',
+              },
+              unit: {
+                type: 'string',
+                enum: ['c', 'f'],
+              },
+            },
+            required: ['location'],
+          },
         },
-        { role: 'user', content: message.content },
       ],
       stream: true,
     })
@@ -148,6 +174,7 @@ export const Chat = memo(({ stopConversationRef }: Props) => {
     updatedConversation = appendEmptyMessage(updatedConversation)
     setMessageIsStreaming(true)
     for await (const chunk of completion) {
+      console.log(chunk)
       const delta = chunk.choices[0].delta
       if (delta.content) {
         content += delta.content
@@ -232,7 +259,7 @@ export const Chat = memo(({ stopConversationRef }: Props) => {
       </div>
     )
   }
-  const handleBuiltinCommands = (command: string) => {
+  const handleBuiltinCommands = (command: string | ChatCompletionContentPart[] | null) => {
     if (command === 'changelog') {
       VSCodeApi.executeCommand('askcodebase.changelog')
       VSCodeApi.trace({ id: TraceID.Client_CommandChangelog })

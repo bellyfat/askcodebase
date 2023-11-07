@@ -1,10 +1,11 @@
-import { Conversation, Message } from '~/client/types/chat'
+import { ChatCompletionMessageParam } from 'openai/resources'
+import { Conversation } from '~/client/types/chat'
 import { OpenAIModelID } from '~/client/types/openai'
 
 export interface ReactStreamChatInitialState {
   conversations: Conversation[]
   selectedConversation: Conversation | undefined
-  currentMessage: Message | undefined
+  currentMessage?: ChatCompletionMessageParam
   defaultModelId: OpenAIModelID
 }
 
