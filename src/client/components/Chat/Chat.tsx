@@ -5,7 +5,7 @@ import { ReactStreamChatContext } from '~/client/components/ReactStreamChat/cont
 import { MemoizedChatMessage } from './MemoizedChatMessage'
 import { WelcomeScreen } from '../WelcomeScreen'
 import { useSetAtom } from 'jotai'
-import { activeConversationAtom } from '~/client/store'
+import { activeConversationAtom, messageIsStreamingAtom } from '~/client/store'
 import { MonacoInputBox } from '../MonacoInputBox'
 import { useAtomRefValue } from '~/client/hooks'
 import { VSCodeApi, globalEventEmitter } from '~/client/VSCodeApi'
@@ -66,6 +66,7 @@ export const Chat = memo(({ stopConversationRef }: Props) => {
   const { dispatch } = useContext(ReactStreamChatContext)
   const setActiveConversation = useSetAtom(activeConversationAtom)
   const [activeConversation, getActiveConversation] = useAtomRefValue(activeConversationAtom)
+  const setMessageIsStreaming = useSetAtom(messageIsStreamingAtom)
 
   const [currentMessage, setCurrentMessage] = useState<Message>()
   const [autoScrollEnabled, setAutoScrollEnabled] = useState<boolean>(true)
@@ -122,9 +123,9 @@ export const Chat = memo(({ stopConversationRef }: Props) => {
 
     pushMessageToConversation(updatedConversation, 'assistant', 'Thinking...')
 
-    // fixme: this is a hack to make sure the scroll down happens after the message is rendered
+    // fixme: this is a hack to make sure the scroll down
+    // happens after the message is rendered
     setTimeout(handleScrollDown, 500)
-    dispatch({ field: 'messageIsStreaming', value: true })
 
     VSCodeApi.trace({ id: TraceID.Client_OnChatRequest })
     const completion = await openai.chat.completions.create({
@@ -142,10 +143,10 @@ export const Chat = memo(({ stopConversationRef }: Props) => {
     const output =
       `Something went wrong.` +
       'Please fire an issue on our [GitHub](https://github.com/askcodebase/askcodebase/issues/new). contact support@askcodebase.com if you need help.'
-    dispatch({ field: 'messageIsStreaming', value: true })
 
     let content = ''
     updatedConversation = appendEmptyMessage(updatedConversation)
+    setMessageIsStreaming(true)
     for await (const chunk of completion) {
       const delta = chunk.choices[0].delta
       if (delta.content) {
@@ -155,7 +156,7 @@ export const Chat = memo(({ stopConversationRef }: Props) => {
       setActiveConversation(updatedConversation)
     }
 
-    dispatch({ field: 'messageIsStreaming', value: false })
+    setMessageIsStreaming(false)
   }
 
   const handleScroll = () => {

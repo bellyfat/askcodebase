@@ -8,8 +8,8 @@ import remarkGfm from 'remark-gfm'
 import remarkMath from 'remark-math'
 import * as cx from 'classnames'
 import styles from './ChatMessage.module.scss'
-import { useAtom } from 'jotai'
-import { userAtom } from '~/client/store'
+import { useAtom, useAtomValue } from 'jotai'
+import { activeConversationAtom, messageIsStreamingAtom, userAtom } from '~/client/store'
 import React = require('react')
 import rehypeRaw from 'rehype-raw'
 import askcodeStyles from './AskCode.module.scss'
@@ -37,9 +37,8 @@ declare global {
 
 export const ChatMessage: FC<Props> = memo(({ message, messageIndex }) => {
   const [user, setUserState] = useAtom(userAtom)
-  const {
-    state: { selectedConversation, messageIsStreaming },
-  } = useContext(ReactStreamChatContext)
+  const messageIsStreaming = useAtomValue(messageIsStreamingAtom)
+  const activeConversation = useAtomValue(activeConversationAtom)
 
   const renderHead = (message: Message) => {
     switch (message.role) {
@@ -185,8 +184,7 @@ export const ChatMessage: FC<Props> = memo(({ message, messageIndex }) => {
               }}
             >
               {`${message.content}${
-                messageIsStreaming &&
-                messageIndex == (selectedConversation?.messages.length ?? 0) - 1
+                messageIsStreaming && messageIndex == (activeConversation?.messages.length ?? 0) - 1
                   ? '`▍`'
                   : ''
               }`}

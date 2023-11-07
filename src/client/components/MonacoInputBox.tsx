@@ -1,25 +1,19 @@
 import styles from './MonacoInputBox.module.scss'
 import * as cx from 'classnames'
-import Editor, { Monaco, useMonaco, loader } from '@monaco-editor/react'
-import { FC, useContext, useEffect, useRef } from 'react'
+import Editor, { Monaco } from '@monaco-editor/react'
+import { FC, useEffect, useRef } from 'react'
 import { ChatInputProps } from './Chat/Chat'
-import { ReactStreamChatContext } from './ReactStreamChat/context'
-import { useSetAtom } from 'jotai'
+import { useAtomValue, useSetAtom } from 'jotai'
 import { userAtom } from '../store'
 import { showLoginModalAtom } from '../store/showLoginModal'
 import { useAtomRefValue } from '../hooks'
 import { VSCodeApi, globalEventEmitter } from '../VSCodeApi'
+import { messageIsStreamingAtom } from '../store/messageIsStreamingAtom'
 
 const placeholder = 'Type a message'
 
-export const MonacoInputBox: FC<ChatInputProps> = ({
-  onSend,
-  onScrollDownClick,
-  stopConversationRef,
-}) => {
-  const {
-    state: { messageIsStreaming },
-  } = useContext(ReactStreamChatContext)
+export const MonacoInputBox: FC<ChatInputProps> = ({ onSend, onScrollDownClick }) => {
+  const messageIsStreaming = useAtomValue(messageIsStreamingAtom)
   const inputBox$ = useRef<HTMLDivElement | null>()
   const editor$ = useRef<any | null>(null)
   const setShowLoginModal = useSetAtom(showLoginModalAtom)
@@ -37,7 +31,6 @@ export const MonacoInputBox: FC<ChatInputProps> = ({
     onSend({ role: 'user', content })
     onScrollDownClick()
   }
-
 
   const handleEditorOnChange = (value: string | undefined) => {
     let placeholder = document.querySelector('.monaco-placeholder') as HTMLElement | null
