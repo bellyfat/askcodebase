@@ -12,6 +12,7 @@ import { VSCodeApi, globalEventEmitter } from '~/client/VSCodeApi'
 import { TraceID } from '~/common/traceTypes'
 import OpenAI from 'openai'
 import {
+  ChatCompletionChunk,
   ChatCompletionContentPart,
   ChatCompletionMessageParam,
   ChatCompletionToolMessageParam,
@@ -113,7 +114,7 @@ export const Chat = memo(({ stopConversationRef }: Props) => {
     }
 
     // Setup messages
-    const messages = [
+    let messages = [
       {
         role: 'system',
         content:
@@ -141,53 +142,127 @@ export const Chat = memo(({ stopConversationRef }: Props) => {
 
     VSCodeApi.trace({ id: TraceID.Client_OnChatRequest })
 
-    try {
-      const completion = await openai.chat.completions.create({
-        model: 'gpt-4-1106-preview',
-        messages,
-        functions: [
-          {
-            name: 'get_weather',
-            description: 'Determine weather in my location',
-            parameters: {
-              type: 'object',
-              properties: {
-                location: {
-                  type: 'string',
-                  description: 'The city and state e.g. San Francisco, CA',
-                },
-                unit: {
-                  type: 'string',
-                  enum: ['c', 'f'],
+    let tool_calls: Array<ChatCompletionChunk.Choice.Delta.ToolCall> = []
+    do {
+      // execute tool_calls
+      if (tool_calls.length) {
+        console.log(tool_calls, messages, messages.length)
+        tool_calls = []
+      }
+
+      try {
+        const completion = await openai.chat.completions.create({
+          model: 'gpt-4-1106-preview',
+          messages,
+          tools: [
+            {
+              type: 'function',
+              function: {
+                name: 'bing_search',
+                description: 'Search websites using Bing',
+                parameters: {
+                  type: 'object',
+                  properties: {
+                    query: {
+                      type: 'string',
+                      description: 'The search query',
+                    },
+                  },
+                  required: ['query'],
                 },
               },
-              required: ['location'],
             },
-          },
-        ],
-        stream: true,
-      })
+            {
+              type: 'function',
+              function: {
+                name: 'google_search',
+                description: 'Search websites using Google',
+                parameters: {
+                  type: 'object',
+                  properties: {
+                    query: {
+                      type: 'string',
+                      description: 'The search query',
+                    },
+                  },
+                  required: ['query'],
+                },
+              },
+            },
+            {
+              type: 'function',
+              function: {
+                name: 'get_weather',
+                description: 'Determine weather in my location',
+                parameters: {
+                  type: 'object',
+                  properties: {
+                    location: {
+                      type: 'string',
+                      description: 'The city and state e.g. San Francisco, CA',
+                    },
+                    unit: {
+                      type: 'string',
+                      enum: ['c', 'f'],
+                    },
+                  },
+                  required: ['location'],
+                },
+              },
+            },
+          ],
+          tool_choice: 'auto',
+          stream: true,
+        })
 
-      let content = ''
-      setMessageIsStreaming(true)
-      for await (const chunk of completion) {
-        const delta = chunk.choices[0].delta
-        if (delta.content) {
-          content += delta.content
+        let content = ''
+        setMessageIsStreaming(true)
+        for await (const chunk of completion) {
+          const delta = chunk.choices[0].delta
+
+          // Stream tool calls
+          const formatToolCalls = (
+            tool_calls: Array<ChatCompletionChunk.Choice.Delta.ToolCall>,
+          ) => {
+            return tool_calls
+              .map(tool_call => {
+                return `${tool_call.function?.name}(${tool_call.function?.arguments})`
+              })
+              .join('\n')
+          }
+          if (Array.isArray(delta.tool_calls)) {
+            if (tool_calls.length) {
+              for (const [i, tool_call] of delta.tool_calls.entries()) {
+                if (tool_calls[i].function && tool_call.function!.arguments) {
+                  tool_calls[i].function!.arguments! += tool_call.function!.arguments
+                }
+              }
+            } else {
+              tool_calls = delta.tool_calls
+            }
+          }
+
+          // Stream content
+          if (delta.content) {
+            content += delta.content
+          }
+          updatedConversation = updateLastMessage(updatedConversation, {
+            role: 'assistant',
+            content: formatToolCalls(tool_calls) + '\n' + content,
+          })
+          setActiveConversation(updatedConversation)
         }
-        updatedConversation = updateLastMessage(updatedConversation, { role: 'assistant', content })
+        setMessageIsStreaming(false)
+      } catch (error) {
+        updatedConversation = updateLastMessage(updatedConversation, {
+          role: 'tool',
+          content: 'Network error. Please try again.',
+          tool_call_id: 'error',
+        })
         setActiveConversation(updatedConversation)
+        return
       }
-      setMessageIsStreaming(false)
-    } catch (error) {
-      updatedConversation = updateLastMessage(updatedConversation, {
-        role: 'tool',
-        content: 'Network error. Please try again.',
-        tool_call_id: 'error',
-      })
-      setActiveConversation(updatedConversation)
-      return
-    }
+    } while (tool_calls.length > 0)
   }
 
   const handleScroll = () => {
