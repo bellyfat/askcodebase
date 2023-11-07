@@ -6,7 +6,7 @@ import { colorToRGBString } from '~/client/utils'
 import { ChatInputComponent } from '~/client/components'
 import { useAtom, useAtomValue, useSetAtom } from 'jotai'
 import { activeConversationAtom, themeColorsAtom, userAtom } from '~/client/store'
-import { useAtomRefValue, useCommandBlocks } from '~/client/hooks'
+import { useAtomRefValue } from '~/client/hooks'
 import { ReactStreamChat } from '~/client/components/ReactStreamChat'
 import { LoginModal } from '~/client/components'
 import { showLoginModalAtom } from '~/client/store/showLoginModal'
@@ -20,8 +20,6 @@ export function AskCodebasePanel() {
   const showLoginModal = useAtomValue(showLoginModalAtom)
   const activeConversation = useAtomValue(activeConversationAtom)
   const [user, getUser] = useAtomRefValue(userAtom)
-
-  useCommandBlocks()
 
   useEffect(() => {
     VSCodeApi.onColorThemeChanged(() => setThemeColors(getThemeColors()))
