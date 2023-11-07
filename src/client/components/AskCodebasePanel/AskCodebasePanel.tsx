@@ -72,34 +72,6 @@ export function AskCodebasePanel() {
     ),
   } as unknown as React.CSSProperties
 
-  const getResponseStream = async (message: Message) => {
-    const prompt = generatePrompt(
-      await VSCodeApi.getActiveTextDocument(),
-      message.content,
-    )
-    console.log(prompt)
-    const resp = await fetch('https://askcodebase.com/api/instruct', {
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: 'Bearer ' + getUser()?.jwt,
-      },
-      method: 'POST',
-      body: JSON.stringify({
-        model: 'gpt-4',
-        temperature: 0.2,
-        project_id: activeConversation.id,
-        messages: [{ role: 'system', content: prompt }],
-        max_tokens: 2048,
-      }),
-    })
-    if (!(resp.body instanceof ReadableStream)) {
-      VSCodeApi.trace({ id: TraceID.Client_OnChatResponseFailure })
-      throw new Error('Network Error')
-    }
-    VSCodeApi.trace({ id: TraceID.Client_OnChatResponseSuccess })
-    return resp.body
-  }
-
   const CustomChatInput: ChatInputComponent = ({
     stopConversationRef,
     textareaRef,
@@ -120,7 +92,7 @@ export function AskCodebasePanel() {
 
   return (
     <div className={styles.AskCodebasePanel} style={colors}>
-      <ReactStreamChat getResponseStream={getResponseStream} CustomChatInput={CustomChatInput} />
+      <ReactStreamChat CustomChatInput={CustomChatInput} />
       {showLoginModal ? <LoginModal /> : null}
     </div>
   )

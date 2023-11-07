@@ -9,9 +9,19 @@ import { activeConversationAtom } from '~/client/store'
 import { MonacoInputBox } from '../MonacoInputBox'
 import { useAtomRefValue } from '~/client/hooks'
 import { VSCodeApi, globalEventEmitter } from '~/client/VSCodeApi'
-import { ProcessEvent } from '~/client/Process'
 import { TraceID } from '~/common/traceTypes'
-import { randomString } from '~/common/randomString'
+import OpenAI from 'openai'
+
+let baseURL = 'https://api.askcodebase.com/openai'
+if (process.env.NODE_ENV === 'development') {
+  baseURL = 'http://0.0.0.0:8787/openai'
+}
+
+const openai = new OpenAI({
+  apiKey: Math.random().toString(),
+  baseURL,
+  dangerouslyAllowBrowser: true,
+})
 
 export interface ChatInputProps {
   stopConversationRef: MutableRefObject<boolean>
@@ -25,13 +35,34 @@ export type ChatInputComponent = (props: ChatInputProps) => React.ReactNode
 
 interface Props {
   stopConversationRef: MutableRefObject<boolean>
-  getResponseStream: (message: Message) => Promise<ReadableStream<Uint8Array>>
   CustomChatInput?: ChatInputComponent
 }
 
-const askcmds = new Set()
+function appendEmptyMessage(conversation: Conversation): Conversation {
+  const updatedMessages = [...conversation.messages, { role: 'assistant', content: '' }]
+  return {
+    ...conversation,
+    messages: updatedMessages as Message[],
+  }
+}
 
-export const Chat = memo(({ stopConversationRef, CustomChatInput, getResponseStream }: Props) => {
+function handleMessageStreaming(conversation: Conversation, content: string) {
+  const updatedMessages = conversation.messages.map((message, index) => {
+    if (index === conversation.messages.length - 1) {
+      return {
+        ...message,
+        content,
+      }
+    }
+    return message
+  })
+  return {
+    ...conversation,
+    messages: updatedMessages,
+  }
+}
+
+export const Chat = memo(({ stopConversationRef }: Props) => {
   const { dispatch } = useContext(ReactStreamChatContext)
   const setActiveConversation = useSetAtom(activeConversationAtom)
   const [activeConversation, getActiveConversation] = useAtomRefValue(activeConversationAtom)
@@ -95,126 +126,35 @@ export const Chat = memo(({ stopConversationRef, CustomChatInput, getResponseStr
     setTimeout(handleScrollDown, 500)
     dispatch({ field: 'messageIsStreaming', value: true })
 
-    let stream
-    try {
-      VSCodeApi.trace({ id: TraceID.Client_OnChatRequest })
-      stream = await getResponseStream(message)
-    } catch (e) {
-      stream = new ReadableStream({
-        start(controller) {
-          const encoder = new TextEncoder()
-          const details = (e as Error)?.message as string
-          const output =
-            `Something went wrong. Error: "${details}". ` +
-            'Please fire an issue on our [GitHub](https://github.com/jipitiai/askcodebase-community/issues/new). contact support@askcodebase.com if you need help.'
-          const error = encoder.encode(output)
-          controller.enqueue(error)
-          controller.close()
+    VSCodeApi.trace({ id: TraceID.Client_OnChatRequest })
+    const completion = await openai.chat.completions.create({
+      model: 'gpt-4-1106-preview',
+      messages: [
+        {
+          role: 'system',
+          content: 'You are a personal math tutor. Write and run code to answer math questions.',
         },
-        pull(controller) {},
-        cancel(reason) {},
-      })
+        { role: 'user', content: message.content },
+      ],
+      stream: true,
+    })
+
+    const output =
+      `Something went wrong.` +
+      'Please fire an issue on our [GitHub](https://github.com/askcodebase/askcodebase/issues/new). contact support@askcodebase.com if you need help.'
+    dispatch({ field: 'messageIsStreaming', value: true })
+
+    let content = ''
+    updatedConversation = appendEmptyMessage(updatedConversation)
+    for await (const chunk of completion) {
+      const delta = chunk.choices[0].delta
+      if (delta.content) {
+        content += delta.content
+      }
+      updatedConversation = handleMessageStreaming(updatedConversation, content)
+      setActiveConversation(updatedConversation)
     }
-    const reader = stream.getReader()
-    const decoder = new TextDecoder()
 
-    let done = false
-    let isFirst = true
-    let text = ''
-    let lastStreamingCode = ''
-    let chunkId = 0
-    const respSessionId = randomString()
-
-    while (!done) {
-      if (stopConversationRef.current === true) {
-        done = true
-        break
-      }
-      const { value, done: doneReading } = await reader.read()
-      done = doneReading
-      const chunkValue = decoder.decode(value)
-      text += chunkValue
-
-      // debug raw response if needed
-      // console.log(text)
-
-      const askcmdRegexp = /<askcmd[^>]*>(.+)<\/askcmd>/g
-      const askcodeStreamRegexp = /<div class="askcode[^>]*>([^<]+)/g
-      const askcodeRegexp = /<div class="askcode[^>]*>([^<]+)<\/div>/g
-
-      const commandMatch = text.match(askcmdRegexp)
-      if (commandMatch != null) {
-        let json = commandMatch[0].replace(askcmdRegexp, '$1')
-        let command = {} as { id: string }
-        try {
-          json = json.replace(/```[^\n]./g, '')
-          command = JSON.parse(json)
-        } catch (e) {}
-        const payload = Object.assign(command, { respSessionId })
-        const commandUID = `${respSessionId}_${command.id}`
-        if (!askcmds.has(commandUID)) {
-          askcmds.add(commandUID)
-          // console.log('executeCommand', payload)
-          VSCodeApi.executeEditorAction(payload)
-        }
-      }
-      const decodeHtmlEntities = (input: string) => {
-        const e = document.createElement('textarea')
-        e.innerHTML = input
-        return e.childNodes.length === 0 ? '' : e.childNodes[0].nodeValue
-      }
-      const codeStreamMatch = text.match(askcodeStreamRegexp)
-      if (codeStreamMatch != null) {
-        const codeStream = codeStreamMatch[0].replace(askcodeStreamRegexp, '$1')
-        const stream = codeStream.replace(/```[^\n]./g, '')
-        const code = decodeHtmlEntities(stream)!
-        const chunk = code.replace(lastStreamingCode, '')
-        VSCodeApi.executeEditorAction({
-          cmd: 'codeStreaming',
-          respSessionId,
-          code: chunk,
-          id: chunkId++,
-          firstChunk: lastStreamingCode === '',
-        })
-        lastStreamingCode = code
-      }
-      // console.log(text)
-      const codeMatch = text.match(askcodeRegexp)
-      if (codeMatch != null) {
-        VSCodeApi.executeEditorAction({
-          cmd: 'codeStreamingEnd',
-          respSessionId,
-        })
-      }
-
-      if (isFirst) {
-        isFirst = false
-        const updatedMessages: Message[] = [
-          ...updatedConversation.messages,
-          { role: 'assistant', content: chunkValue },
-        ]
-        updatedConversation = {
-          ...updatedConversation,
-          messages: updatedMessages,
-        }
-        setActiveConversation(updatedConversation)
-      } else {
-        const updatedMessages: Message[] = updatedConversation.messages.map((message, index) => {
-          if (index === updatedConversation.messages.length - 1) {
-            return {
-              ...message,
-              content: text,
-            }
-          }
-          return message
-        })
-        updatedConversation = {
-          ...updatedConversation,
-          messages: updatedMessages,
-        }
-        setActiveConversation(updatedConversation)
-      }
-    }
     dispatch({ field: 'messageIsStreaming', value: false })
   }
 
